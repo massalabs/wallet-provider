@@ -1,0 +1,55 @@
+{
+
+  "description": "",
+  "manifest_version": 2,
+  "name": "Beastify",
+  "version": "1.0",
+  "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/beastify",
+  "icons": {
+    "48": "icons/beasts-48.png"
+  },
+
+  "permissions": [
+    "*://*/*",
+    "activeTab",
+    "webNavigation",
+    "tabs",
+    "storage"
+  ],
+
+  "browser_action": {
+    "default_icon": "icons/beasts-32.png",
+    "theme_icons": [{
+        "light": "icons/beasts-32-light.png",
+        "dark": "icons/beasts-32.png",
+        "size": 32
+    }],
+    "default_title": "Beastify",
+    "default_popup": "popup/choose_beast.html"
+  },
+
+  "web_accessible_resources": [
+    "beasts/*.jpg"
+  ],
+
+  "content_scripts": [
+    {
+      
+      "matches": ["*://*/*"],
+      "js": ["./content_scripts/wallet-provider-content-script.js"]
+    }
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "applications": {
+    "gecko": {
+       "id":  "mycoolextension@mycoolextension.com" 
+    }
+  },
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://ajax.googleapis.com; object-src 'self'"
+
+}
