@@ -9,7 +9,7 @@
         "check": "npm outdated",
         "upgrade": "npm run up && npm run check && npm run build",
         "build-package": "rimraf dist/* && tsc -d -p ./tsconfig.json",
-        "build-bundle": "npm run gen-bundle && npm run uglify-bundle-optimize",
+        "build-bundle": "npm run gen-bundle",
         "gen-bundle": "browserify dist/index.js -p esmify --standalone wallet > bundle.js",
         "uglify-bundle-optimize": "browserify dist/index.js -p esmify -i node-fetch -i http -i https -o bundle.min.js && browserify dist/index.js -p esmify -i node-fetch -g uglifyify --compress --mangle -o bundle.min.js",
         "build": "npm run fmt && npm run build-package && npm run build-bundle",
