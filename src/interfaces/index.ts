@@ -1,4 +1,4 @@
 export { IAccount } from './IAccount';
 export { IMessage } from './IMessage';
-export { IProvider } from './IProvider';
-export { ISignResult } from './ISignResult';
+export { IResponseEvent, IEventDetail } from './IResponseEvent';
+export { IRegisterEvent } from './IRegisterEvent';

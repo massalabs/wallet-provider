@@ -18,8 +18,10 @@
   <body>
     <script type='text/javascript' src="../bundle.js"></script>
     <script>
-      console.log("Massa Wallet Provider ", window.wallet);
+      console.log("Massa Wallet Providers Object ", window.wallet);
 
+      const providers =  window.wallet.getWalletProviders();
+      console.log("Wallet Providers ", providers);
 
     </script>
   </body>

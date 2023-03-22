@@ -1,7 +1,4 @@
-
-
-(function() {
-
+(function () {
   /**
    * Check and set a global guard variable.
    * If this content script is injected into the same page again,
@@ -12,7 +9,7 @@
   }
   window.hasRun = true;
 
-  console.log("Hello from wallet provider content script", );
+  console.log('Hello from wallet provider content script');
 
   // BELOW IS THE JS LIB CODE (WALLET_PROVIDER-CONTENT-SCRIPT) WHICH THE EXTENSION WILL USE IN ITS MANIFEST TO REGISTER ITSELF (THE LATTER MAYBE IN ITS BACKGROUND CODE)
   // BACKGROUND CODE calls ---> CONTENT SCRIPT (which registers the wallet provider under window.massaWalletProvider by calling registerAsMassaWalletProvider)
@@ -54,7 +51,4 @@
     actionToCallback.get('sign')(...payload.detail.params);
   })
   */
-
-  
 })();
-  
