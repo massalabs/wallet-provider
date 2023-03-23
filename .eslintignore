@@ -4,5 +4,5 @@ node_modules
 bundle.*
 docs
 dist
-integration
+plugin
 dapp

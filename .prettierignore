@@ -9,5 +9,5 @@ dist
 README.md
 *.html
 *.css
-integration
+plugin
 dapp
