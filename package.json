@@ -30,10 +30,10 @@
         "Evgeni Pirianov"
     ],
     "license": "(MIT AND Apache-2.0)",
-    "homepage": "https://github.com/massalabs/massa-wakket-provider",
+    "homepage": "https://github.com/massalabs/massa-wallet-provider",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/massalabs/massa-wakket-provider"
+        "url": "git+https://github.com/massalabs/massa-wallet-provider"
     },
     "private": false,
     "publishConfig": {
