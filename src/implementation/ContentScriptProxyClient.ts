@@ -1,6 +1,6 @@
 import uuid4 from 'uuid4';
-import { IResponseEvent, IEventDetail } from '../interfaces/IResponseEvent';
-import { IMessage } from '../interfaces/IMessage';
+import { ICustomEventMessageResponse } from '../interfaces/ICustomEventMessageResponse';
+import { ICustomEventMessageRequest } from '../interfaces/ICustomEventMessageRequest';
 import { AvailableCommands } from './Commands';
 import { IRegisterEvent } from '../interfaces';
 
@@ -33,9 +33,11 @@ export class ContentScriptProxyClient {
     window.massaWalletProvider = new EventTarget();
 
     // hook up register handler
-    window.massaWalletProvider.addEventListener(
+    (window.massaWalletProvider as EventTarget).addEventListener(
       'register',
-      (payload: IRegisterEvent) => {
+      (evt: CustomEvent) => {
+        const payload: IRegisterEvent = evt.detail;
+        console.log('Registration payload', payload);
         const extensionEventTarget = new EventTarget();
         window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${payload.eventTarget}`] =
           extensionEventTarget;
@@ -44,7 +46,7 @@ export class ContentScriptProxyClient {
     );
 
     // start listening to messages from content script
-    window.massaWalletProvider.addEventListener(
+    (window.massaWalletProvider as EventTarget).addEventListener(
       'message',
       this.handleResponseFromContentScript,
     );
@@ -64,18 +66,22 @@ export class ContentScriptProxyClient {
     responseCallback: CallbackFunctionVariadicAnyReturn,
   ) {
     const requestId = uuid4();
-    const message: IMessage = { params, requestId };
+    const eventMessageRequest: ICustomEventMessageRequest = {
+      params,
+      requestId,
+    };
     this.pendingRequests.set(requestId, responseCallback);
 
     if (!Object.values(AvailableCommands).includes(command)) {
       throw new Error(`Unknown command ${command}`);
     }
 
+    // dispatch an event to the window specific provider object
     (
       (window as any)[
         `${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.registeredProviders[providerName]}`
       ] as EventTarget
-    ).dispatchEvent(new CustomEvent(command, { detail: message }));
+    ).dispatchEvent(new CustomEvent(command, { detail: eventMessageRequest }));
   }
 
   public getWalletProviders(): object {
@@ -83,8 +89,9 @@ export class ContentScriptProxyClient {
   }
 
   // receive a response from the content script
-  private handleResponseFromContentScript(event: IResponseEvent) {
-    const { result, error, requestId }: IEventDetail = event.detail;
+  private handleResponseFromContentScript(event: CustomEvent) {
+    const { result, error, requestId }: ICustomEventMessageResponse =
+      event.detail;
     const responseCallback = this.pendingRequests.get(requestId);
 
     if (responseCallback) {

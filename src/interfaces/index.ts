@@ -1,4 +1,4 @@
 export { IAccount } from './IAccount';
-export { IMessage } from './IMessage';
-export { IResponseEvent, IEventDetail } from './IResponseEvent';
+export { ICustomEventMessageRequest } from './ICustomEventMessageRequest';
+export { ICustomEventMessageResponse } from './ICustomEventMessageResponse';
 export { IRegisterEvent } from './IRegisterEvent';
