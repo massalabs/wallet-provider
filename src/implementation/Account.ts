@@ -36,7 +36,7 @@ export class Account {
   public async balance(): Promise<IAccountBalanceResponse> {
     return new Promise<IAccountBalanceResponse>((resolve, reject) => {
       ContentScriptProxyClient.getInstance().sendMessageToContentScript(
-        this.providerName,
+        this._providerName,
         AvailableCommands.AccountBalance,
         { address: this._address } as IAccountBalanceRequest,
         (err, result) => {
@@ -50,7 +50,7 @@ export class Account {
   public async sign(data: Uint8Array): Promise<IAccountSignResponse> {
     return new Promise<IAccountSignResponse>((resolve, reject) => {
       ContentScriptProxyClient.getInstance().sendMessageToContentScript(
-        this.providerName,
+        this._providerName,
         AvailableCommands.AccountSign,
         { address: this._address, data } as IAccountSignRequest,
         (err, result) => {

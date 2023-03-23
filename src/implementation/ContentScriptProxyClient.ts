@@ -1,5 +1,5 @@
 import uuid4 from 'uuid4';
-import { IEvent, IEventDetail } from '../interfaces/IResponseEvent';
+import { IResponseEvent, IEventDetail } from '../interfaces/IResponseEvent';
 import { IMessage } from '../interfaces/IMessage';
 import { AvailableCommands } from './Commands';
 import { IRegisterEvent } from '../interfaces';
@@ -15,7 +15,7 @@ type CallbackFunctionVariadicAnyReturn = (
 
 export class ContentScriptProxyClient {
   private static instance: ContentScriptProxyClient;
-  private registeredProviders = {};
+  private registeredProviders: { [key: string]: string } = {};
   private pendingRequests: Map<string, CallbackFunctionVariadicAnyReturn>;
 
   public static getInstance(): ContentScriptProxyClient {
@@ -33,12 +33,15 @@ export class ContentScriptProxyClient {
     window.massaWalletProvider = new EventTarget();
 
     // hook up register handler
-    window.massaWalletProvider.addEventListener('register', (payload: IRegisterEvent) => {
-      const extensionEventTarget = new EventTarget();
-      window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${payload.eventTarget}`] =
-        extensionEventTarget;
-      this.registeredProviders[payload.providerName] = payload.eventTarget;
-    });
+    window.massaWalletProvider.addEventListener(
+      'register',
+      (payload: IRegisterEvent) => {
+        const extensionEventTarget = new EventTarget();
+        window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${payload.eventTarget}`] =
+          extensionEventTarget;
+        this.registeredProviders[payload.providerName] = payload.eventTarget;
+      },
+    );
 
     // start listening to messages from content script
     window.massaWalletProvider.addEventListener(
@@ -56,7 +59,7 @@ export class ContentScriptProxyClient {
   // send a message from the webpage script to the content script
   public sendMessageToContentScript(
     providerName: string,
-    command: string,
+    command: AvailableCommands,
     params: object,
     responseCallback: CallbackFunctionVariadicAnyReturn,
   ) {
@@ -64,7 +67,7 @@ export class ContentScriptProxyClient {
     const message: IMessage = { params, requestId };
     this.pendingRequests.set(requestId, responseCallback);
 
-    if (!AvailableCommands.includes(command)) {
+    if (!Object.values(AvailableCommands).includes(command)) {
       throw new Error(`Unknown command ${command}`);
     }
 
@@ -80,7 +83,7 @@ export class ContentScriptProxyClient {
   }
 
   // receive a response from the content script
-  private handleResponseFromContentScript(event: IEvent) {
+  private handleResponseFromContentScript(event: IResponseEvent) {
     const { result, error, requestId }: IEventDetail = event.detail;
     const responseCallback = this.pendingRequests.get(requestId);
 
