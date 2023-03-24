@@ -18,10 +18,13 @@
   <body>
     <script type='text/javascript' src="../bundle.js"></script>
     <script>
-      console.log("Massa Wallet Providers Object ", window.wallet);
 
-      const providers =  window.wallet.providers();
-      console.log("Wallet Providers ", providers);
+      setInterval(() => {
+        console.log("[DAPP_HTML] Massa Wallet [window.wallet] --> ", window.wallet);
+        console.log("[DAPP_HTML] Massa Wallet Providers [window.massaWalletProvider] --> ", window.massaWalletProvider);
+        const providers = window.wallet.providers();
+        console.log("[DAPP_HTML] Wallet Providers ", providers);
+      }, 2000);
 
     </script>
   </body>
