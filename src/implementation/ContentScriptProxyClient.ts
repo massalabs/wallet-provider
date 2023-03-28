@@ -37,7 +37,6 @@ export class ContentScriptProxyClient {
       'register',
       (evt: CustomEvent) => {
         const payload: IRegisterEvent = evt.detail;
-        console.log('Registration payload', payload);
         const extensionEventTarget = new EventTarget();
         window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${payload.eventTarget}`] =
           extensionEventTarget;

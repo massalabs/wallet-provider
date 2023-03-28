@@ -16,15 +16,33 @@
     </style>
   </head>
   <body>
-    <script type='text/javascript' src="../bundle.js"></script>
-    <script>
+    <script type='text/javascript' src="./massa-wallet-provider.js"></script>
+    <script type='module'>
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+      console.log("[DAPP_HTML] Hello from Dapp! ");
 
-      setInterval(() => {
-        console.log("[DAPP_HTML] Massa Wallet [window.wallet] --> ", window.wallet);
-        console.log("[DAPP_HTML] Massa Wallet Providers [window.massaWalletProvider] --> ", window.massaWalletProvider);
-        const providers = window.wallet.providers();
-        console.log("[DAPP_HTML] Wallet Providers ", providers);
-      }, 2000);
+      // massa-wallet-provider.js (window.wallet) gets loaded immediately first,
+      // in the background all injected by the plugin scripts
+      // ===> wait for some secs before all the content scripts gets injected by the extension
+      await delay(5000);
+
+
+      const providers = window.wallet.providers();
+      const client = window.wallet.ContentScriptProxyClient.getInstance();
+      console.log("[DAPP_HTML] Initialized Client", client);
+      console.log("[DAPP_HTML] Initialized Provider Clients", providers);
+      //Register window
+      window.postMessage({ type: 'ABC' }, '*');
+
+      const balance = await window.massa.getBalance({"address": "0x0123"});
+      console.log("[DAPP_HTML] Got Balance! ",balance);
+
+      //console.log("[DAPP_HTML] Checking for [window.massaWalletProvider] ... --> ", window.massaWalletProvider);
+      //console.log("[DAPP_HTML] Creating  window.massaWalletProvider ... --> ", window.massaWalletProvider);
+      //const providers = window.wallet.providers();
+      //console.log("[DAPP_HTML] Massa Wallet Providers [window.massaWalletProvider] --> ", window.massaWalletProvider);
+      //console.log("[DAPP_HTML] Wallet Providers ", providers);
+
 
     </script>
   </body>

@@ -14,3 +14,4 @@ export function providers(): Provider[] {
 
 export { Account } from './Account';
 export { Provider } from './Provider';
+export { ContentScriptProxyClient } from './ContentScriptProxyClient';
