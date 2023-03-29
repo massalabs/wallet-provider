@@ -2,7 +2,7 @@
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Account = void 0;
-  const ContentScriptProxyClient_1 = require("./ContentScriptProxyClient");
+  const MassaWalletProviders_1 = require("./MassaWalletProviders");
   const Commands_1 = require("./Commands");
   class Account {
       constructor({ address, name }, providerName) {
@@ -21,7 +21,7 @@
       }
       async balance() {
           return new Promise((resolve, reject) => {
-              ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountBalance, { address: this._address }, (err, result) => {
+              MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountBalance, { address: this._address }, (err, result) => {
                   if (err)
                       return reject(err);
                   return resolve(result);
@@ -30,7 +30,7 @@
       }
       async sign(data) {
           return new Promise((resolve, reject) => {
-              ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountSign, { address: this._address, data }, (err, result) => {
+              MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountSign, { address: this._address, data }, (err, result) => {
                   if (err)
                       return reject(err);
                   return resolve(result);
@@ -40,7 +40,7 @@
   }
   exports.Account = Account;
   
-  },{"./Commands":2,"./ContentScriptProxyClient":3}],2:[function(require,module,exports){
+  },{"./Commands":2,"./MassaWalletProviders":3}],2:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.AvailableCommands = void 0;
@@ -56,17 +56,17 @@
   },{}],3:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
-  exports.ContentScriptProxyClient = void 0;
+  exports.MassaWalletProviders = void 0;
   const uid_1 = require("uid");
   const Commands_1 = require("./Commands");
   const MASSA_WINDOW_OBJECT_PRAEFIX = 'massaWalletProvider';
   // =========================================================
-  class ContentScriptProxyClient {
-      static getInstance() {
-          if (!ContentScriptProxyClient.instance) {
-              ContentScriptProxyClient.instance = new ContentScriptProxyClient();
+  class MassaWalletProviders {
+      static init() {
+          if (!MassaWalletProviders.instance) {
+              MassaWalletProviders.instance = new MassaWalletProviders();
           }
-          return ContentScriptProxyClient.instance;
+          return MassaWalletProviders.instance;
       }
       constructor() {
           this.registeredProviders = {};
@@ -121,13 +121,13 @@
           }
       }
   }
-  exports.ContentScriptProxyClient = ContentScriptProxyClient;
+  exports.MassaWalletProviders = MassaWalletProviders;
   
   },{"./Commands":2,"uid":12}],4:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Provider = void 0;
-  const ContentScriptProxyClient_1 = require("./ContentScriptProxyClient");
+  const MassaWalletProviders_1 = require("./MassaWalletProviders");
   const Account_1 = require("./Account");
   const Commands_1 = require("./Commands");
   class Provider {
@@ -139,7 +139,7 @@
       }
       async accounts() {
           const providersPromise = new Promise((resolve, reject) => {
-              ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderListAccounts, {}, (err, result) => {
+              MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderListAccounts, {}, (err, result) => {
                   if (err)
                       return reject(err);
                   return resolve(result);
@@ -155,7 +155,7 @@
       }
       async importAccount(accountImportRequest) {
           return new Promise((resolve, reject) => {
-              ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (err, result) => {
+              MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (err, result) => {
                   if (err)
                       return reject(err);
                   return resolve(result);
@@ -164,7 +164,7 @@
       }
       async deleteAccount(accountDeletionRequest) {
           return new Promise((resolve, reject) => {
-              ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (err, result) => {
+              MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (err, result) => {
                   if (err)
                       return reject(err);
                   return resolve(result);
@@ -174,15 +174,15 @@
   }
   exports.Provider = Provider;
   
-  },{"./Account":1,"./Commands":2,"./ContentScriptProxyClient":3}],5:[function(require,module,exports){
+  },{"./Account":1,"./Commands":2,"./MassaWalletProviders":3}],5:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
-  exports.ContentScriptProxyClient = exports.Provider = exports.Account = exports.providers = void 0;
-  const ContentScriptProxyClient_1 = require("./ContentScriptProxyClient");
+  exports.MassaWalletProviders = exports.Provider = exports.Account = exports.providers = void 0;
+  const MassaWalletProviders_1 = require("./MassaWalletProviders");
   const Provider_1 = require("./Provider");
   function providers() {
       let providers = [];
-      for (const providerName of Object.keys(ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().getWalletProviders())) {
+      for (const providerName of Object.keys(MassaWalletProviders_1.MassaWalletProviders.init().getWalletProviders())) {
           const p = new Provider_1.Provider(providerName);
           providers.push(p);
       }
@@ -193,10 +193,10 @@
   Object.defineProperty(exports, "Account", { enumerable: true, get: function () { return Account_1.Account; } });
   var Provider_2 = require("./Provider");
   Object.defineProperty(exports, "Provider", { enumerable: true, get: function () { return Provider_2.Provider; } });
-  var ContentScriptProxyClient_2 = require("./ContentScriptProxyClient");
-  Object.defineProperty(exports, "ContentScriptProxyClient", { enumerable: true, get: function () { return ContentScriptProxyClient_2.ContentScriptProxyClient; } });
+  var MassaWalletProviders_2 = require("./MassaWalletProviders");
+  Object.defineProperty(exports, "MassaWalletProviders", { enumerable: true, get: function () { return MassaWalletProviders_2.MassaWalletProviders; } });
   
-  },{"./Account":1,"./ContentScriptProxyClient":3,"./Provider":4}],6:[function(require,module,exports){
+  },{"./Account":1,"./MassaWalletProviders":3,"./Provider":4}],6:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   const tslib_1 = require("tslib");

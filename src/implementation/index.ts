@@ -1,10 +1,10 @@
-import { ContentScriptProxyClient } from './ContentScriptProxyClient';
+import { MassaWalletProviders } from './MassaWalletProviders';
 import { Provider } from './Provider';
 
 export function providers(): Provider[] {
   let providers: Provider[] = [];
   for (const providerName of Object.keys(
-    ContentScriptProxyClient.getInstance().getWalletProviders(),
+    MassaWalletProviders.init().getWalletProviders(),
   )) {
     const p = new Provider(providerName);
     providers.push(p);
@@ -14,4 +14,4 @@ export function providers(): Provider[] {
 
 export { Account } from './Account';
 export { Provider } from './Provider';
-export { ContentScriptProxyClient } from './ContentScriptProxyClient';
+export { MassaWalletProviders } from './MassaWalletProviders';

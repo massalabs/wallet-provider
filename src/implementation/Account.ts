@@ -7,7 +7,7 @@ import {
   IAccountSignRequest,
   IAccountSignResponse,
 } from '../operations/AccountSign';
-import { ContentScriptProxyClient } from './ContentScriptProxyClient';
+import { MassaWalletProviders } from './MassaWalletProviders';
 import { AvailableCommands } from './Commands';
 
 export class Account {
@@ -35,7 +35,7 @@ export class Account {
 
   public async balance(): Promise<IAccountBalanceResponse> {
     return new Promise<IAccountBalanceResponse>((resolve, reject) => {
-      ContentScriptProxyClient.getInstance().sendMessageToContentScript(
+      MassaWalletProviders.init().sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountBalance,
         { address: this._address } as IAccountBalanceRequest,
@@ -49,7 +49,7 @@ export class Account {
 
   public async sign(data: Uint8Array): Promise<IAccountSignResponse> {
     return new Promise<IAccountSignResponse>((resolve, reject) => {
-      ContentScriptProxyClient.getInstance().sendMessageToContentScript(
+      MassaWalletProviders.init().sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountSign,
         { address: this._address, data } as IAccountSignRequest,

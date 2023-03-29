@@ -13,17 +13,17 @@ type CallbackFunctionVariadicAnyReturn = (
 
 // =========================================================
 
-export class ContentScriptProxyClient {
-  private static instance: ContentScriptProxyClient;
+export class MassaWalletProviders {
+  private static instance: MassaWalletProviders;
   private registeredProviders: { [key: string]: string } = {};
   private pendingRequests: Map<string, CallbackFunctionVariadicAnyReturn>;
 
-  public static getInstance(): ContentScriptProxyClient {
-    if (!ContentScriptProxyClient.instance) {
-      ContentScriptProxyClient.instance = new ContentScriptProxyClient();
+  public static init(): MassaWalletProviders {
+    if (!MassaWalletProviders.instance) {
+      MassaWalletProviders.instance = new MassaWalletProviders();
     }
 
-    return ContentScriptProxyClient.instance;
+    return MassaWalletProviders.instance;
   }
 
   private constructor() {

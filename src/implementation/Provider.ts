@@ -7,7 +7,7 @@ import {
   IAccountImportRequest,
   IAccountImportResponse,
 } from '../operations/AccountImport';
-import { ContentScriptProxyClient } from './ContentScriptProxyClient';
+import { MassaWalletProviders } from './MassaWalletProviders';
 import { Account } from './Account';
 import { AvailableCommands } from './Commands';
 
@@ -24,7 +24,7 @@ export class Provider {
 
   public async accounts(): Promise<Account[]> {
     const providersPromise = new Promise<IAccount[]>((resolve, reject) => {
-      ContentScriptProxyClient.getInstance().sendMessageToContentScript(
+      MassaWalletProviders.init().sendMessageToContentScript(
         this.providerName,
         AvailableCommands.ProviderListAccounts,
         {},
@@ -50,7 +50,7 @@ export class Provider {
     accountImportRequest: IAccountImportRequest,
   ): Promise<IAccountImportResponse> {
     return new Promise<IAccountImportResponse>((resolve, reject) => {
-      ContentScriptProxyClient.getInstance().sendMessageToContentScript(
+      MassaWalletProviders.init().sendMessageToContentScript(
         this.providerName,
         AvailableCommands.ProviderImportAccount,
         { ...accountImportRequest },
@@ -66,7 +66,7 @@ export class Provider {
     accountDeletionRequest: IAccountDeletionRequest,
   ): Promise<IAccountDeletionResponse> {
     return new Promise<IAccountDeletionResponse>((resolve, reject) => {
-      ContentScriptProxyClient.getInstance().sendMessageToContentScript(
+      MassaWalletProviders.init().sendMessageToContentScript(
         this.providerName,
         AvailableCommands.ProviderDeleteAccount,
         { ...accountDeletionRequest },

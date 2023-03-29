@@ -14,19 +14,17 @@
   },{}],2:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
-  exports.MyWalletProvider = exports.ContentScriptProxyProvider = void 0;
+  exports.ContentScriptProvider = void 0;
   const Commands_1 = require("./Commands");
-  const operations_1 = require("../operations");
   const MASSA_WINDOW_OBJECT_PRAEFIX = 'massaWalletProvider';
   // =========================================================
-  class ContentScriptProxyProvider {
-      constructor(providerName) {
-          this.providerName = providerName;
+  class ContentScriptProvider {
+      constructor() {
           this.actionToCallback = new Map();
           this.attachCallbackHandler = this.attachCallbackHandler.bind(this);
-          // ================================================================
+          // ======================SIGN===============================
           // and how the content script listen for commands
-          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.AccountSign, (evt) => {
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${ContentScriptProvider.providerName}`].addEventListener(Commands_1.AvailableCommands.AccountSign, (evt) => {
               const payload = evt.detail;
               this.actionToCallback.get(Commands_1.AvailableCommands.AccountSign)(payload);
           });
@@ -34,33 +32,30 @@
           this.attachCallbackHandler(Commands_1.AvailableCommands.AccountSign, (payload) => {
               const accountSignPayload = payload.params;
               const respMessage = {
-                  result: {
-                      pubKey: '0x0000',
-                      signature: Uint8Array.from([1, 2, 3]),
-                  },
+                  result: this.sign(accountSignPayload),
                   error: null,
                   requestId: payload.requestId,
               };
               // answer to the message target
               window.massaWalletProvider.dispatchEvent(new CustomEvent('message', { detail: respMessage }));
           });
-          // ================================================================
-          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.AccountBalance, (evt) => {
+          // ===========================BALANCE============================
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${ContentScriptProvider.providerName}`].addEventListener(Commands_1.AvailableCommands.AccountBalance, (evt) => {
               const payload = evt.detail;
               this.actionToCallback.get(Commands_1.AvailableCommands.AccountBalance)(payload);
           });
           this.attachCallbackHandler(Commands_1.AvailableCommands.AccountBalance, (payload) => {
               const accountBalancePayload = payload.params;
               const respMessage = {
-                  result: { balance: '120' },
+                  result: this.balance(accountBalancePayload),
                   error: null,
                   requestId: payload.requestId,
               };
               // answer to the message target
               window.massaWalletProvider.dispatchEvent(new CustomEvent('message', { detail: respMessage }));
           });
-          // ================================================================
-          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderDeleteAccount, (evt) => {
+          // ============================DELETE ACCOUNT============================
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${ContentScriptProvider.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderDeleteAccount, (evt) => {
               const payload = evt.detail;
               this.actionToCallback.get(Commands_1.AvailableCommands.ProviderDeleteAccount)(payload);
           });
@@ -68,41 +63,36 @@
               const accountDeletionPayload = payload.params;
               console.log('Provider deleting account payload', accountDeletionPayload);
               const respMessage = {
-                  result: {
-                      response: operations_1.EAccountDeletionResponse.OK,
-                  },
+                  result: this.deleteAccount(accountDeletionPayload),
                   error: null,
                   requestId: payload.requestId,
               };
               // answer to the message target
               window.massaWalletProvider.dispatchEvent(new CustomEvent('message', { detail: respMessage }));
           });
-          // ================================================================
-          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderImportAccount, (evt) => {
+          // =============================IMPORT ACCOUNT===================================
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${ContentScriptProvider.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderImportAccount, (evt) => {
               const payload = evt.detail;
               this.actionToCallback.get(Commands_1.AvailableCommands.ProviderImportAccount)(payload);
           });
           this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderImportAccount, (payload) => {
               const accountImportPayload = payload.params;
               const respMessage = {
-                  result: {
-                      response: operations_1.EAccountImportResponse.OK,
-                      message: 'Import was fine',
-                  },
+                  result: this.importAccount(accountImportPayload),
                   error: null,
                   requestId: payload.requestId,
               };
               // answer to the message target
               window.massaWalletProvider.dispatchEvent(new CustomEvent('message', { detail: respMessage }));
           });
-          // ================================================================
-          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderListAccounts, (evt) => {
+          // ==============================LIST ACCOUNTS==================================
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${ContentScriptProvider.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderListAccounts, (evt) => {
               const payload = evt.detail;
               this.actionToCallback.get(Commands_1.AvailableCommands.ProviderListAccounts)(payload);
           });
           this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderListAccounts, (payload) => {
               const respMessage = {
-                  result: [{ name: 'my account', address: '0x0' }],
+                  result: this.listAccounts(),
                   error: null,
                   requestId: payload.requestId,
               };
@@ -115,6 +105,7 @@
           this.actionToCallback.set(methodName, callback);
       }
       static registerAsMassaWalletProvider(providerName) {
+          ContentScriptProvider.providerName = providerName;
           return new Promise((resolve) => {
               const registerProvider = () => {
                   if (!window.massaWalletProvider) {
@@ -134,31 +125,21 @@
                   registerProvider();
               }
               else {
-                  console.log('[PLUGIN_INJECTED] DOCUMENT READY EVENT LISTENER ATTACHED');
                   document.addEventListener('DOMContentLoaded', registerProvider);
               }
           });
       }
   }
-  exports.ContentScriptProxyProvider = ContentScriptProxyProvider;
-  class MyWalletProvider extends ContentScriptProxyProvider {
-      // ..other wallet-specific members for the wallets internal implementation
-      constructor(providerName) {
-          super(providerName);
-          // ...other wallet-specific stuff
-      }
-  }
-  exports.MyWalletProvider = MyWalletProvider;
+  exports.ContentScriptProvider = ContentScriptProvider;
   
-  },{"../operations":8,"./Commands":1}],3:[function(require,module,exports){
+  },{"./Commands":1}],3:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
-  exports.MyWalletProvider = exports.ContentScriptProxyProvider = void 0;
-  var ContentScriptProxyProvider_1 = require("./ContentScriptProxyProvider");
-  Object.defineProperty(exports, "ContentScriptProxyProvider", { enumerable: true, get: function () { return ContentScriptProxyProvider_1.ContentScriptProxyProvider; } });
-  Object.defineProperty(exports, "MyWalletProvider", { enumerable: true, get: function () { return ContentScriptProxyProvider_1.MyWalletProvider; } });
+  exports.ContentScriptProvider = void 0;
+  var ContentScriptProvider_1 = require("./ContentScriptProvider");
+  Object.defineProperty(exports, "ContentScriptProvider", { enumerable: true, get: function () { return ContentScriptProvider_1.ContentScriptProvider; } });
   
-  },{"./ContentScriptProxyProvider":2}],4:[function(require,module,exports){
+  },{"./ContentScriptProvider":2}],4:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   const tslib_1 = require("tslib");
