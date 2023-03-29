@@ -109,9 +109,8 @@
           return new Promise((resolve) => {
               const registerProvider = () => {
                   if (!window.massaWalletProvider) {
-                      return;
+                      console.error('window.massaWalletProvider not available...');
                   }
-                  console.log('[PLUGIN_INJECTED] REGISTERING PLUGIN!!!!');
                   // answer to the register target
                   window.massaWalletProvider.dispatchEvent(new CustomEvent('register', {
                       detail: {

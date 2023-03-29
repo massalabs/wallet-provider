@@ -27,11 +27,11 @@
       const client = window.wallet.ContentScriptProxyClient.getInstance();
       console.log("[DAPP_HTML] Initialized Client", client);
 
-      // registering extension
+      // simulate an extension registering itself
       console.log("[DAPP_HTML] Extension is registering itself ..."),
       window.injected.ContentScriptProxyProvider.registerAsMassaWalletProvider("MASSA_X_WALLET");
 
-      // wait for a few secs for it to become available
+      // wait for a few secs for it to become available/visible
       await delay(2000);
 
       // get wallet providers

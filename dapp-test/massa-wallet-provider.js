@@ -59,7 +59,8 @@
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.ContentScriptProxyClient = void 0;
-  const uuid4_1 = require("uuid4");
+  /* eslint-disable @typescript-eslint/no-var-requires */
+  const uid_1 = require("uid");
   const Commands_1 = require("./Commands");
   const MASSA_WINDOW_OBJECT_PRAEFIX = 'massaWalletProvider';
   // =========================================================
@@ -93,7 +94,7 @@
       }
       // send a message from the webpage script to the content script
       sendMessageToContentScript(providerName, command, params, responseCallback) {
-          const requestId = (0, uuid4_1.default)();
+          const requestId = (0, uid_1.uid)();
           const eventMessageRequest = {
               params,
               requestId,
@@ -125,7 +126,7 @@
   }
   exports.ContentScriptProxyClient = ContentScriptProxyClient;
   
-  },{"./Commands":2,"uuid4":12}],4:[function(require,module,exports){
+  },{"./Commands":2,"uid":12}],4:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Provider = void 0;
@@ -724,22 +725,27 @@
   }
   
   },{}],12:[function(require,module,exports){
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  function valid(uuid) {
-    return uuidPattern.test(uuid);
-  }
+  "use strict";
   
-  // Based on https://abhishekdutta.org/blog/standalone_uuid_generator_in_javascript.html
-  // IE11 and Modern Browsers Only
-  function uuid4() {
-    var temp_url = URL.createObjectURL(new Blob());
-    var uuid = temp_url.toString();
-    URL.revokeObjectURL(temp_url);
-    return uuid.split(/[:\/]/g).pop().toLowerCase(); // remove prefixes
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.uid = uid;
+  var IDX = 256,
+    HEX = [],
+    SIZE = 256,
+    BUFFER;
+  while (IDX--) HEX[IDX] = (IDX + 256).toString(16).substring(1);
+  function uid(len) {
+    var i = 0,
+      tmp = len || 11;
+    if (!BUFFER || IDX + tmp > SIZE * 2) {
+      for (BUFFER = '', IDX = 0; i < SIZE; i++) {
+        BUFFER += HEX[Math.random() * 256 | 0];
+      }
+    }
+    return BUFFER.substring(IDX, IDX++ + tmp);
   }
-  uuid4.valid = valid;
-  
-  module.exports = uuid4;
   
   },{}]},{},[6])(6)
   });

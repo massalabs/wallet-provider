@@ -1,4 +1,4 @@
-import uuid4 from 'uuid4';
+import { uid } from 'uid';
 import { ICustomEventMessageResponse } from '../interfaces/ICustomEventMessageResponse';
 import { ICustomEventMessageRequest } from '../interfaces/ICustomEventMessageRequest';
 import { AvailableCommands } from './Commands';
@@ -64,7 +64,7 @@ export class ContentScriptProxyClient {
     params: object,
     responseCallback: CallbackFunctionVariadicAnyReturn,
   ) {
-    const requestId = uuid4();
+    const requestId = uid();
     const eventMessageRequest: ICustomEventMessageRequest = {
       params,
       requestId,
