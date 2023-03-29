@@ -41,7 +41,7 @@ export class Account {
         { address: this._address } as IAccountBalanceRequest,
         (err, result) => {
           if (err) return reject(err);
-          if (result) return resolve(result);
+          return resolve(result);
         },
       );
     });
@@ -55,7 +55,7 @@ export class Account {
         { address: this._address, data } as IAccountSignRequest,
         (err, result) => {
           if (err) return reject(err);
-          if (result) return resolve(result);
+          return resolve(result);
         },
       );
     });

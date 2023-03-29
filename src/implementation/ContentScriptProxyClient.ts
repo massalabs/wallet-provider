@@ -27,6 +27,12 @@ export class ContentScriptProxyClient {
   }
 
   private constructor() {
+    this.getWalletProviders = this.getWalletProviders.bind(this);
+    this.handleResponseFromContentScript =
+      this.handleResponseFromContentScript.bind(this);
+    this.sendMessageToContentScript =
+      this.sendMessageToContentScript.bind(this);
+
     this.pendingRequests = new Map<string, CallbackFunctionVariadicAnyReturn>();
 
     // global event target to use for all wallet provider
@@ -49,12 +55,6 @@ export class ContentScriptProxyClient {
       'message',
       this.handleResponseFromContentScript,
     );
-
-    this.getWalletProviders = this.getWalletProviders.bind(this);
-    this.handleResponseFromContentScript =
-      this.handleResponseFromContentScript.bind(this);
-    this.sendMessageToContentScript =
-      this.sendMessageToContentScript.bind(this);
   }
 
   // send a message from the webpage script to the content script
@@ -76,7 +76,7 @@ export class ContentScriptProxyClient {
     }
 
     // dispatch an event to the window specific provider object
-    (
+    const isDispatched = (
       (window as any)[
         `${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.registeredProviders[providerName]}`
       ] as EventTarget
@@ -91,6 +91,7 @@ export class ContentScriptProxyClient {
   private handleResponseFromContentScript(event: CustomEvent) {
     const { result, error, requestId }: ICustomEventMessageResponse =
       event.detail;
+
     const responseCallback = this.pendingRequests.get(requestId);
 
     if (responseCallback) {

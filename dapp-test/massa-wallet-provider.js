@@ -24,8 +24,7 @@
               ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountBalance, { address: this._address }, (err, result) => {
                   if (err)
                       return reject(err);
-                  if (result)
-                      return resolve(result);
+                  return resolve(result);
               });
           });
       }
@@ -34,8 +33,7 @@
               ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountSign, { address: this._address, data }, (err, result) => {
                   if (err)
                       return reject(err);
-                  if (result)
-                      return resolve(result);
+                  return resolve(result);
               });
           });
       }
@@ -59,7 +57,6 @@
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.ContentScriptProxyClient = void 0;
-  /* eslint-disable @typescript-eslint/no-var-requires */
   const uid_1 = require("uid");
   const Commands_1 = require("./Commands");
   const MASSA_WINDOW_OBJECT_PRAEFIX = 'massaWalletProvider';
@@ -73,6 +70,11 @@
       }
       constructor() {
           this.registeredProviders = {};
+          this.getWalletProviders = this.getWalletProviders.bind(this);
+          this.handleResponseFromContentScript =
+              this.handleResponseFromContentScript.bind(this);
+          this.sendMessageToContentScript =
+              this.sendMessageToContentScript.bind(this);
           this.pendingRequests = new Map();
           // global event target to use for all wallet provider
           window.massaWalletProvider = new EventTarget();
@@ -86,11 +88,6 @@
           });
           // start listening to messages from content script
           window.massaWalletProvider.addEventListener('message', this.handleResponseFromContentScript);
-          this.getWalletProviders = this.getWalletProviders.bind(this);
-          this.handleResponseFromContentScript =
-              this.handleResponseFromContentScript.bind(this);
-          this.sendMessageToContentScript =
-              this.sendMessageToContentScript.bind(this);
       }
       // send a message from the webpage script to the content script
       sendMessageToContentScript(providerName, command, params, responseCallback) {
@@ -104,7 +101,7 @@
               throw new Error(`Unknown command ${command}`);
           }
           // dispatch an event to the window specific provider object
-          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.registeredProviders[providerName]}`].dispatchEvent(new CustomEvent(command, { detail: eventMessageRequest }));
+          const isDispatched = window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.registeredProviders[providerName]}`].dispatchEvent(new CustomEvent(command, { detail: eventMessageRequest }));
       }
       getWalletProviders() {
           return this.registeredProviders;
@@ -145,8 +142,7 @@
               ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderListAccounts, {}, (err, result) => {
                   if (err)
                       return reject(err);
-                  if (result)
-                      return resolve(result);
+                  return resolve(result);
               });
           });
           const providerAccounts = await providersPromise;
@@ -159,11 +155,10 @@
       }
       async importAccount(accountImportRequest) {
           return new Promise((resolve, reject) => {
-              ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderDeleteAccount, { ...accountImportRequest }, (err, result) => {
+              ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (err, result) => {
                   if (err)
                       return reject(err);
-                  if (result)
-                      return resolve(result);
+                  return resolve(result);
               });
           });
       }
@@ -172,8 +167,7 @@
               ContentScriptProxyClient_1.ContentScriptProxyClient.getInstance().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (err, result) => {
                   if (err)
                       return reject(err);
-                  if (result)
-                      return resolve(result);
+                  return resolve(result);
               });
           });
       }

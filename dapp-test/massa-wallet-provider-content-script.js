@@ -33,7 +33,6 @@
           // attach handlers for various methods
           this.attachCallbackHandler(Commands_1.AvailableCommands.AccountSign, (payload) => {
               const accountSignPayload = payload.params;
-              console.log('Account signing the payload', accountSignPayload);
               const respMessage = {
                   result: {
                       pubKey: '0x0000',
@@ -48,11 +47,10 @@
           // ================================================================
           window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.AccountBalance, (evt) => {
               const payload = evt.detail;
-              this.actionToCallback.get(Commands_1.AvailableCommands.AccountSign)(payload);
+              this.actionToCallback.get(Commands_1.AvailableCommands.AccountBalance)(payload);
           });
           this.attachCallbackHandler(Commands_1.AvailableCommands.AccountBalance, (payload) => {
               const accountBalancePayload = payload.params;
-              console.log('Getting account balance using the payload', accountBalancePayload);
               const respMessage = {
                   result: { balance: '120' },
                   error: null,
@@ -62,11 +60,15 @@
               window.massaWalletProvider.dispatchEvent(new CustomEvent('message', { detail: respMessage }));
           });
           // ================================================================
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderDeleteAccount, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.ProviderDeleteAccount)(payload);
+          });
           this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderDeleteAccount, (payload) => {
               const accountDeletionPayload = payload.params;
               console.log('Provider deleting account payload', accountDeletionPayload);
               const respMessage = {
-                  response: {
+                  result: {
                       response: operations_1.EAccountDeletionResponse.OK,
                   },
                   error: null,
@@ -75,11 +77,15 @@
               // answer to the message target
               window.massaWalletProvider.dispatchEvent(new CustomEvent('message', { detail: respMessage }));
           });
+          // ================================================================
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderImportAccount, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.ProviderImportAccount)(payload);
+          });
           this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderImportAccount, (payload) => {
               const accountImportPayload = payload.params;
-              console.log('Provider importing account payload', accountImportPayload);
               const respMessage = {
-                  response: {
+                  result: {
                       response: operations_1.EAccountImportResponse.OK,
                       message: 'Import was fine',
                   },
@@ -89,10 +95,14 @@
               // answer to the message target
               window.massaWalletProvider.dispatchEvent(new CustomEvent('message', { detail: respMessage }));
           });
+          // ================================================================
+          window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.providerName}`].addEventListener(Commands_1.AvailableCommands.ProviderListAccounts, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.ProviderListAccounts)(payload);
+          });
           this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderListAccounts, (payload) => {
-              console.log('Provider listing accounts payload');
               const respMessage = {
-                  response: [{ name: 'my account', address: '0x0' }],
+                  result: [{ name: 'my account', address: '0x0' }],
                   error: null,
                   requestId: payload.requestId,
               };
@@ -105,11 +115,10 @@
           this.actionToCallback.set(methodName, callback);
       }
       static registerAsMassaWalletProvider(providerName) {
-          console.log('[PLUGIN_INJECTED] DOCUMENT READY...0 ', document.readyState);
           return new Promise((resolve) => {
               const registerProvider = () => {
                   if (!window.massaWalletProvider) {
-                      console.error('window.massaWalletProvider not available...');
+                      return resolve(false);
                   }
                   // answer to the register target
                   window.massaWalletProvider.dispatchEvent(new CustomEvent('register', {
@@ -120,10 +129,8 @@
                   }));
                   return resolve(true);
               };
-              console.log('[PLUGIN_INJECTED] DOCUMENT READY...', document.readyState);
               if (document.readyState === 'complete' ||
                   document.readyState === 'interactive') {
-                  console.log('[PLUGIN_INJECTED] DOCUMENT READY!');
                   registerProvider();
               }
               else {

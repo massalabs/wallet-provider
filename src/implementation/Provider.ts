@@ -30,7 +30,7 @@ export class Provider {
         {},
         (err, result) => {
           if (err) return reject(err);
-          if (result) return resolve(result);
+          return resolve(result);
         },
       );
     });
@@ -52,11 +52,11 @@ export class Provider {
     return new Promise<IAccountImportResponse>((resolve, reject) => {
       ContentScriptProxyClient.getInstance().sendMessageToContentScript(
         this.providerName,
-        AvailableCommands.ProviderDeleteAccount,
+        AvailableCommands.ProviderImportAccount,
         { ...accountImportRequest },
         (err, result) => {
           if (err) return reject(err);
-          if (result) return resolve(result);
+          return resolve(result);
         },
       );
     });
@@ -72,7 +72,7 @@ export class Provider {
         { ...accountDeletionRequest },
         (err, result) => {
           if (err) return reject(err);
-          if (result) return resolve(result);
+          return resolve(result);
         },
       );
     });
