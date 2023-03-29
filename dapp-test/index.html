@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dapp Test</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      canvas {
+        background: #050d4f;
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <script type='text/javascript' src="./massa-wallet-provider.js"></script>
+    <script type='text/javascript' src="./massa-wallet-provider-content-script.js"></script>
+    <script type='module'>
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+      console.log("[DAPP_HTML] Hello from Dapp! ");
+
+      // creating a dapp client
+      console.log("[DAPP_HTML] Creating a ContentScriptProxyClient ...");
+      const client = window.wallet.ContentScriptProxyClient.getInstance();
+      console.log("[DAPP_HTML] Initialized Client", client);
+
+      // registering extension
+      console.log("[DAPP_HTML] Extension is registering itself ..."),
+      window.injected.ContentScriptProxyProvider.registerAsMassaWalletProvider("MASSA_X_WALLET");
+
+      // wait for a few secs for it to become available
+      await delay(2000);
+
+      // get wallet providers
+      const providers = window.wallet.providers();
+
+      console.log("[DAPP_HTML] Initialized Providers count", providers.length);
+
+      const myProvider = providers[0];
+      console.log("[DAPP_HTML] My Provider - name", myProvider.name());
+      console.log("[DAPP_HTML] Importing an account ...");
+      await myProvider.importAccount({
+        privateKey: "S12srNEAvZrTb9pktYeuePpuM4taW5dfmWAZYtdqyETWTBspkoT1",
+        publicKey: "P1a6pr1mDMpjtSfFvJ9svkdGkZvotL2Yidh5uyVKXS32WGWW14z"
+      });
+    </script>
+  </body>
+</html>
+
