@@ -4,7 +4,7 @@ import { ICustomEventMessageRequest } from '../interfaces/ICustomEventMessageReq
 import { AvailableCommands } from './Commands';
 import { IRegisterEvent } from '../interfaces';
 
-const MASSA_WINDOW_OBJECT_PRAEFIX = 'massaWalletProvider';
+const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
 type CallbackFunctionVariadicAnyReturn = (
   error: Error | null,
@@ -36,25 +36,30 @@ export class MassaWalletProviders {
     this.pendingRequests = new Map<string, CallbackFunctionVariadicAnyReturn>();
 
     // global event target to use for all wallet provider
-    window.massaWalletProvider = new EventTarget();
+    if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
+      const inv = document.createElement('p');
+      inv.id = MASSA_WINDOW_OBJECT;
+      inv.setAttribute('style', 'display:none');
+      document.body.appendChild(inv);
+    }
 
+    // add an invisible HTML element and set a listener to it like the following
     // hook up register handler
-    (window.massaWalletProvider as EventTarget).addEventListener(
-      'register',
-      (evt: CustomEvent) => {
+    document
+      .getElementById(MASSA_WINDOW_OBJECT)
+      .addEventListener('register', (evt: CustomEvent) => {
         const payload: IRegisterEvent = evt.detail;
-        const extensionEventTarget = new EventTarget();
-        window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${payload.eventTarget}`] =
-          extensionEventTarget;
-        this.registeredProviders[payload.providerName] = payload.eventTarget;
-      },
-    );
+        const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${payload.providerName}`;
+        this.registeredProviders[payload.providerName] =
+          providerEventTargetName;
+      });
 
     // start listening to messages from content script
-    (window.massaWalletProvider as EventTarget).addEventListener(
-      'message',
-      this.handleResponseFromContentScript,
-    );
+    document
+      .getElementById(MASSA_WINDOW_OBJECT)
+      .addEventListener('message', (evt: CustomEvent) => {
+        this.handleResponseFromContentScript(evt);
+      });
   }
 
   // send a message from the webpage script to the content script
@@ -75,12 +80,18 @@ export class MassaWalletProviders {
       throw new Error(`Unknown command ${command}`);
     }
 
-    // dispatch an event to the window specific provider object
-    const isDispatched = (
-      (window as any)[
-        `${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.registeredProviders[providerName]}`
-      ] as EventTarget
-    ).dispatchEvent(new CustomEvent(command, { detail: eventMessageRequest }));
+    // dispatch an event to the specific provider event target
+    const specificProviderEventTarget = document.getElementById(
+      `${this.registeredProviders[providerName]}`,
+    ) as EventTarget;
+    const isDispatched = specificProviderEventTarget.dispatchEvent(
+      new CustomEvent(command, { detail: eventMessageRequest }),
+    );
+    if (!isDispatched) {
+      throw new Error(
+        `Could not dispatch a message to ${this.registeredProviders[providerName]}`,
+      );
+    }
   }
 
   public getWalletProviders(): object {
@@ -101,6 +112,9 @@ export class MassaWalletProviders {
         responseCallback(null, result);
       }
       const deleted = this.pendingRequests.delete(requestId);
+      if (!deleted) {
+        console.error(`Error deleting a pending request with id ${requestId}`);
+      }
     }
   }
 }

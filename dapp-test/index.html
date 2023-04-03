@@ -17,62 +17,27 @@
   </head>
   <body>
     <script type='text/javascript' src="./massa-wallet-provider.js"></script>
-    <script type='text/javascript' src="./massa-wallet-provider-content-script.js"></script>
     <script type='module'>
-
-      // this is the wallet extension class
-      class SpaceXWalletExtension extends window.injected.ContentScriptProvider {
-        // own members and functionalities for convenience
-        constructor(providerName) {
-          super(providerName);
-        }
-
-        sign(payload) {
-          return {
-            pubKey: '0x0000',
-            signature: Uint8Array.from([1, 2, 3]),
-          }
-        }
-        balance(payload) {
-          return { balance: '120' }
-        }
-        deleteAccount(payload) {
-          return {
-            response: window.injected.EAccountDeletionResponse.OK,
-          }
-        }
-        importAccount(payload) {
-          return {
-            response: window.injected.EAccountImportResponse.OK,
-            message: 'Import was fine',
-          }
-        }
-        listAccounts(payload) {
-          return [{ name: 'my account', address: '0x0' }];
-        }
-      }
-
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+  
       console.log("[DAPP_HTML] Hello from Dapp! ");
+      
+      let providers = window.wallet.providers();
+      console.log("[DAPP_HTML] Discovered Providers count", providers.length);
+      console.log("[DAPP_HTML] Discovered providers ...", providers);
 
-      // creating a singleton provider client first
-      console.log("[DAPP_HTML] Initializing the MassaWalletProviders ...");
-      window.wallet.MassaWalletProviders.init();
+      // wait for a few secs for the provider to be discovered
+      await delay(1000);
 
-      // simulate an extension registering itself
-      console.log("[DAPP_HTML] Wallet Extension is registering itself ...");
-      await SpaceXWalletExtension.registerAsMassaWalletProvider("MASSA_X_WALLET");
-      // create an instance of the extension for communication
-      const walletExtension = new SpaceXWalletExtension();
-
-      // get wallet providers
-      const providers = window.wallet.providers();
-
-      console.log("[DAPP_HTML] Initialized Providers count", providers.length);
+      providers = window.wallet.providers();
+      console.log("[DAPP_HTML] Discovered Providers count", providers.length);
+      console.log("[DAPP_HTML] Discovered providers ...", providers);
 
       // get a provider
       const myProvider = providers[0];
       console.log("[DAPP_HTML] Provider Name", myProvider.name());
 
+      // import an account
       console.log("[DAPP_HTML] Importing an account ...");
       await myProvider.importAccount({
         privateKey: "S12srNEAvZrTb9pktYeuePpuM4taW5dfmWAZYtdqyETWTBspkoT1",
@@ -80,6 +45,7 @@
       });
       console.log("[DAPP_HTML] Import finished!");
 
+      // get accounts
       console.log("[DAPP_HTML] Retrieving the accounts again ...");
       const myAccounts = await myProvider.accounts();
       console.log("[DAPP_HTML] Provider accounts ...", myAccounts);

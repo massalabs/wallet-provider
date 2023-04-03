@@ -14,4 +14,3 @@ export function providers(): Provider[] {
 
 export { Account } from './Account';
 export { Provider } from './Provider';
-export { MassaWalletProviders } from './MassaWalletProviders';

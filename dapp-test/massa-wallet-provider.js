@@ -59,7 +59,7 @@
   exports.MassaWalletProviders = void 0;
   const uid_1 = require("uid");
   const Commands_1 = require("./Commands");
-  const MASSA_WINDOW_OBJECT_PRAEFIX = 'massaWalletProvider';
+  const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
   // =========================================================
   class MassaWalletProviders {
       static init() {
@@ -77,17 +77,28 @@
               this.sendMessageToContentScript.bind(this);
           this.pendingRequests = new Map();
           // global event target to use for all wallet provider
-          window.massaWalletProvider = new EventTarget();
+          if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
+              const inv = document.createElement('p');
+              inv.id = MASSA_WINDOW_OBJECT;
+              inv.setAttribute('style', 'display:none');
+              document.body.appendChild(inv);
+          }
+          // add an invisible HTML element and set a listener to it like the following
           // hook up register handler
-          window.massaWalletProvider.addEventListener('register', (evt) => {
+          document
+              .getElementById(MASSA_WINDOW_OBJECT)
+              .addEventListener('register', (evt) => {
               const payload = evt.detail;
-              const extensionEventTarget = new EventTarget();
-              window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${payload.eventTarget}`] =
-                  extensionEventTarget;
-              this.registeredProviders[payload.providerName] = payload.eventTarget;
+              const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${payload.providerName}`;
+              this.registeredProviders[payload.providerName] =
+                  providerEventTargetName;
           });
           // start listening to messages from content script
-          window.massaWalletProvider.addEventListener('message', this.handleResponseFromContentScript);
+          document
+              .getElementById(MASSA_WINDOW_OBJECT)
+              .addEventListener('message', (evt) => {
+              this.handleResponseFromContentScript(evt);
+          });
       }
       // send a message from the webpage script to the content script
       sendMessageToContentScript(providerName, command, params, responseCallback) {
@@ -100,8 +111,12 @@
           if (!Object.values(Commands_1.AvailableCommands).includes(command)) {
               throw new Error(`Unknown command ${command}`);
           }
-          // dispatch an event to the window specific provider object
-          const isDispatched = window[`${MASSA_WINDOW_OBJECT_PRAEFIX}-${this.registeredProviders[providerName]}`].dispatchEvent(new CustomEvent(command, { detail: eventMessageRequest }));
+          // dispatch an event to the specific provider event target
+          const specificProviderEventTarget = document.getElementById(`${this.registeredProviders[providerName]}`);
+          const isDispatched = specificProviderEventTarget.dispatchEvent(new CustomEvent(command, { detail: eventMessageRequest }));
+          if (!isDispatched) {
+              throw new Error(`Could not dispatch a message to ${this.registeredProviders[providerName]}`);
+          }
       }
       getWalletProviders() {
           return this.registeredProviders;
@@ -118,6 +133,9 @@
                   responseCallback(null, result);
               }
               const deleted = this.pendingRequests.delete(requestId);
+              if (!deleted) {
+                  console.error(`Error deleting a pending request with id ${requestId}`);
+              }
           }
       }
   }
@@ -177,7 +195,7 @@
   },{"./Account":1,"./Commands":2,"./MassaWalletProviders":3}],5:[function(require,module,exports){
   "use strict";
   Object.defineProperty(exports, "__esModule", { value: true });
-  exports.MassaWalletProviders = exports.Provider = exports.Account = exports.providers = void 0;
+  exports.Provider = exports.Account = exports.providers = void 0;
   const MassaWalletProviders_1 = require("./MassaWalletProviders");
   const Provider_1 = require("./Provider");
   function providers() {
@@ -193,8 +211,6 @@
   Object.defineProperty(exports, "Account", { enumerable: true, get: function () { return Account_1.Account; } });
   var Provider_2 = require("./Provider");
   Object.defineProperty(exports, "Provider", { enumerable: true, get: function () { return Provider_2.Provider; } });
-  var MassaWalletProviders_2 = require("./MassaWalletProviders");
-  Object.defineProperty(exports, "MassaWalletProviders", { enumerable: true, get: function () { return MassaWalletProviders_2.MassaWalletProviders; } });
   
   },{"./Account":1,"./MassaWalletProviders":3,"./Provider":4}],6:[function(require,module,exports){
   "use strict";
