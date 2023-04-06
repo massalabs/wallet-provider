@@ -78,15 +78,15 @@ class Connector {
     }
     // send a message from the webpage script to the content script
     sendMessageToContentScript(providerName, command, params, responseCallback) {
+        if (!Object.values(__1.AvailableCommands).includes(command)) {
+            throw new Error(`Unknown command ${command}`);
+        }
         const requestId = (0, uid_1.uid)();
         const eventMessageRequest = {
             params,
             requestId,
         };
         this.pendingRequests.set(requestId, responseCallback);
-        if (!Object.values(__1.AvailableCommands).includes(command)) {
-            throw new Error(`Unknown command ${command}`);
-        }
         // dispatch an event to the specific provider event target
         const specificProviderEventTarget = document.getElementById(`${this.registeredProviders[providerName]}`);
         if (!specificProviderEventTarget) {

@@ -22,12 +22,15 @@ Add the following script to your html file:
 ```
 
 whereby the x.x.x is one of the available released versions under
-[Massa-web3's releases page](https://github.com/massalabs/massa-wallet-provider/releases):
+[Massa-wallet-provider's releases page](https://github.com/massalabs/massa-wallet-provider/releases):
 
-In your code, once the script is fully loaded, just use `window.wallet` to access all `massa-wallet-provider` exports.
+In your code, once the script is fully loaded, just use `window.wallet` to access all `massa-wallet-provider`'s' exported functionalities.
 
 ```ts
-<script>console.log("Massa Wallets ", window.massa);</script>
+<script>
+    const providers = window.massa.providers();
+    console.log("Massa Providers ", providers);
+</script>
 ```
 
 ### Documentation
@@ -44,10 +47,10 @@ TODO
 
 ### Web3 Wallet Provider Initialization & Usage
 
-There are two types of client initialization. The first one is connecting to Massa's public rpc node using a so-called default client. Please note that specifying a base account is only optional at this point. The code below illustrates how to do that:
+The library exports a function called `providers` which can be executed to return a vector of all massa-wallet providers currently initialized in the space. As shown below in the example code, each provider has its own callable methods for listing, importing and deleting accounts. Each account can return its name, address and has methods to retrieve its balance and sign a data array. 
 
 ```ts
-import { providers } from "@massalabs/massa-wallet-provider";
+    import { providers } from "@massalabs/massa-wallet-provider";
 
     // get all available massa-wallet providers
     const providers = providers();

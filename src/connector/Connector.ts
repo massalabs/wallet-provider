@@ -82,16 +82,16 @@ class Connector {
     params: AllowedRequests,
     responseCallback: CallbackFunction,
   ) {
+    if (!Object.values(AvailableCommands).includes(command)) {
+      throw new Error(`Unknown command ${command}`);
+    }
+
     const requestId = uid();
     const eventMessageRequest: ICustomEventMessageRequest = {
       params,
       requestId,
     };
     this.pendingRequests.set(requestId, responseCallback);
-
-    if (!Object.values(AvailableCommands).includes(command)) {
-      throw new Error(`Unknown command ${command}`);
-    }
 
     // dispatch an event to the specific provider event target
     const specificProviderEventTarget = document.getElementById(
