@@ -2,7 +2,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Account = void 0;
-const MassaWalletProviders_1 = require("./MassaWalletProviders");
+const Connector_1 = require("./Connector");
 const Commands_1 = require("./Commands");
 class Account {
     constructor({ address, name }, providerName) {
@@ -21,7 +21,7 @@ class Account {
     }
     async balance() {
         return new Promise((resolve, reject) => {
-            MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountBalance, { address: this._address }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountBalance, { address: this._address }, (err, result) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -30,7 +30,7 @@ class Account {
     }
     async sign(data) {
         return new Promise((resolve, reject) => {
-            MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountSign, { address: this._address, data }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this._providerName, Commands_1.AvailableCommands.AccountSign, { address: this._address, data }, (err, result) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -40,7 +40,7 @@ class Account {
 }
 exports.Account = Account;
 
-},{"./Commands":2,"./MassaWalletProviders":3}],2:[function(require,module,exports){
+},{"./Commands":2,"./Connector":3}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AvailableCommands = void 0;
@@ -56,26 +56,22 @@ var AvailableCommands;
 },{}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MassaWalletProviders = void 0;
+exports.connector = void 0;
 const uid_1 = require("uid");
 const Commands_1 = require("./Commands");
 const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 // =========================================================
-class MassaWalletProviders {
-    static init() {
-        if (!MassaWalletProviders.instance) {
-            MassaWalletProviders.instance = new MassaWalletProviders();
-        }
-        return MassaWalletProviders.instance;
-    }
+class Connector {
     constructor() {
         this.registeredProviders = {};
-        this.getWalletProviders = this.getWalletProviders.bind(this);
-        this.handleResponseFromContentScript =
-            this.handleResponseFromContentScript.bind(this);
-        this.sendMessageToContentScript =
-            this.sendMessageToContentScript.bind(this);
         this.pendingRequests = new Map();
+        this.register();
+        // start listening to messages from content script
+        document
+            .getElementById(MASSA_WINDOW_OBJECT)
+            .addEventListener('message', this.handleResponseFromContentScript);
+    }
+    register() {
         // global event target to use for all wallet provider
         if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
             const inv = document.createElement('p');
@@ -93,12 +89,6 @@ class MassaWalletProviders {
             this.registeredProviders[payload.providerName] =
                 providerEventTargetName;
         });
-        // start listening to messages from content script
-        document
-            .getElementById(MASSA_WINDOW_OBJECT)
-            .addEventListener('message', (evt) => {
-            this.handleResponseFromContentScript(evt);
-        });
     }
     // send a message from the webpage script to the content script
     sendMessageToContentScript(providerName, command, params, responseCallback) {
@@ -113,6 +103,9 @@ class MassaWalletProviders {
         }
         // dispatch an event to the specific provider event target
         const specificProviderEventTarget = document.getElementById(`${this.registeredProviders[providerName]}`);
+        if (!specificProviderEventTarget) {
+            throw new Error(`Registered provider with name ${providerName} does not exist`);
+        }
         const isDispatched = specificProviderEventTarget.dispatchEvent(new CustomEvent(command, { detail: eventMessageRequest }));
         if (!isDispatched) {
             throw new Error(`Could not dispatch a message to ${this.registeredProviders[providerName]}`);
@@ -137,15 +130,18 @@ class MassaWalletProviders {
                 console.error(`Error deleting a pending request with id ${requestId}`);
             }
         }
+        else {
+            console.error(`Request Id ${requestId} not found in response callback map`);
+        }
     }
 }
-exports.MassaWalletProviders = MassaWalletProviders;
+exports.connector = new Connector();
 
 },{"./Commands":2,"uid":12}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Provider = void 0;
-const MassaWalletProviders_1 = require("./MassaWalletProviders");
+const Connector_1 = require("./Connector");
 const Account_1 = require("./Account");
 const Commands_1 = require("./Commands");
 class Provider {
@@ -157,7 +153,7 @@ class Provider {
     }
     async accounts() {
         const providersPromise = new Promise((resolve, reject) => {
-            MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderListAccounts, {}, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderListAccounts, {}, (err, result) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -173,7 +169,7 @@ class Provider {
     }
     async importAccount(accountImportRequest) {
         return new Promise((resolve, reject) => {
-            MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (err, result) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -182,7 +178,7 @@ class Provider {
     }
     async deleteAccount(accountDeletionRequest) {
         return new Promise((resolve, reject) => {
-            MassaWalletProviders_1.MassaWalletProviders.init().sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, Commands_1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (err, result) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -192,15 +188,15 @@ class Provider {
 }
 exports.Provider = Provider;
 
-},{"./Account":1,"./Commands":2,"./MassaWalletProviders":3}],5:[function(require,module,exports){
+},{"./Account":1,"./Commands":2,"./Connector":3}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Provider = exports.Account = exports.providers = void 0;
-const MassaWalletProviders_1 = require("./MassaWalletProviders");
+const Connector_1 = require("./Connector");
 const Provider_1 = require("./Provider");
 function providers() {
     let providers = [];
-    for (const providerName of Object.keys(MassaWalletProviders_1.MassaWalletProviders.init().getWalletProviders())) {
+    for (const providerName of Object.keys(Connector_1.connector.getWalletProviders())) {
         const p = new Provider_1.Provider(providerName);
         providers.push(p);
     }
@@ -212,7 +208,7 @@ Object.defineProperty(exports, "Account", { enumerable: true, get: function () {
 var Provider_2 = require("./Provider");
 Object.defineProperty(exports, "Provider", { enumerable: true, get: function () { return Provider_2.Provider; } });
 
-},{"./Account":1,"./MassaWalletProviders":3,"./Provider":4}],6:[function(require,module,exports){
+},{"./Account":1,"./Connector":3,"./Provider":4}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");

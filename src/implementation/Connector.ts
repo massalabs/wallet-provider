@@ -13,28 +13,21 @@ type CallbackFunctionVariadicAnyReturn = (
 
 // =========================================================
 
-export class MassaWalletProviders {
-  private static instance: MassaWalletProviders;
+class Connector {
   private registeredProviders: { [key: string]: string } = {};
   private pendingRequests: Map<string, CallbackFunctionVariadicAnyReturn>;
 
-  public static init(): MassaWalletProviders {
-    if (!MassaWalletProviders.instance) {
-      MassaWalletProviders.instance = new MassaWalletProviders();
-    }
+  public constructor() {
+    this.pendingRequests = new Map<string, CallbackFunctionVariadicAnyReturn>();
+    this.register();
 
-    return MassaWalletProviders.instance;
+    // start listening to messages from content script
+    document
+      .getElementById(MASSA_WINDOW_OBJECT)
+      .addEventListener('message', this.handleResponseFromContentScript);
   }
 
-  private constructor() {
-    this.getWalletProviders = this.getWalletProviders.bind(this);
-    this.handleResponseFromContentScript =
-      this.handleResponseFromContentScript.bind(this);
-    this.sendMessageToContentScript =
-      this.sendMessageToContentScript.bind(this);
-
-    this.pendingRequests = new Map<string, CallbackFunctionVariadicAnyReturn>();
-
+  private register() {
     // global event target to use for all wallet provider
     if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
       const inv = document.createElement('p');
@@ -52,13 +45,6 @@ export class MassaWalletProviders {
         const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${payload.providerName}`;
         this.registeredProviders[payload.providerName] =
           providerEventTargetName;
-      });
-
-    // start listening to messages from content script
-    document
-      .getElementById(MASSA_WINDOW_OBJECT)
-      .addEventListener('message', (evt: CustomEvent) => {
-        this.handleResponseFromContentScript(evt);
       });
   }
 
@@ -84,6 +70,11 @@ export class MassaWalletProviders {
     const specificProviderEventTarget = document.getElementById(
       `${this.registeredProviders[providerName]}`,
     ) as EventTarget;
+    if (!specificProviderEventTarget) {
+      throw new Error(
+        `Registered provider with name ${providerName} does not exist`,
+      );
+    }
     const isDispatched = specificProviderEventTarget.dispatchEvent(
       new CustomEvent(command, { detail: eventMessageRequest }),
     );
@@ -94,7 +85,7 @@ export class MassaWalletProviders {
     }
   }
 
-  public getWalletProviders(): object {
+  public getWalletProviders(): { [key: string]: string } {
     return this.registeredProviders;
   }
 
@@ -115,6 +106,12 @@ export class MassaWalletProviders {
       if (!deleted) {
         console.error(`Error deleting a pending request with id ${requestId}`);
       }
+    } else {
+      console.error(
+        `Request Id ${requestId} not found in response callback map`,
+      );
     }
   }
 }
+
+export const connector = new Connector();
