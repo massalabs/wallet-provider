@@ -71,3 +71,6 @@ docs
 
 #.env files
 .env
+
+# library file
+bundle.js
