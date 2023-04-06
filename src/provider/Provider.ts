@@ -1,15 +1,12 @@
-import { IAccount } from '../interfaces';
 import {
   IAccountDeletionRequest,
   IAccountDeletionResponse,
-} from '../operations/AccountDeletion';
-import {
-  IAccountImportRequest,
-  IAccountImportResponse,
-} from '../operations/AccountImport';
-import { connector } from './Connector';
-import { Account } from './Account';
-import { AvailableCommands } from './Commands';
+} from './AccountDeletion';
+import { IAccountImportRequest, IAccountImportResponse } from './AccountImport';
+import { connector } from '../connector/Connector';
+import { Account } from '../account/Account';
+import { AvailableCommands } from '..';
+import { IAccount } from '../account/IAccount';
 
 export class Provider {
   private providerName: string;

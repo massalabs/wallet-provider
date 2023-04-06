@@ -1,14 +1,11 @@
-import { IAccount } from '../interfaces';
 import {
   IAccountBalanceRequest,
   IAccountBalanceResponse,
-} from '../operations/AccountBalance';
-import {
-  IAccountSignRequest,
-  IAccountSignResponse,
-} from '../operations/AccountSign';
-import { connector } from './Connector';
-import { AvailableCommands } from './Commands';
+} from './AccountBalance';
+import { IAccountSignRequest, IAccountSignResponse } from './AccountSign';
+import { connector } from '../connector/Connector';
+import { IAccount } from './IAccount';
+import { AvailableCommands } from '..';
 
 export class Account {
   private _providerName: string;

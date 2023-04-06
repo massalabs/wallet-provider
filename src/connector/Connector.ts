@@ -1,8 +1,8 @@
 import { uid } from 'uid';
-import { ICustomEventMessageResponse } from '../interfaces/ICustomEventMessageResponse';
-import { ICustomEventMessageRequest } from '../interfaces/ICustomEventMessageRequest';
-import { AvailableCommands } from './Commands';
-import { IRegisterEvent } from '../interfaces';
+import { ICustomEventMessageResponse } from './ICustomEventMessageResponse';
+import { ICustomEventMessageRequest } from './ICustomEventMessageRequest';
+import { IRegisterEvent } from './IRegisterEvent';
+import { AvailableCommands } from '..';
 
 const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
