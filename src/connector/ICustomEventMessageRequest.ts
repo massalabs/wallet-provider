@@ -1,4 +1,6 @@
+import { AllowedRequests } from './Connector';
+
 export interface ICustomEventMessageRequest {
-  params: object;
+  params: AllowedRequests;
   requestId: string;
 }

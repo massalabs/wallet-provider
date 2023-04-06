@@ -47,7 +47,6 @@ exports.connector = void 0;
 const uid_1 = require("uid");
 const __1 = require("..");
 const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
-// =========================================================
 class Connector {
     constructor() {
         this.registeredProviders = {};
@@ -203,18 +202,23 @@ class Provider {
         }
         return accounts;
     }
-    async importAccount(accountImportRequest) {
+    async importAccount(publicKey, privateKey) {
+        const accountImportRequest = {
+            publicKey,
+            privateKey,
+        };
         return new Promise((resolve, reject) => {
-            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (result, err) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderImportAccount, accountImportRequest, (result, err) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
             });
         });
     }
-    async deleteAccount(accountDeletionRequest) {
+    async deleteAccount(address) {
+        const accountDeletionRequest = { address };
         return new Promise((resolve, reject) => {
-            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (result, err) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderDeleteAccount, accountDeletionRequest, (result, err) => {
                 if (err)
                     return reject(err);
                 return resolve(result);

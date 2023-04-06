@@ -2,23 +2,47 @@ import { uid } from 'uid';
 import { ICustomEventMessageResponse } from './ICustomEventMessageResponse';
 import { ICustomEventMessageRequest } from './ICustomEventMessageRequest';
 import { IRegisterEvent } from './IRegisterEvent';
-import { AvailableCommands } from '..';
+import {
+  AvailableCommands,
+  IAccount,
+  IAccountBalanceRequest,
+  IAccountBalanceResponse,
+  IAccountDeletionRequest,
+  IAccountDeletionResponse,
+  IAccountImportRequest,
+  IAccountImportResponse,
+  IAccountSignRequest,
+  IAccountSignResponse,
+} from '..';
 
 const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
-type CallbackFunctionVariadicAnyReturn = (
-  result: any,
+type CallbackFunction = (
+  result: AllowedResponses,
   error: Error | null,
-) => any;
+) => unknown;
 
-// =========================================================
+export type AllowedRequests =
+  | object
+  | IAccountBalanceRequest
+  | IAccountSignRequest
+  | IAccountImportRequest
+  | IAccountDeletionRequest;
+
+export type AllowedResponses =
+  | object
+  | IAccountBalanceResponse
+  | IAccountSignResponse
+  | IAccountImportResponse
+  | IAccountDeletionResponse
+  | IAccount[];
 
 class Connector {
   private registeredProviders: { [key: string]: string } = {};
-  private pendingRequests: Map<string, CallbackFunctionVariadicAnyReturn>;
+  private pendingRequests: Map<string, CallbackFunction>;
 
   public constructor() {
-    this.pendingRequests = new Map<string, CallbackFunctionVariadicAnyReturn>();
+    this.pendingRequests = new Map<string, CallbackFunction>();
     this.register();
 
     // start listening to messages from content script
@@ -55,8 +79,8 @@ class Connector {
   public sendMessageToContentScript(
     providerName: string,
     command: AvailableCommands,
-    params: object,
-    responseCallback: CallbackFunctionVariadicAnyReturn,
+    params: AllowedRequests,
+    responseCallback: CallbackFunction,
   ) {
     const requestId = uid();
     const eventMessageRequest: ICustomEventMessageRequest = {
@@ -97,7 +121,8 @@ class Connector {
     const { result, error, requestId }: ICustomEventMessageResponse =
       event.detail;
 
-    const responseCallback = this.pendingRequests.get(requestId);
+    const responseCallback: CallbackFunction =
+      this.pendingRequests.get(requestId);
 
     if (responseCallback) {
       if (error) {

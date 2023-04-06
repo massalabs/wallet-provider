@@ -18,6 +18,8 @@ export function providers(): Provider[] {
   return providers;
 }
 
+export { AllowedRequests, AllowedResponses } from './connector';
+
 export {
   IAccount,
   IAccountBalanceRequest,

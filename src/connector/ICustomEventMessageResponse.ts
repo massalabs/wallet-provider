@@ -1,5 +1,7 @@
+import { AllowedResponses } from './Connector';
+
 export interface ICustomEventMessageResponse {
-  result?: any;
+  result?: AllowedResponses;
   error?: Error;
   requestId: string;
 }

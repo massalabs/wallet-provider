@@ -27,7 +27,7 @@ export class Provider {
         {},
         (result, err) => {
           if (err) return reject(err);
-          return resolve(result);
+          return resolve(result as IAccount[]);
         },
       );
     });
@@ -44,32 +44,38 @@ export class Provider {
   }
 
   public async importAccount(
-    accountImportRequest: IAccountImportRequest,
+    publicKey: string,
+    privateKey: string,
   ): Promise<IAccountImportResponse> {
+    const accountImportRequest = {
+      publicKey,
+      privateKey,
+    } as IAccountImportRequest;
     return new Promise<IAccountImportResponse>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this.providerName,
         AvailableCommands.ProviderImportAccount,
-        { ...accountImportRequest },
+        accountImportRequest,
         (result, err) => {
           if (err) return reject(err);
-          return resolve(result);
+          return resolve(result as IAccountImportResponse);
         },
       );
     });
   }
 
   public async deleteAccount(
-    accountDeletionRequest: IAccountDeletionRequest,
+    address: string,
   ): Promise<IAccountDeletionResponse> {
+    const accountDeletionRequest = { address } as IAccountDeletionRequest;
     return new Promise<IAccountDeletionResponse>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this.providerName,
         AvailableCommands.ProviderDeleteAccount,
-        { ...accountDeletionRequest },
+        accountDeletionRequest,
         (result, err) => {
           if (err) return reject(err);
-          return resolve(result);
+          return resolve(result as IAccountDeletionResponse);
         },
       );
     });
