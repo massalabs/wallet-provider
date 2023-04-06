@@ -36,7 +36,7 @@ export class Account {
         this._providerName,
         AvailableCommands.AccountBalance,
         { address: this._address } as IAccountBalanceRequest,
-        (err, result) => {
+        (result, err) => {
           if (err) return reject(err);
           return resolve(result);
         },
@@ -50,7 +50,7 @@ export class Account {
         this._providerName,
         AvailableCommands.AccountSign,
         { address: this._address, data } as IAccountSignRequest,
-        (err, result) => {
+        (result, err) => {
           if (err) return reject(err);
           return resolve(result);
         },

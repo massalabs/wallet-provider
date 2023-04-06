@@ -25,7 +25,7 @@ export class Provider {
         this.providerName,
         AvailableCommands.ProviderListAccounts,
         {},
-        (err, result) => {
+        (result, err) => {
           if (err) return reject(err);
           return resolve(result);
         },
@@ -51,7 +51,7 @@ export class Provider {
         this.providerName,
         AvailableCommands.ProviderImportAccount,
         { ...accountImportRequest },
-        (err, result) => {
+        (result, err) => {
           if (err) return reject(err);
           return resolve(result);
         },
@@ -67,7 +67,7 @@ export class Provider {
         this.providerName,
         AvailableCommands.ProviderDeleteAccount,
         { ...accountDeletionRequest },
-        (err, result) => {
+        (result, err) => {
           if (err) return reject(err);
           return resolve(result);
         },

@@ -7,8 +7,8 @@ import { AvailableCommands } from '..';
 const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
 type CallbackFunctionVariadicAnyReturn = (
-  error: Error | null,
   result: any,
+  error: Error | null,
 ) => any;
 
 // =========================================================
@@ -24,7 +24,10 @@ class Connector {
     // start listening to messages from content script
     document
       .getElementById(MASSA_WINDOW_OBJECT)
-      .addEventListener('message', this.handleResponseFromContentScript);
+      .addEventListener(
+        'message',
+        this.handleResponseFromContentScript.bind(this),
+      );
   }
 
   private register() {
@@ -98,9 +101,9 @@ class Connector {
 
     if (responseCallback) {
       if (error) {
-        responseCallback(new Error(error.message), null);
+        responseCallback(null, new Error(error.message));
       } else {
-        responseCallback(null, result);
+        responseCallback(result, null);
       }
       const deleted = this.pendingRequests.delete(requestId);
       if (!deleted) {

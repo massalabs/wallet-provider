@@ -21,7 +21,7 @@ class Account {
     }
     async balance() {
         return new Promise((resolve, reject) => {
-            Connector_1.connector.sendMessageToContentScript(this._providerName, __1.AvailableCommands.AccountBalance, { address: this._address }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this._providerName, __1.AvailableCommands.AccountBalance, { address: this._address }, (result, err) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -30,7 +30,7 @@ class Account {
     }
     async sign(data) {
         return new Promise((resolve, reject) => {
-            Connector_1.connector.sendMessageToContentScript(this._providerName, __1.AvailableCommands.AccountSign, { address: this._address, data }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this._providerName, __1.AvailableCommands.AccountSign, { address: this._address, data }, (result, err) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -56,7 +56,7 @@ class Connector {
         // start listening to messages from content script
         document
             .getElementById(MASSA_WINDOW_OBJECT)
-            .addEventListener('message', this.handleResponseFromContentScript);
+            .addEventListener('message', this.handleResponseFromContentScript.bind(this));
     }
     register() {
         // global event target to use for all wallet provider
@@ -107,10 +107,10 @@ class Connector {
         const responseCallback = this.pendingRequests.get(requestId);
         if (responseCallback) {
             if (error) {
-                responseCallback(new Error(error.message), null);
+                responseCallback(null, new Error(error.message));
             }
             else {
-                responseCallback(null, result);
+                responseCallback(result, null);
             }
             const deleted = this.pendingRequests.delete(requestId);
             if (!deleted) {
@@ -189,7 +189,7 @@ class Provider {
     }
     async accounts() {
         const providersPromise = new Promise((resolve, reject) => {
-            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderListAccounts, {}, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderListAccounts, {}, (result, err) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -205,7 +205,7 @@ class Provider {
     }
     async importAccount(accountImportRequest) {
         return new Promise((resolve, reject) => {
-            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderImportAccount, { ...accountImportRequest }, (result, err) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
@@ -214,7 +214,7 @@ class Provider {
     }
     async deleteAccount(accountDeletionRequest) {
         return new Promise((resolve, reject) => {
-            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (err, result) => {
+            Connector_1.connector.sendMessageToContentScript(this.providerName, __1.AvailableCommands.ProviderDeleteAccount, { ...accountDeletionRequest }, (result, err) => {
                 if (err)
                     return reject(err);
                 return resolve(result);
