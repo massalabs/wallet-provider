@@ -1,5 +1,5 @@
 {
-    "name": "@massalabs/massa-wallet-provider",
+    "name": "@massalabs/wallet-provider",
     "version": "0.0.0",
     "description": "massa's wallet provider",
     "main": "dist/index.js",

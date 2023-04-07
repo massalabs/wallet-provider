@@ -1,14 +1,14 @@
-# massa-wallet-provider
+# wallet-provider
 
-`Massa-wallet-provider` is a TypeScript library that one could utilize to establish a connection between a frontend dapp application and any browser wallet extensions that implement the [massa standard](https://github.com/massalabs/massa-standards/blob/main/wallet/dapps-communication.md). With this library one can access all massa-blockchain wallets and their standardized functionalities for ready use.
+`Wallet-provider` is a TypeScript library that one could utilize to establish a connection between a frontend dapp application and any browser wallet extensions that implement the [massa standard](https://github.com/massalabs/massa-standards/blob/main/wallet/dapps-communication.md). With this library one can access all massa-blockchain wallets and their standardized functionalities for ready use.
 
 ## Usage
 
-`Massa-wallet-provider` could be used as a library for frameworks or as a stand-alone bundled js file which can be easily loaded into the browser.
+`Wallet-provider` could be used as a library for frameworks or as a stand-alone bundled js file which can be easily loaded into the browser.
 
 ### Library (Node.js/React/Vue.js) usage
 
-> npm install @massalabs/massa-wallet-provider
+> npm install @massalabs/wallet-provider
 
 ### Browser usage
 
@@ -17,14 +17,14 @@ Add the following script to your html file:
 ```ts
 <script
     type="text/javascript"
-    src="https://cdn.jsdelivr.net/npm/@massalabs/massa-wallet-provider@x.x.x/bundle.js"
+    src="https://cdn.jsdelivr.net/npm/@massalabs/wallet-provider@x.x.x/bundle.js"
 ></script>
 ```
 
 whereby the x.x.x is one of the available released versions under
-[Massa-wallet-provider's releases page](https://github.com/massalabs/massa-wallet-provider/releases):
+[Wallet-provider's releases page](https://github.com/massalabs/wallet-provider/releases):
 
-In your code, once the script is fully loaded, just use `window.wallet` to access all `massa-wallet-provider`'s' exported functionalities.
+In your code, once the script is fully loaded, just use `window.wallet` to access all `wallet-provider`'s' exported functionalities.
 
 ```ts
 <script>
@@ -50,7 +50,7 @@ TODO
 The library exports a function called `providers` which can be executed to return a vector of all massa-wallet providers currently initialized in the space. As shown below in the example code, each provider has its own callable methods for listing, importing and deleting accounts. Each account can return its name, address and has methods to retrieve its balance and sign a data array. 
 
 ```ts
-    import { providers } from "@massalabs/massa-wallet-provider";
+    import { providers } from "@massalabs/wallet-provider";
 
     // get all available massa-wallet providers
     const providers = providers();
