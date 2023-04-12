@@ -7,8 +7,7 @@ export const test = base.extend<{
   extensionId: string;
 }>({
   context: async ({ }, use) => {
-    // console.log(__dirname);
-    const pathToExtension = "../massa-wallet-provider-content-script/plugin";///manifest.json";
+    const pathToExtension = path.join(__dirname, '..', 'massa-wallet-provider-content-script', 'plugin');
     
     const context = await chromium.launchPersistentContext('', {
       headless: false,
@@ -21,17 +20,16 @@ export const test = base.extend<{
     await context.close();
   },
   extensionId: async ({ context }, use) => {
-    /*
+    
     // for manifest v2:
     let [background] = context.backgroundPages()
     if (!background)
       background = await context.waitForEvent('backgroundpage')
-    */
 
-    // for manifest v3:
-    let [background] = context.serviceWorkers();
-    if (!background)
-      background = await context.waitForEvent('serviceworker');
+    // // for manifest v3:
+    // let [background] = context.serviceWorkers();
+    // if (!background)
+    //   background = await context.waitForEvent('serviceworker');
 
     const extensionId = background.url().split('/')[2];
     await use(extensionId);
