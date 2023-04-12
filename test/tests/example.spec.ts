@@ -12,6 +12,7 @@ export const test = base.extend<{
     const context = await chromium.launchPersistentContext('', {
       headless: false,
       args: [
+        `--headless=new`, // the new headless arg for chrome v109+. Use '--headless=chrome' as arg for browsers v94-108.
         `--disable-extensions-except=${pathToExtension}`,
         `--load-extension=${pathToExtension}`,
       ],
@@ -44,6 +45,4 @@ test('test account', async ({ context }) => {
   await page.goto(`http://127.0.0.1:9009/`);
   await expect(page.locator('ul > li')).toContainText(['SPACE_X', '0x0', '1234.5', '0x0000']);
 });
-
-
 
