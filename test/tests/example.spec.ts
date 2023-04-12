@@ -37,30 +37,13 @@ export const test = base.extend<{
 });
 export const expec = test.expect;
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
-
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
-
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects the URL to contain intro.
-  await expect(page).toHaveURL(/.*intro/);
+// Account.ts test
+test('test account', async ({ context }) => {
+  const page = await context.newPage();
+  await page.goto(`http://127.0.0.1:9009/`);
+  await expect(page.locator('ul > li')).toContainText(['SPACE_X', '0x0', '1234.5', '0x0000']);
 });
 
 
-test('example test', async ({ page }) => {
-  await page.goto('https://example.com');
-  await expect(page.locator('body')).toHaveText('Changed by my-extension');
-});
 
-test('popup page', async ({ page, extensionId }) => {
-  await page.goto(`chrome-extension://${extensionId}/popup.html`);
-  await expect(page.locator('body')).toHaveText('my-extension popup');
-});
