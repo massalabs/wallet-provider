@@ -27,7 +27,7 @@
       console.log("[DAPP_HTML] Discovered providers ...", providers);
 
       // wait for a few secs for the provider to be discovered
-      await delay(1000);
+      await delay(3000);
 
       providers = window.wallet.providers();
       console.log("[DAPP_HTML] Discovered Providers count", providers.length);
@@ -63,6 +63,15 @@
       console.log("[DAPP_HTML] Signing a message ...");
       const signature = await myAccount.sign([0, 1, 2]);
       console.log("[DAPP_HTML] Account Signature = ", signature);
+
+
+      // get thyra if present
+      const thyraProvider = window.wallet.providers().find((p) => p.name() === "THYRA");
+      console.log("[DAPP_HTML] Thyra Provider = ", thyraProvider);
+
+      const thyraAccounts = await thyraProvider.accounts();
+      console.log("[DAPP_HTML] Thyra accounts ...", thyraAccounts);
+      
 
     </script>
   </body>

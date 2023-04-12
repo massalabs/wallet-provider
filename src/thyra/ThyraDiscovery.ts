@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { Timeout } from '../utils/time';
 import { JsonRpcResponseData, getRequest } from './RequestHandler';
 
-const THYRA_DISCOVERY_URL = 'https://my.massa/thyra/home/index.html';
+export const THYRA_DISCOVERY_URL = 'https://my.massa/thyra/home/index.html';
 export const ON_THYRA_DISCOVERED = 'ON_THYRA_DISCOVERED';
 export const ON_THYRA_DISCONNECTED = 'ON_THYRA_DISCONNECTED';
 
@@ -20,7 +20,7 @@ export class ThyraDiscovery extends EventEmitter {
   }
 
   private async callback() {
-    let resp: JsonRpcResponseData<any> = null;
+    let resp: JsonRpcResponseData<unknown> = null;
     try {
       resp = await getRequest(THYRA_DISCOVERY_URL);
     } catch (ex) {

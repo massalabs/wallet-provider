@@ -125,11 +125,13 @@ class Connector {
       });
 
     // attach thyra discovery
-    this.thyraListener = new ThyraDiscovery(3000);
+    this.thyraListener = new ThyraDiscovery(1000);
     this.thyraListener.startListening();
     this.thyraListener.on(ON_THYRA_DISCOVERED, () => {
       console.log('THYRA DISCOVERED !!!!');
-      this.registeredProviders[THYRA_PROVIDER_NAME] = `${MASSA_WINDOW_OBJECT}_${THYRA_PROVIDER_NAME}`;
+      this.registeredProviders[
+        THYRA_PROVIDER_NAME
+      ] = `${MASSA_WINDOW_OBJECT}_${THYRA_PROVIDER_NAME}`;
     });
     this.thyraListener.on(ON_THYRA_DISCONNECTED, () => {
       console.log('THYRA DISCONNECTED !!!!');

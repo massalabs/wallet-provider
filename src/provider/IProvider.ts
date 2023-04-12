@@ -1,9 +1,7 @@
-import {
-  IAccountDeletionResponse,
-} from './AccountDeletion';
+import { IAccountDeletionResponse } from './AccountDeletion';
 import { IAccountImportResponse } from './AccountImport';
 import { Account } from '../account/Account';
-  
+
 export interface IProvider {
   name(): string;
   accounts(): Promise<Account[]>;
@@ -11,8 +9,5 @@ export interface IProvider {
     publicKey: string,
     privateKey: string,
   ): Promise<IAccountImportResponse>;
-  deleteAccount(
-    address: string,
-  ): Promise<IAccountDeletionResponse>;
+  deleteAccount(address: string): Promise<IAccountDeletionResponse>;
 }
-  
