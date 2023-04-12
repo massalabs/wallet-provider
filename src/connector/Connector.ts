@@ -23,6 +23,7 @@ import {
   IAccountSignRequest,
   IAccountSignResponse,
 } from '..';
+import { ON_THYRA_DISCOVERED, ThyraDiscovery } from '../utils/ThyraDiscovery';
 
 /**
  * A constant string that is used to identify the HTML element that is used for
@@ -60,6 +61,7 @@ export type AllowedResponses =
 class Connector {
   private registeredProviders: { [key: string]: string } = {};
   private pendingRequests: Map<string, CallbackFunction>;
+  private thyraListener: ThyraDiscovery;
 
   /**
    * Connector constructor
@@ -84,6 +86,12 @@ class Connector {
         'message',
         this.handleResponseFromContentScript.bind(this),
       );
+
+    this.thyraListener = new ThyraDiscovery(1000);
+    this.thyraListener.startListening();
+    this.thyraListener.on(ON_THYRA_DISCOVERED, () => {
+      console.log('THYRA DISCOVERED !!!!');
+    });
   }
 
   /**

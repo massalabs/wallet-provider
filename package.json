@@ -56,7 +56,8 @@
         "bignumber.js": "^9.1.1",
         "buffer": "^6.0.3",
         "esmify": "^2.1.1",
-        "uid": "^2.0.1"
+        "uid": "^2.0.1",
+        "axios": "^0.26.1"
     },
     "devDependencies": {
         "@massalabs/eslint-config": "^0.0.9",
