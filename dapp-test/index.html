@@ -63,6 +63,16 @@
       console.log("[DAPP_HTML] Signing a message ...");
       const signature = await myAccount.sign([0, 1, 2]);
       console.log("[DAPP_HTML] Account Signature = ", signature);
+  
+      // display as list
+      const list = document.createElement("ul");
+      list.innerHTML = `
+        <li>Provider Name: ${myProvider.name()}</li>
+        <li>Account Address: ${myAccount.address()}</li>
+        <li>Account Balance: ${accountBalance.balance}</li>
+        <li>Account Signature: ${signature.pubKey}</li>
+      `;
+      document.body.appendChild(list);
 
     </script>
   </body>
