@@ -41,57 +41,56 @@ TODO
 
 ### Requirements
 
--   NodeJS 16+
--   npm / yarn (see package.json)
-
+- NodeJS 16+
+- npm / yarn (see package.json)
 
 ### Web3 Wallet Provider Initialization & Usage
 
-The library exports a function called `providers` which can be executed to return a vector of all massa-wallet providers currently initialized in the space. As shown below in the example code, each provider has its own callable methods for listing, importing and deleting accounts. Each account can return its name, address and has methods to retrieve its balance and sign a data array. 
+The library exports a function called `providers` which can be executed to return a vector of all massa-wallet providers currently initialized in the space. As shown below in the example code, each provider has its own callable methods for listing, importing and deleting accounts. Each account can return its name, address and has methods to retrieve its balance and sign a data array.
 
 ```ts
-    import { providers } from "@massalabs/wallet-provider";
+import { providers } from "@massalabs/wallet-provider";
 
-    // get all available massa-wallet providers
-    const providers = providers();
+// get all available massa-wallet providers
+const providers = providers();
 
-    // get a provider
-    const myProvider = providers[0];
-    console.log("Provider Name", myProvider.name());
+// get a provider
+const myProvider = providers[0];
+console.log("Provider Name", myProvider.name());
 
-    // import an account via the massa-wallet provider
-    console.log("Importing an account ...");
-    const privateKey = "Sxxxxxxxxxxxxxx";
-    const publicKey = "Pxxxxxxxxxxxxxxx";
+// import an account via the massa-wallet provider
+console.log("Importing an account ...");
+const privateKey = "Sxxxxxxxxxxxxxx";
+const publicKey = "Pxxxxxxxxxxxxxxx";
 
-    await myProvider.importAccount(publicKey, privateKey);
+await myProvider.importAccount(publicKey, privateKey);
 
-    // get accounts
-    console.log("Retrieving the accounts ...");
-    const myAccounts = await myProvider.accounts();
-    console.log("Provider accounts ...", myAccounts);
+// get accounts
+console.log("Retrieving the accounts ...");
+const myAccounts = await myProvider.accounts();
+console.log("Provider accounts ...", myAccounts);
 
-    // getting one account
-    const myAccount = myAccounts[0];
-    console.log("Account address ", myAccount.address());
+// getting one account
+const myAccount = myAccounts[0];
+console.log("Account address ", myAccount.address());
 
-    // getting account balance
-    console.log("Retrieving the account balance ...");
-    const accountBalance = await myAccount.balance();
-    console.log("Account Balance = ", accountBalance.balance);
+// getting account balance
+console.log("Retrieving the account balance ...");
+const accountBalance = await myAccount.balance();
+console.log("Account Balance = ", accountBalance.balance);
 
-    // signing a message
-    console.log("Signing a message ...");
-    const signature = await myAccount.sign([0, 1, 2]);
-    console.log("Signature = ", signature);
+// signing a message
+console.log("Signing a message ...");
+const signature = await myAccount.sign([0, 1, 2]);
+console.log("Signature = ", signature);
 
-    // deleting an account
-    console.log("Deleting an account ...");
-    await myProvider.importAccount(myAccount.address());
+// deleting an account
+console.log("Deleting an account ...");
+await myProvider.importAccount(myAccount.address());
 ```
 
 ## Contributing and testing
 
-1. Run `npm run install` to install all dependencies
+1. Run `npm install` to install all dependencies
 2. Run `npm run build` to build distribution content
 3. Run `npm run test` to run integration and unit tests
