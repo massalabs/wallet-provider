@@ -7,13 +7,14 @@ import { connector } from '../connector/Connector';
 import { Account } from '../account/Account';
 import { AvailableCommands } from '..';
 import { IAccount } from '../account/IAccount';
+import { IProvider } from './IProvider';
 
 /**
  * The Provider class provides a simple and intuitive interface for interacting with a specific 
  * wallet service.
  *
  */
-export class Provider {
+export class Provider implements IProvider {
   private providerName: string;
 
   /**
