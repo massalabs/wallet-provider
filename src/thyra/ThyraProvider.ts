@@ -7,11 +7,11 @@ import {
   IAccountImportResponse,
 } from '../provider/AccountImport';
 import { Account } from '../account/Account';
-import { IAccount } from '../account/IAccount';
+import { IAccountDetails } from '../account/IAccountDetails';
 import { IProvider } from '../provider/IProvider';
 import { JsonRpcResponseData, getRequest } from './RequestHandler';
 
-const THYRA_ACCOUNTS_URL =
+export const THYRA_ACCOUNTS_URL =
   'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet/';
 
 export interface IThyraWallet {
@@ -46,6 +46,7 @@ export class ThyraProvider implements IProvider {
       );
     } catch (ex) {
       console.error(`Thyra accounts retrieval error`);
+      throw ex;
     }
     if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
       throw thyraAccountsResponse.error.message;
@@ -66,12 +67,14 @@ export class ThyraProvider implements IProvider {
     publicKey: string,
     privateKey: string,
   ): Promise<IAccountImportResponse> {
+    // TODO
     return null;
   }
 
   public async deleteAccount(
     address: string,
   ): Promise<IAccountDeletionResponse> {
+    // TODO
     return null;
   }
 }

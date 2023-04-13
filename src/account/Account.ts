@@ -4,8 +4,9 @@ import {
 } from './AccountBalance';
 import { IAccountSignRequest, IAccountSignResponse } from './AccountSign';
 import { connector } from '../connector/Connector';
-import { IAccount } from './IAccount';
+import { IAccountDetails } from './IAccountDetails';
 import { AvailableCommands } from '..';
+import { IAccount } from './IAccount';
 
 /**
  * This module contains the Account class. It is responsible for representing an account in the wallet.
@@ -14,7 +15,7 @@ import { AvailableCommands } from '..';
  * This class provides methods to interact with the account's {@link balance} and to {@link sign} messages.
  *
  */
-export class Account {
+export class Account implements IAccount {
   private _providerName: string;
   private _address: string;
   private _name: string;
@@ -32,7 +33,7 @@ export class Account {
    * - The IAccount object contains the account's address and name.
    * - The providerName string identifies the provider that is used to interact with the blockchain.
    */
-  public constructor({ address, name }: IAccount, providerName: string) {
+  public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
     this._name = name;
     this._providerName = providerName;

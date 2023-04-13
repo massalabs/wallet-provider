@@ -11,6 +11,6 @@ export interface IAccountSignRequest {
  * after the signing operation.
  */
 export interface IAccountSignResponse {
-  pubKey: string;
+  publicKey: string;
   signature: Uint8Array;
 }

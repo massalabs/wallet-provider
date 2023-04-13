@@ -6,7 +6,7 @@ import { IAccountImportRequest, IAccountImportResponse } from './AccountImport';
 import { connector } from '../connector/Connector';
 import { Account } from '../account/Account';
 import { AvailableCommands } from '..';
-import { IAccount } from '../account/IAccount';
+import { IAccountDetails } from '../account/IAccountDetails';
 import { IProvider } from './IProvider';
 
 /**
@@ -42,19 +42,21 @@ export class Provider implements IProvider {
    * @returns A promise that resolves to an array of Account instances.
    */
   public async accounts(): Promise<Account[]> {
-    const providersPromise = new Promise<IAccount[]>((resolve, reject) => {
-      connector.sendMessageToContentScript(
-        this.providerName,
-        AvailableCommands.ProviderListAccounts,
-        {},
-        (result, err) => {
-          if (err) return reject(err);
-          return resolve(result as IAccount[]);
-        },
-      );
-    });
+    const providersPromise = new Promise<IAccountDetails[]>(
+      (resolve, reject) => {
+        connector.sendMessageToContentScript(
+          this.providerName,
+          AvailableCommands.ProviderListAccounts,
+          {},
+          (result, err) => {
+            if (err) return reject(err);
+            return resolve(result as IAccountDetails[]);
+          },
+        );
+      },
+    );
 
-    const providerAccounts: IAccount[] = await providersPromise;
+    const providerAccounts: IAccountDetails[] = await providersPromise;
 
     let accounts: Account[] = [];
     for (const providerAccount of providerAccounts) {

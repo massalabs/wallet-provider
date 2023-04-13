@@ -4,4 +4,4 @@ export {
   IAccountBalanceResponse,
 } from './AccountBalance';
 export { IAccountSignRequest, IAccountSignResponse } from './AccountSign';
-export { IAccount } from './IAccount';
+export { IAccountDetails } from './IAccountDetails';

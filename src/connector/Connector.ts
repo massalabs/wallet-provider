@@ -13,7 +13,6 @@ import { ICustomEventMessageRequest } from './ICustomEventMessageRequest';
 import { IRegisterEvent } from './IRegisterEvent';
 import {
   AvailableCommands,
-  IAccount,
   IAccountBalanceRequest,
   IAccountBalanceResponse,
   IAccountDeletionRequest,
@@ -29,6 +28,7 @@ import {
   ThyraDiscovery,
 } from '../thyra/ThyraDiscovery';
 import { THYRA_PROVIDER_NAME } from '../thyra/ThyraProvider';
+import { IAccount } from '../account/IAccount';
 
 /**
  * A constant string that is used to identify the HTML element that is used for
@@ -124,17 +124,17 @@ class Connector {
           providerEventTargetName;
       });
 
-    // attach thyra discovery
+    // start thyra discovery
     this.thyraListener = new ThyraDiscovery(1000);
     this.thyraListener.startListening();
     this.thyraListener.on(ON_THYRA_DISCOVERED, () => {
-      console.log('THYRA DISCOVERED !!!!');
+      console.log('Thyra Discovered !');
       this.registeredProviders[
         THYRA_PROVIDER_NAME
       ] = `${MASSA_WINDOW_OBJECT}_${THYRA_PROVIDER_NAME}`;
     });
     this.thyraListener.on(ON_THYRA_DISCONNECTED, () => {
-      console.log('THYRA DISCONNECTED !!!!');
+      console.log('Thyra Disconnected !');
       delete this.registeredProviders[THYRA_PROVIDER_NAME];
     });
   }

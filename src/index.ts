@@ -28,7 +28,7 @@ export function providers(): IProvider[] {
 export { AllowedRequests, AllowedResponses } from './connector';
 
 export {
-  IAccount,
+  IAccountDetails,
   IAccountBalanceRequest,
   IAccountBalanceResponse,
   IAccountSignRequest,
