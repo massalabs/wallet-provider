@@ -1,4 +1,4 @@
-import { test as base, expect, firefox, type BrowserContext } from '@playwright/test';
+import { test as base, expect, firefox, chromium, type BrowserContext } from '@playwright/test';
 import path from 'path';
 import { loadFirefoxAddon } from './install_ff_addons';
 
@@ -17,7 +17,6 @@ const RDP_PORT = 6000;
     }
   });
 
-
   loadFirefoxAddon(RDP_PORT, 'localhost', path.join(__dirname, '..', '..', 'simple-browser-extension', 'plugin') );
 
   const page = await browser.newPage();
@@ -30,7 +29,7 @@ export const test = base.extend<{
   extensionId: string;
 }>({
   context: async ({ }, use) => {
-    const pathToExtension = path.join(__dirname, '..', 'massa-wallet-provider-content-script', 'plugin');
+    const pathToExtension = path.join(__dirname, '..', '..', 'simple-browser-extension', 'plugin');
     
     const context = await firefox.launchPersistentContext('', {
       headless: true,
