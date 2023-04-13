@@ -1,15 +1,13 @@
 import { test as base, expect, firefox, type BrowserContext } from '@playwright/test';
 import path from 'path';
-// 'remote' is not defined by "exports" in package.json
 import { loadFirefoxAddon } from './install_ff_addons';
-//import Addons from '../node_modules/foxdriver/lib/domains/addons.js';
 
 
 const RDP_PORT = 6000;
 
 (async () => {
   const browser = await firefox.launch({
-    headless: false,
+    headless: true,
     args: [ '-start-debugger-server', String(RDP_PORT) ],
     firefoxUserPrefs: {
       'devtools.debugger.remote-enabled': true,
@@ -18,17 +16,14 @@ const RDP_PORT = 6000;
       'devtools.debugger.remote-port': String(RDP_PORT),
     }
   });
-  //const pathToExtension = path.join(__dirname, '..', '..', '..', 'massa-wallet-provider-content-script', 'plugin');
 
 
-  loadFirefoxAddon(RDP_PORT, 'localhost', path.join(__dirname, '..', 'massa-wallet-provider-content-script', 'plugin') ); // '../massa-wallet-provider-content-script/plugin/web-ext-artifacts/massaspacewallet-1.0/'
+  loadFirefoxAddon(RDP_PORT, 'localhost', path.join(__dirname, '..', '..', 'simple-browser-extension', 'plugin') );
 
   const page = await browser.newPage();
   await page.goto('http://127.0.0.1:9009/');
 
 })();
-
-
 
 export const test = base.extend<{
   context: BrowserContext;
@@ -38,7 +33,7 @@ export const test = base.extend<{
     const pathToExtension = path.join(__dirname, '..', 'massa-wallet-provider-content-script', 'plugin');
     
     const context = await firefox.launchPersistentContext('', {
-      headless: false,
+      headless: true,
       args: [
         `--headless=new`, // the new headless arg for chrome v109+. Use '--headless=chrome' as arg for browsers v94-108.
         `--disable-extensions-except=${pathToExtension}`,
@@ -67,7 +62,7 @@ export const test = base.extend<{
 export const expec = test.expect;
 
 
-test('test' , async ({context}) => {
+test('sanity test' , async ({context}) => {
   const page = await context.newPage();
   await page.goto('https://google.com');
 });
