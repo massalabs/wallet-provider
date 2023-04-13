@@ -1,5 +1,5 @@
 # Testing wallet-provider
-A **WIP** simple way to test wallet-provider.
+A simple way to test wallet-provider.
 
 ## How to test it ?
 
