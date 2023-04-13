@@ -14,7 +14,9 @@ export const loadFirefoxAddon = (
 
     let success = false;
 
-    socket.once('error', () => {});
+    socket.once('error', (e) => {
+      console.log(e);
+    });
     socket.once('close', () => {
       resolve(success);
     });
