@@ -71,3 +71,5 @@ docs
 
 #.env files
 .env
+
+test/runner.js

@@ -4,4 +4,4 @@ node_modules
 bundle.*
 docs
 dist
-dapp-test
+test
