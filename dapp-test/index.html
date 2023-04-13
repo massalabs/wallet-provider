@@ -75,6 +75,8 @@
         console.log("[DAPP_HTML] Thyra account name - address ...", thyraAccount.name(), thyraAccount.address());
         const balance = await thyraAccount.balance();
         console.log("[DAPP_HTML] Thyra account balance ...", balance);
+        const signature = await thyraAccount.sign("100110111010001011101001");
+        console.log("[DAPP_HTML] Thyra account signature ...", signature);
       }
     </script>
   </body>

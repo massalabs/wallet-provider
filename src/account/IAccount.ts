@@ -9,5 +9,5 @@ export interface IAccount {
   name(): string;
   providerName(): string;
   balance(): Promise<IAccountBalanceResponse>;
-  sign(data: Uint8Array): Promise<IAccountSignResponse>;
+  sign(data: Uint8Array | string): Promise<IAccountSignResponse>;
 }

@@ -1,9 +1,6 @@
 import {
-  AvailableCommands,
-  IAccountBalanceRequest,
   IAccountBalanceResponse,
   IAccountDetails,
-  IAccountSignRequest,
   IAccountSignResponse,
 } from '..';
 import { IAccount } from '../account/IAccount';
@@ -13,7 +10,7 @@ import { THYRA_ACCOUNTS_URL } from './ThyraProvider';
 const THYRA_BALANCE_URL = `https://my.massa/massa/addresses?attributes=balance&addresses`;
 
 interface ISignOperation {
-  operation: Uint8Array;
+  operation: string;
   batch?: boolean;
   correlationId?: string;
 }
@@ -72,7 +69,7 @@ export class ThyraAccount implements IAccount {
     };
   }
 
-  public async sign(data: Uint8Array): Promise<IAccountSignResponse> {
+  public async sign(data: Uint8Array | string): Promise<IAccountSignResponse> {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
