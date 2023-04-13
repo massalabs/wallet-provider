@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "cp ../bundle.js ./bundle.js && http-server --cors --port 9011"
+    "serve": "cp ../bundle.js ./bundle.js && http-server --cors --port 9012"
   },
   "author": "",
   "license": "ISC",

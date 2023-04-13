@@ -8,6 +8,7 @@ import { Account } from '../account/Account';
 import { AvailableCommands } from '..';
 import { IAccountDetails } from '../account/IAccountDetails';
 import { IProvider } from './IProvider';
+import { IAccount } from '../account/IAccount';
 
 /**
  * The Provider class provides a simple and intuitive interface for interacting with a specific 
@@ -41,7 +42,7 @@ export class Provider implements IProvider {
    *
    * @returns A promise that resolves to an array of Account instances.
    */
-  public async accounts(): Promise<Account[]> {
+  public async accounts(): Promise<IAccount[]> {
     const providersPromise = new Promise<IAccountDetails[]>(
       (resolve, reject) => {
         connector.sendMessageToContentScript(

@@ -33,8 +33,8 @@
       console.log("[DAPP_HTML] Discovered Providers count", providers.length);
       console.log("[DAPP_HTML] Discovered providers ...", providers);
 
-      // get a provider
-      const myProvider = providers[0];
+      // get a provider (not THYRA)
+      const myProvider = providers.find((p) => p.name() !== "THYRA");
       console.log("[DAPP_HTML] Provider Name", myProvider.name());
 
       // import an account
@@ -64,15 +64,18 @@
       const signature = await myAccount.sign([0, 1, 2]);
       console.log("[DAPP_HTML] Account Signature = ", signature);
 
-
       // get thyra if present
       const thyraProvider = window.wallet.providers().find((p) => p.name() === "THYRA");
       console.log("[DAPP_HTML] Thyra Provider = ", thyraProvider);
 
       const thyraAccounts = await thyraProvider.accounts();
       console.log("[DAPP_HTML] Thyra accounts ...", thyraAccounts);
-      
 
+      for (const thyraAccount of thyraAccounts) {
+        console.log("[DAPP_HTML] Thyra account name - address ...", thyraAccount.name(), thyraAccount.address());
+        const balance = await thyraAccount.balance();
+        console.log("[DAPP_HTML] Thyra account balance ...", balance);
+      }
     </script>
   </body>
 </html>

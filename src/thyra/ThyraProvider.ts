@@ -6,10 +6,10 @@ import {
   IAccountImportRequest,
   IAccountImportResponse,
 } from '../provider/AccountImport';
-import { Account } from '../account/Account';
-import { IAccountDetails } from '../account/IAccountDetails';
 import { IProvider } from '../provider/IProvider';
 import { JsonRpcResponseData, getRequest } from './RequestHandler';
+import { ThyraAccount } from './ThyraAccount';
+import { IAccount } from '../account/IAccount';
 
 export const THYRA_ACCOUNTS_URL =
   'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet/';
@@ -38,7 +38,7 @@ export class ThyraProvider implements IProvider {
     return this.providerName;
   }
 
-  public async accounts(): Promise<Account[]> {
+  public async accounts(): Promise<IAccount[]> {
     let thyraAccountsResponse: JsonRpcResponseData<Array<IThyraWallet>> = null;
     try {
       thyraAccountsResponse = await getRequest<Array<IThyraWallet>>(
@@ -52,9 +52,9 @@ export class ThyraProvider implements IProvider {
       throw thyraAccountsResponse.error.message;
     }
     const thyraAccounts: IThyraWallet[] = thyraAccountsResponse.result;
-    let accounts: Account[] = [];
+    let accounts: ThyraAccount[] = [];
     for (const thyraAccount of thyraAccounts) {
-      const accInstance = new Account(
+      const accInstance = new ThyraAccount(
         { address: thyraAccount.address, name: thyraAccount.nickname },
         this.providerName,
       );
