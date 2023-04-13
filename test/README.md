@@ -1,4 +1,4 @@
-# [WIP] Testing wallet-provider
+# Testing wallet-provider
 A **WIP** simple way to test wallet-provider.
 
 ## How to test it ?
