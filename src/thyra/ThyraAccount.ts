@@ -8,12 +8,25 @@ import {
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
-import { IThyraWallet, THYRA_ACCOUNTS_URL } from './ThyraProvider';
+import { THYRA_ACCOUNTS_URL } from './ThyraProvider';
+
+const THYRA_BALANCE_URL = `https://my.massa/massa/addresses?attributes=balance&addresses`;
 
 interface ISignOperation {
   operation: Uint8Array;
   batch?: boolean;
   correlationId?: string;
+}
+
+interface IBalance {
+  final: string;
+  pending: string;
+}
+
+interface IAddressesBalances {
+  addressesAttributes: {
+    [key: string]: { balance: IBalance };
+  };
 }
 
 export class ThyraAccount implements IAccount {
@@ -40,8 +53,23 @@ export class ThyraAccount implements IAccount {
   }
 
   public async balance(): Promise<IAccountBalanceResponse> {
-    // TODO
-    return null;
+    let signOpResponse: JsonRpcResponseData<IAddressesBalances> = null;
+    try {
+      signOpResponse = await getRequest<IAddressesBalances>(
+        `${THYRA_BALANCE_URL}=${this._address}`,
+      );
+    } catch (ex) {
+      console.error(`Thyra account balance error`);
+      throw ex;
+    }
+    if (signOpResponse.isError || signOpResponse.error) {
+      throw signOpResponse.error.message;
+    }
+    const balance: IBalance =
+      signOpResponse.result.addressesAttributes[this._address].balance;
+    return {
+      balance: balance.final,
+    };
   }
 
   public async sign(data: Uint8Array): Promise<IAccountSignResponse> {
