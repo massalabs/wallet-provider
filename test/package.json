@@ -9,5 +9,11 @@
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.32.3"
+  },
+  "dependencies": {
+    "foxdriver": "^1.0.6",
+    "playwright": "^1.32.3",
+    "web-ext": "^7.6.1",
+    "web-ext-types": "^3.2.1"
   }
 }
