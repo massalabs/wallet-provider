@@ -4,4 +4,4 @@ node_modules
 bundle.*
 docs
 dist
-test
+test/simple-browser-extension
