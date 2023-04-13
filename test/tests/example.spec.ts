@@ -1,6 +1,5 @@
-import { test as base, expect, chromium, type BrowserContext } from '@playwright/test';
+import { test as base, expect, firefox, type BrowserContext } from '@playwright/test';
 import path from 'path';
-import { firefox } from 'playwright';
 // 'remote' is not defined by "exports" in package.json
 import { loadFirefoxAddon } from './install_ff_addons';
 //import Addons from '../node_modules/foxdriver/lib/domains/addons.js';
@@ -19,9 +18,10 @@ const RDP_PORT = 6000;
       'devtools.debugger.remote-port': String(RDP_PORT),
     }
   });
+  //const pathToExtension = path.join(__dirname, '..', '..', '..', 'massa-wallet-provider-content-script', 'plugin');
 
 
-  loadFirefoxAddon(RDP_PORT, 'localhost', path.join('..', 'massa-wallet-provider-content-script', 'plugin', "manifest.json") ); // '../massa-wallet-provider-content-script/plugin/web-ext-artifacts/massaspacewallet-1.0/'
+  loadFirefoxAddon(RDP_PORT, 'localhost', path.join(__dirname, '..', '..', '..', 'massa-wallet-provider-content-script', 'plugin') ); // '../massa-wallet-provider-content-script/plugin/web-ext-artifacts/massaspacewallet-1.0/'
 
   // const addons = new Addons(browser);
   // await addons.installTemporaryAddon(path.join('..', 'massa-wallet-provider-content-script', 'plugin', "manifest.json"));
