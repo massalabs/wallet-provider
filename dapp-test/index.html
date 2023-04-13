@@ -78,6 +78,10 @@
         const signature = await thyraAccount.sign("100110111010001011101001");
         console.log("[DAPP_HTML] Thyra account signature ...", signature);
       }
+
+      const accountAddressToDelete = thyraAccounts[0].address();
+      const deletionResp = await thyraProvider.deleteAccount(accountAddressToDelete);
+      console.log("[DAPP_HTML] Thyra account deletion response ...", deletionResp);
     </script>
   </body>
 </html>

@@ -23,7 +23,7 @@ export async function postRequest<T>(
 ): Promise<JsonRpcResponseData<T>> {
   let resp: AxiosResponse = null;
   try {
-    resp = await axios.post<any, AxiosResponse, object>(
+    resp = await axios.post<unknown, AxiosResponse, object>(
       url,
       body,
       requestHeaders,
@@ -50,7 +50,30 @@ export async function getRequest<T>(
 ): Promise<JsonRpcResponseData<T>> {
   let resp: AxiosResponse = null;
   try {
-    resp = await axios.get<any, AxiosResponse, object>(url, requestHeaders);
+    resp = await axios.get<unknown, AxiosResponse, object>(url, requestHeaders);
+  } catch (ex) {
+    return {
+      isError: true,
+      result: null,
+      error: new Error('Axios Error: ' + String(ex)),
+    } as JsonRpcResponseData<T>;
+  }
+
+  return {
+    isError: false,
+    result: resp.data as T,
+    error: null,
+  } as JsonRpcResponseData<T>;
+}
+
+// =======================================================================================
+
+export async function deleteRequest<T>(
+  url: string,
+): Promise<JsonRpcResponseData<T>> {
+  let resp: AxiosResponse = null;
+  try {
+    resp = await axios.delete<unknown, AxiosResponse, object>(url, requestHeaders);
   } catch (ex) {
     return {
       isError: true,
