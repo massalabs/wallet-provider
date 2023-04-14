@@ -1,3 +1,5 @@
+// Code from https://github.com/microsoft/playwright/issues/7297#issuecomment-1211763085
+
 import { Buffer } from 'buffer';
 import net from 'net';
 
