@@ -58,16 +58,12 @@ export class ThyraProvider implements IProvider {
     if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
       throw thyraAccountsResponse.error.message;
     }
-    const thyraAccounts: IThyraWallet[] = thyraAccountsResponse.result;
-    let accounts: ThyraAccount[] = [];
-    for (const thyraAccount of thyraAccounts) {
-      const accInstance = new ThyraAccount(
+    return thyraAccountsResponse.result.map((thyraAccount) => {
+      return new ThyraAccount(
         { address: thyraAccount.address, name: thyraAccount.nickname },
         this.providerName,
       );
-      accounts.push(accInstance);
-    }
-    return accounts;
+    });
   }
 
   public async importAccount(

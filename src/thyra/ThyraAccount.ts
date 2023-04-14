@@ -60,7 +60,7 @@ export class ThyraAccount implements IAccount {
       throw ex;
     }
     if (signOpResponse.isError || signOpResponse.error) {
-      throw signOpResponse.error.message;
+      throw signOpResponse.error;
     }
     const balance: IBalance =
       signOpResponse.result.addressesAttributes[this._address].balance;
@@ -84,7 +84,7 @@ export class ThyraAccount implements IAccount {
       throw ex;
     }
     if (signOpResponse.isError || signOpResponse.error) {
-      throw signOpResponse.error.message;
+      throw signOpResponse.error;
     }
     return signOpResponse.result;
   }

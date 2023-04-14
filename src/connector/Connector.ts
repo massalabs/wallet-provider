@@ -128,13 +128,13 @@ class Connector {
     this.thyraListener = new ThyraDiscovery(1000);
     this.thyraListener.startListening();
     this.thyraListener.on(ON_THYRA_DISCOVERED, () => {
-      console.log('Thyra Discovered !');
+      console.log('Thyra Discovered!');
       this.registeredProviders[
         THYRA_PROVIDER_NAME
       ] = `${MASSA_WINDOW_OBJECT}_${THYRA_PROVIDER_NAME}`;
     });
     this.thyraListener.on(ON_THYRA_DISCONNECTED, () => {
-      console.log('Thyra Disconnected !');
+      console.log('Thyra Disconnected!');
       delete this.registeredProviders[THYRA_PROVIDER_NAME];
     });
   }
