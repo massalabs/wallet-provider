@@ -66,18 +66,17 @@ console.log("Massa Providers ", providers);
 
 ## Documentation
 
-  
+Wallet-provider provides complete documentation of all available functions and objects.
 
-Complete documentation can be found here:
+To generate the documentation for a specific branch, run the following command:
 
-  
+```sh
+npm run doc
+```
 
-TODO
+The documentation will be generated in the `docs/documentation/html` directory.
 
-  
-
-
-  
+   
 
 ## Web3 Wallet Provider Requirement and Initialization
 
