@@ -37,6 +37,17 @@ You can run the following command to run the tests:
 npm run test
 ```
 
+## Code Style
+Please ensure that your code follows the existing code style used in the project.
+We use the [MassaLabs Prettier configuration](https://github.com/massalabs/prettier-config-as) and [MassaLabs ESLint configuration](https://github.com/massalabs/eslint-config) for formatting and linting.
+
+You can run the following command to format your code before committing:
+
+```sh
+npm run fmt
+```
+
+
 ## License
 By contributing to wallet-provider, you agree that your contributions will be licensed under the MIT License.
 
