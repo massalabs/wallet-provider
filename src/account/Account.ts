@@ -11,12 +11,7 @@ import { AvailableCommands } from '..';
  * This module contains the Account class. It is responsible for representing an account in the wallet.
  *
  * @remarks
- * - This class provides methods to interact with the account's {@link balance} and to {@link sign} messages.
- *
- * Properties:
- * - _providerName - The name of the provider - private
- * - _address - The address of the account - private
- * - _name - The name of the account - private
+ * This class provides methods to interact with the account's {@link balance} and to {@link sign} messages.
  *
  */
 export class Account {
