@@ -73,7 +73,10 @@ export async function deleteRequest<T>(
 ): Promise<JsonRpcResponseData<T>> {
   let resp: AxiosResponse = null;
   try {
-    resp = await axios.delete<unknown, AxiosResponse, object>(url, requestHeaders);
+    resp = await axios.delete<unknown, AxiosResponse, object>(
+      url,
+      requestHeaders,
+    );
   } catch (ex) {
     return {
       isError: true,

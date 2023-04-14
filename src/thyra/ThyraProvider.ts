@@ -74,7 +74,7 @@ export class ThyraProvider implements IProvider {
     publicKey: string,
     privateKey: string,
   ): Promise<IAccountImportResponse> {
-    // TODO
+    // TODO: cannot import as it goes over the popup dialog (need special url for that)
     return null;
   }
 
