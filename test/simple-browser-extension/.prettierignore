@@ -9,4 +9,5 @@ dist
 README.md
 *.html
 *.css
-test/simple-browser-extension
+plugin
+dapp
