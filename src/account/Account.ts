@@ -1,12 +1,11 @@
 /**
- * This module contains the Account class. It is responsible for representing an account in the wallet. 
- * 
- * @remarks
- * This class provides methods to interact with the account's {@link balance} and to {@link sign} messages.
- *
- * @module
+ * @dependencies
+ * - IAccountBalanceRequest and IAccountBalanceResponse from the ./AccountBalance module
+ * - IAccountSignRequest and IAccountSignResponse from the ./AccountSign module
+ * - connector from the ../connector/Connector module
+ * - IAccount from the ./IAccount module
+ * - AvailableCommands from ../index.ts
  */
-
 import {
   IAccountBalanceRequest,
   IAccountBalanceResponse,
@@ -16,6 +15,19 @@ import { connector } from '../connector/Connector';
 import { IAccount } from './IAccount';
 import { AvailableCommands } from '..';
 
+/**
+ * This module contains the Account class. It is responsible for representing an account in the wallet. 
+ * 
+ * @remarks
+ * - This class provides methods to interact with the account's {@link balance} and to {@link sign} messages.
+ * 
+ * @properties
+ * - _providerName - The name of the provider -> private
+ * - _address - The address of the account -> private
+ * - _name - The name of the account -> private
+ * 
+ * @module
+ */
 export class Account {
   private _providerName: string;
   private _address: string;
