@@ -72,4 +72,7 @@ docs
 #.env files
 .env
 
+# Playwright tests results
+test/playwright-tests/playwright-report
+
 test/runner.js
