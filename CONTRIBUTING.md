@@ -11,8 +11,14 @@ To start developing with wallet-provider, you must install all the necessary dev
 ```sh
 npm install
 ```
+and then :
+```sh
+npx playwright install --with-deps
+```
 
 This will install all the required packages listed in the package.json file, allowing you to update, fix, or improve wallet-provider in any way you see fit. 
+
+The second command will install the playwright and it's dependencies, allowing you to run the tests.
 
 ## Contributing Code
 We welcome contributions in the form of bug fixes, enhancements, and new features.
