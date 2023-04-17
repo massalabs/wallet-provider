@@ -9,8 +9,8 @@ import { AvailableCommands } from '..';
 import { IAccount } from '../account/IAccount';
 
 /**
- * The Provider class allows you to represent a provider by its name and 
- * provides some functions to interact with it.
+ * The Provider class provides a simple and intuitive interface for interacting with a specific 
+ * wallet service.
  *
  */
 export class Provider {
