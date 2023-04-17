@@ -6,7 +6,8 @@ docs
 dist
 *.json
 .lintstagedrc
-README.md
+*.md
 *.html
 *.css
 test/simple-browser-extension
+

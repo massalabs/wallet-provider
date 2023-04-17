@@ -92,9 +92,11 @@ The documentation will be generated in the `docs/documentation/html` directory.
 
 1. Run `npm install` to install all dependencies
 
-2. Run `npm run build` to build distribution content
+2. Run `npx playwright install --with-deps` to install playwright and its dependencies
 
-3. Run `npm run test` to run integration and unit tests
+3. Run `npm run build` to build distribution content
+
+4. Run `npm run test` to run integration and unit tests
 
 <br>
 

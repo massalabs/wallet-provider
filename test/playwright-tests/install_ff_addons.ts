@@ -36,7 +36,8 @@ export const loadFirefoxAddon = (
       type: 'getRoot',
     });
 
-    const onMessage = (message: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onMessage = (message: any) => { 
       if (message.addonsActor) {
         send({
           to: message.addonsActor,
