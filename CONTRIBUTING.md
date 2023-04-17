@@ -57,13 +57,10 @@ npm run fmt
 ## License
 By contributing to wallet-provider, you agree that your contributions will be licensed under the MIT License.
 
+
 ## Documentation
-Wallet-provider provides complete documentation of all available functions and objects.
+To ensure the codebase is well-documented, we use ts-doc to comment our functions and modules following a specific pattern. This pattern includes describing the function's purpose, its parameters and return types, and any potential errors it may throw.
 
-To generate the documentation for a specific branch, run the following command:
+In addition, you can find additional information and documentation in the code by looking for @privateRemarks tags. These tags provide extra context and details that may not be immediately obvious from the function's public documentation.
 
-```sh
-npm run doc
-```
-
-The documentation will be generated in the `docs/documentation/html` directory.
+We highly encourage all contributors to take the time to write clear, concise, and comprehensive documentation for any changes or new features they introduce to the codebase. Good documentation makes it easier for others to understand the code and reduces the likelihood of bugs and errors down the line.
