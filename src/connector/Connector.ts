@@ -1,7 +1,10 @@
 /**
- * This file defines a TypeScript module named connector that provides functionality
- * to communicate between a web page script and a content script. The content script is
- * expected to be injected into a web page by a browser extension.
+ * This file defines a TypeScript module named connector. 
+ * It is the tool that allows the 'provider' and 'account' objects to communicate with the web page script.
+ * 
+ * @remarks
+ * - If you are only looking to use our library, the connector object will not be useful to you.
+ * - If you want to work on this repo, you will probably be interested in this object
  *
  */
 import { uid } from 'uid';
@@ -61,14 +64,14 @@ class Connector {
 
   /**
    * Connector constructor
-   *
-   * @returns An instance of the Connector class.
-   *
+   * 
    * @remarks
    * - The Connector constructor takes no arguments.
    * - It creates a Map object that is used to store pending requests.
    * - It creates an HTML element that is used to communicate with the content script.
    * - It adds an event listener to the HTML element that is used to communicate with the content script.
+   * 
+   * @returns An instance of the Connector class.
    *
    */
   public constructor() {
@@ -85,8 +88,8 @@ class Connector {
   }
 
   /**
-   * This method registers a new provider by creating a new HTML element and a
-   * listener that listens to the 'register' event.
+   * This method adds a register listener in the web page. 
+   * It listens to the 'register' event.
    *
    * @returns void
    *
@@ -122,14 +125,14 @@ class Connector {
    * @remarks
    * Sends a message to the content script using the specified provider name, command, and parameters,
    *
+   * @privateRemarks
+   * This method registers the response callback with a unique ID.
+   * 
    * @param providerName - The name of the provider.
    * @param command - The command that is sent to the content script (among the {@link AvailableCommands}).
    * @param params - The parameters that are sent to the content script.
    * @param responseCallback - The callback function that is called when the content script sends a response.
    * @returns void
-   *
-   * @remarks
-   * This method registers the response callback with a unique ID.
    *
    */
 
