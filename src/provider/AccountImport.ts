@@ -1,5 +1,6 @@
 /**
- * This interface represents the request object that is sent to the content script.
+ * This interface represents the request object sent to the content script
+ * for importing an account.
  */
 export interface IAccountImportRequest {
   privateKey: string;
