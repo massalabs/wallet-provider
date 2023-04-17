@@ -1,5 +1,5 @@
 /**
- * This interface represents the signing request we are sending to the content script.
+ * This interface represents the request object for the signing operation sent to the content script.
  */
 export interface IAccountSignRequest {
   address: string;
