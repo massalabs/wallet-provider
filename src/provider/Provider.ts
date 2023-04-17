@@ -9,7 +9,8 @@ import { AvailableCommands } from '..';
 import { IAccount } from '../account/IAccount';
 
 /**
- * Provider class
+ * The Provider class allows you to represent a provider by its name and 
+ * provides some functions to interact with it.
  *
  */
 export class Provider {

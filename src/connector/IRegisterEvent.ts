@@ -1,5 +1,5 @@
 /**
- * This interface represents the module that is used to register an event.
+ * This interface represents the object that is used to register an event.
  */
 export interface IRegisterEvent {
   providerName: string;
