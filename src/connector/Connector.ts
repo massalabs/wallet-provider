@@ -175,8 +175,7 @@ class Connector {
   /**
    * This method returns the registered providers.
    *
-   * @param key - The name of the provider.
-   * @returns The registered provider associated with the specified key.
+   * @returns The registered provider associated with its unique key.
    *
    */
   public getWalletProviders(): { [key: string]: string } {
