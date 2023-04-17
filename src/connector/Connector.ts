@@ -118,6 +118,8 @@ class Connector {
 
   /**
    * This method sends a message from the webpage script to the content script.
+   *
+   * @remarks
    * Sends a message to the content script using the specified provider name, command, and parameters,
    *
    * @param providerName - The name of the provider.
