@@ -36,7 +36,6 @@ export const loadFirefoxAddon = (
       type: 'getRoot',
     });
 
-    // eslint:@typescript-eslint/no-explicit-any: "off"
     const onMessage = (message: any) => { 
       if (message.addonsActor) {
         send({
