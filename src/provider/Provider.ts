@@ -66,13 +66,14 @@ export class Provider {
   /**
    * This method sends a message to the content script to import an account with the given publicKey and privateKey.
    *
+   * @remarks
+   * - The IAccountImportResponse object contains the address of the imported account.
+   * - The address is generated from the public key.
+   * 
    * @param publicKey - The public key of the account.
    * @param privateKey - The private key of the account.
    * @returns a Promise that resolves to an instance of IAccountImportResponse.
    *
-   * @remarks
-   * - The IAccountImportResponse object contains the address of the imported account.
-   * - The address is generated from the public key.
    */
   public async importAccount(
     publicKey: string,
