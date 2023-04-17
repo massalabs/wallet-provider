@@ -7,8 +7,8 @@ export interface IAccountSignRequest {
 }
 
 /**
- * This interface represents the response object of the previously sent message which is now signed.
- * It is sent by the content script.
+ * This interface represents the response object containing the signed message data, which is sent by the content script 
+ * after the signing operation.
  */
 export interface IAccountSignResponse {
   pubKey: string;

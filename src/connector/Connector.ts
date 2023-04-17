@@ -51,8 +51,7 @@ export type AllowedResponses =
   | IAccount[];
 
 /**
- * Connector class
- *
+* This class enables communication with the content script by sending and receiving messages.
  * @remarks
  * - This class is used to send messages to the content script and to receive messages from the content script.
  * - It is used to send messages to the content script and to receive messages from the content script.
