@@ -7,8 +7,8 @@ export interface IAccountDeletionRequest {
 }
 
 /**
- * This interface represents the response object that is sent by the content script to confirm
- * or not the deletion of an account.
+ * This interface represents the response object sent by the content script,
+ * indicating the result of an account deletion request.
  */
 export interface IAccountDeletionResponse {
   response: EAccountDeletionResponse;
