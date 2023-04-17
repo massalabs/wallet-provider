@@ -15,8 +15,8 @@ export interface IAccountDeletionResponse {
 }
 
 /**
- * This enum represents the possible responses that can be sent by the content script
- * when we ask for an account deletion.
+ * This enum represents the possible responses from the content script
+ * in response to an account deletion request.
  */
 export enum EAccountDeletionResponse {
   OK,
