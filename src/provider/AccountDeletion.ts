@@ -1,6 +1,6 @@
 /**
- * This interface represents the request object that is sent to the content script
- * in order to delete an account.
+ * This interface represents the request object sent to the content script
+ * for deleting an account.
  */
 export interface IAccountDeletionRequest {
   address: string;
