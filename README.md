@@ -2,6 +2,7 @@
 ![check-code-coverage](https://img.shields.io/badge/coverage-NaN%25-red)
 
 
+
   
 
 `Wallet-provider` is a TypeScript library that one could utilize to establish a connection between a frontend application and any browser wallet extensions that implement the [massa standard](https://github.com/massalabs/massa-standards/blob/main/wallet/dapps-communication.md). With this library one can access all massa-blockchain wallets and their standardized functionalities for ready use.
