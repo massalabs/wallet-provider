@@ -9,7 +9,7 @@ export interface IAccountImportRequest {
 
 /**
  * This interface represents the response object sent by the content script,
- * indicating the result of an account import request. 
+ * indicating the result of an account import request.
  */
 export interface IAccountImportResponse {
   response: EAccountImportResponse;
@@ -18,7 +18,7 @@ export interface IAccountImportResponse {
 
 /**
  * This enum represents the possible responses from the content script
- * in response to an account import request. 
+ * in response to an account import request.
  */
 export enum EAccountImportResponse {
   OK,

@@ -1,7 +1,7 @@
 /**
- * This file defines a TypeScript module named connector. 
+ * This file defines a TypeScript module named connector.
  * It is the tool that allows the 'provider' and 'account' objects to communicate with the web page script.
- * 
+ *
  * @remarks
  * - If you are only looking to use our library, the connector object will not be useful to you.
  * - If you want to work on this repo, you will probably be interested in this object
@@ -51,7 +51,7 @@ export type AllowedResponses =
   | IAccount[];
 
 /**
-* This class enables communication with the content script by sending and receiving messages.
+ * This class enables communication with the content script by sending and receiving messages.
  * @remarks
  * - This class is used to send messages to the content script and to receive messages from the content script.
  * - It is used to send messages to the content script and to receive messages from the content script.
@@ -63,13 +63,13 @@ class Connector {
 
   /**
    * Connector constructor
-   * 
+   *
    * @remarks
    * - The Connector constructor takes no arguments.
    * - It creates a Map object that is used to store pending requests.
    * - It creates an HTML element that is used to communicate with the content script.
    * - It adds an event listener to the HTML element that is used to communicate with the content script.
-   * 
+   *
    * @returns An instance of the Connector class.
    *
    */
@@ -87,7 +87,7 @@ class Connector {
   }
 
   /**
-   * This method adds a register listener in the web page. 
+   * This method adds a register listener in the web page.
    * It listens to the 'register' event.
    *
    * @returns void
@@ -126,7 +126,7 @@ class Connector {
    *
    * @privateRemarks
    * This method registers the response callback with a unique ID.
-   * 
+   *
    * @param providerName - The name of the provider.
    * @param command - The command that is sent to the content script (among the {@link AvailableCommands}).
    * @param params - The parameters that are sent to the content script.

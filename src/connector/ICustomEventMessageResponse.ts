@@ -1,7 +1,7 @@
 import { AllowedResponses } from './Connector';
 
 /**
- * This interface represents the response from the content script to the web page script 
+ * This interface represents the response from the content script to the web page script
  * for an ICustomEventMessageRequest.
  */
 export interface ICustomEventMessageResponse {
