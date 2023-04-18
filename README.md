@@ -178,4 +178,3 @@ await  myProvider.importAccount(myAccount.address());
 We welcome contributions from the community!
 
 If you would like to contribute to Massa-as-sdk, please read the  [CONTRIBUTING file](https://github.com/massalabs/wallet-provider/blob/main/CONTRIBUTING.md).
-  
