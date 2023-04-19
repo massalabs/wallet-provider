@@ -6,14 +6,16 @@ import { IAccountImportRequest, IAccountImportResponse } from './AccountImport';
 import { connector } from '../connector/Connector';
 import { Account } from '../account/Account';
 import { AvailableCommands } from '..';
+import { IAccountDetails } from '../account/IAccountDetails';
+import { IProvider } from './IProvider';
 import { IAccount } from '../account/IAccount';
 
 /**
- * The Provider class provides a simple and intuitive interface for interacting with a specific 
+ * The Provider class provides a simple and intuitive interface for interacting with a specific
  * wallet service.
  *
  */
-export class Provider {
+export class Provider implements IProvider {
   private providerName: string;
 
   /**
@@ -40,20 +42,22 @@ export class Provider {
    *
    * @returns A promise that resolves to an array of Account instances.
    */
-  public async accounts(): Promise<Account[]> {
-    const providersPromise = new Promise<IAccount[]>((resolve, reject) => {
-      connector.sendMessageToContentScript(
-        this.providerName,
-        AvailableCommands.ProviderListAccounts,
-        {},
-        (result, err) => {
-          if (err) return reject(err);
-          return resolve(result as IAccount[]);
-        },
-      );
-    });
+  public async accounts(): Promise<IAccount[]> {
+    const providersPromise = new Promise<IAccountDetails[]>(
+      (resolve, reject) => {
+        connector.sendMessageToContentScript(
+          this.providerName,
+          AvailableCommands.ProviderListAccounts,
+          {},
+          (result, err) => {
+            if (err) return reject(err);
+            return resolve(result as IAccountDetails[]);
+          },
+        );
+      },
+    );
 
-    const providerAccounts: IAccount[] = await providersPromise;
+    const providerAccounts: IAccountDetails[] = await providersPromise;
 
     let accounts: Account[] = [];
     for (const providerAccount of providerAccounts) {
@@ -70,7 +74,7 @@ export class Provider {
    * @remarks
    * - The IAccountImportResponse object contains the address of the imported account.
    * - The address is generated from the public key.
-   * 
+   *
    * @param publicKey - The public key of the account.
    * @param privateKey - The private key of the account.
    * @returns a Promise that resolves to an instance of IAccountImportResponse.

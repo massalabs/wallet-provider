@@ -33,7 +33,7 @@ class MassaSpaceWalletImpl {
       return { balance: '1234.5' };
     } else if (request.action === 'sign') {
       return {
-        pubKey: '0x0000',
+        publicKey: '0x0000',
         signature: Uint8Array.from([1, 2, 3]),
       };
     } else if (request.action === 'listAccounts') {

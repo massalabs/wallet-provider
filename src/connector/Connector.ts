@@ -1,7 +1,7 @@
 /**
- * This file defines a TypeScript module named connector. 
+ * This file defines a TypeScript module named connector.
  * It is the tool that allows the 'provider' and 'account' objects to communicate with the web page script.
- * 
+ *
  * @remarks
  * - If you are only looking to use our library, the connector object will not be useful to you.
  * - If you want to work on this repo, you will probably be interested in this object
@@ -13,7 +13,6 @@ import { ICustomEventMessageRequest } from './ICustomEventMessageRequest';
 import { IRegisterEvent } from './IRegisterEvent';
 import {
   AvailableCommands,
-  IAccount,
   IAccountBalanceRequest,
   IAccountBalanceResponse,
   IAccountDeletionRequest,
@@ -23,6 +22,13 @@ import {
   IAccountSignRequest,
   IAccountSignResponse,
 } from '..';
+import {
+  ON_THYRA_DISCOVERED,
+  ON_THYRA_DISCONNECTED,
+  ThyraDiscovery,
+} from '../thyra/ThyraDiscovery';
+import { THYRA_PROVIDER_NAME } from '../thyra/ThyraProvider';
+import { IAccount } from '../account/IAccount';
 
 /**
  * A constant string that is used to identify the HTML element that is used for
@@ -51,7 +57,7 @@ export type AllowedResponses =
   | IAccount[];
 
 /**
-* This class enables communication with the content script by sending and receiving messages.
+ * This class enables communication with the content script by sending and receiving messages.
  * @remarks
  * - This class is used to send messages to the content script and to receive messages from the content script.
  * - It is used to send messages to the content script and to receive messages from the content script.
@@ -60,16 +66,17 @@ export type AllowedResponses =
 class Connector {
   private registeredProviders: { [key: string]: string } = {};
   private pendingRequests: Map<string, CallbackFunction>;
+  private thyraListener: ThyraDiscovery;
 
   /**
    * Connector constructor
-   * 
+   *
    * @remarks
    * - The Connector constructor takes no arguments.
    * - It creates a Map object that is used to store pending requests.
    * - It creates an HTML element that is used to communicate with the content script.
    * - It adds an event listener to the HTML element that is used to communicate with the content script.
-   * 
+   *
    * @returns An instance of the Connector class.
    *
    */
@@ -87,7 +94,7 @@ class Connector {
   }
 
   /**
-   * This method adds a register listener in the web page. 
+   * This method adds a register listener in the web page.
    * It listens to the 'register' event.
    *
    * @returns void
@@ -116,6 +123,18 @@ class Connector {
         this.registeredProviders[payload.providerName] =
           providerEventTargetName;
       });
+
+    // start thyra discovery
+    this.thyraListener = new ThyraDiscovery(1000);
+    this.thyraListener.startListening();
+    this.thyraListener.on(ON_THYRA_DISCOVERED, () => {
+      this.registeredProviders[
+        THYRA_PROVIDER_NAME
+      ] = `${MASSA_WINDOW_OBJECT}_${THYRA_PROVIDER_NAME}`;
+    });
+    this.thyraListener.on(ON_THYRA_DISCONNECTED, () => {
+      delete this.registeredProviders[THYRA_PROVIDER_NAME];
+    });
   }
 
   /**
@@ -126,7 +145,7 @@ class Connector {
    *
    * @privateRemarks
    * This method registers the response callback with a unique ID.
-   * 
+   *
    * @param providerName - The name of the provider.
    * @param command - The command that is sent to the content script (among the {@link AvailableCommands}).
    * @param params - The parameters that are sent to the content script.

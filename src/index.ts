@@ -1,5 +1,7 @@
 import { connector } from './connector/Connector';
+import { IProvider } from './provider/IProvider';
 import { Provider } from './provider/Provider';
+import { THYRA_PROVIDER_NAME, ThyraProvider } from './thyra/ThyraProvider';
 
 export enum AvailableCommands {
   ProviderListAccounts = 'LIST_ACCOUNTS',
@@ -9,11 +11,16 @@ export enum AvailableCommands {
   AccountSign = 'ACCOUNT_SIGN',
 }
 
-export function providers(): Provider[] {
-  let providers: Provider[] = [];
+export function providers(): IProvider[] {
+  let providers: IProvider[] = [];
   for (const providerName of Object.keys(connector.getWalletProviders())) {
-    const p = new Provider(providerName);
-    providers.push(p);
+    if (providerName === THYRA_PROVIDER_NAME) {
+      const p = new ThyraProvider();
+      providers.push(p);
+    } else {
+      const p = new Provider(providerName);
+      providers.push(p);
+    }
   }
   return providers;
 }
@@ -21,7 +28,7 @@ export function providers(): Provider[] {
 export { AllowedRequests, AllowedResponses } from './connector';
 
 export {
-  IAccount,
+  IAccountDetails,
   IAccountBalanceRequest,
   IAccountBalanceResponse,
   IAccountSignRequest,

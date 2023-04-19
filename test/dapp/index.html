@@ -27,14 +27,14 @@
       console.log("[DAPP_HTML] Discovered providers ...", providers);
 
       // wait for a few secs for the provider to be discovered
-      await delay(1000);
+      await delay(3000);
 
       providers = window.wallet.providers();
       console.log("[DAPP_HTML] Discovered Providers count", providers.length);
       console.log("[DAPP_HTML] Discovered providers ...", providers);
 
-      // get a provider
-      const myProvider = providers[0];
+      // get a provider (not THYRA)
+      const myProvider = providers.find((p) => p.name() !== "THYRA");
       console.log("[DAPP_HTML] Provider Name", myProvider.name());
 
       // import an account
@@ -64,14 +64,13 @@
       const signature = await myAccount.sign([0, 1, 2]);
       console.log("[DAPP_HTML] Account Signature = ", signature);
 
-
       // display as list
       const list = document.createElement("ul");
       list.innerHTML = `
         <li>Provider Name: ${myProvider.name()}</li>
         <li>Account Address: ${myAccount.address()}</li>
         <li>Account Balance: ${accountBalance.balance}</li>
-        <li>Account Signature: ${signature.pubKey}</li>
+        <li>Account Signature: ${signature.publicKey}</li>
       `;
       document.body.appendChild(list);
 
@@ -80,8 +79,6 @@
       address.id = "address";
       address.innerHTML = `Account Address: ${myAccount.address()}`;
       document.body.appendChild(address);
-      
-      
     </script>
   </body>
 </html>
