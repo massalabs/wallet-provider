@@ -128,7 +128,7 @@ export class Provider implements IProvider {
    * This method sends a message to the content script to get the list of nodes urls
    * used to connect the front end to the Massa network.
    *
-   * @returns a Promise that resolves to an array of nodes urls.
+   * @returns a Promise that resolves to an array of nodes urls (string).
    *
    */
   public async getNodesUrls(): Promise<string[]> {

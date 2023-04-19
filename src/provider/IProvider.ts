@@ -13,4 +13,5 @@ export interface IProvider {
     privateKey: string,
   ): Promise<IAccountImportResponse>;
   deleteAccount(address: string): Promise<IAccountDeletionResponse>;
+  getNodesUrls(): Promise<string[]>;
 }
