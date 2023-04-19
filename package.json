@@ -16,7 +16,7 @@
         "update-version-major": "npm version major",
         "update-version-minor": "npm version minor",
         "update-version-patch": "npm version patch",
-        "test:serve-dapp": "cp ./bundle.js ./test/dapp/bundle.js && http-server test/dapp --cors --port 9009", 
+        "test:serve-dapp": "cp ./bundle.js ./test/dapp/bundle.js && http-server test/dapp --cors --port 9009",
         "test": "cd ./test && npx playwright test",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
@@ -53,11 +53,11 @@
         "bundle.min.js"
     ],
     "dependencies": {
+        "axios": "^0.26.1",
         "bignumber.js": "^9.1.1",
         "buffer": "^6.0.3",
         "esmify": "^2.1.1",
-        "uid": "^2.0.1",
-        "axios": "^0.26.1"
+        "uid": "^2.0.1"
     },
     "devDependencies": {
         "@massalabs/eslint-config": "^0.0.9",
