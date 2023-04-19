@@ -7,6 +7,7 @@
       AvailableCommands["ProviderListAccounts"] = "LIST_ACCOUNTS";
       AvailableCommands["ProviderDeleteAccount"] = "DELETE_ACCOUNT";
       AvailableCommands["ProviderImportAccount"] = "IMPORT_ACCOUNT";
+      AvailableCommands["ProviderGetNodesUrls"] = "GET_NODES_URLS";
       AvailableCommands["AccountBalance"] = "ACCOUNT_BALANCE";
       AvailableCommands["AccountSign"] = "ACCOUNT_SIGN";
   })(AvailableCommands = exports.AvailableCommands || (exports.AvailableCommands = {}));
@@ -34,6 +35,7 @@
           this.deleteAccount = this.deleteAccount.bind(this);
           this.importAccount = this.importAccount.bind(this);
           this.listAccounts = this.listAccounts.bind(this);
+          this.getNodesUrls = this.getNodesUrls.bind(this);
           // this is the current provider html element
           const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
           if (!document.getElementById(providerEventTargetName)) {
@@ -122,6 +124,21 @@
               // answer to the message target
               walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
           });
+
+          // ==============================Get nodes==================================
+          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.ProviderGetNodesUrls, (evt) => {
+            const payload = evt.detail;
+            this.actionToCallback.get(Commands_1.AvailableCommands.ProviderGetNodesUrls)(payload);
+        });
+        this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderGetNodesUrls, async (payload) => {
+            const respMessage = {
+                result: await this.getNodesUrls(),
+                error: null,
+                requestId: payload.requestId,
+            };
+            // answer to the message target
+            walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+        });
           // ================================================================
       }
       attachCallbackHandler(methodName, callback) {
