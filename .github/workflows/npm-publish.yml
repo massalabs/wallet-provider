@@ -25,7 +25,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
 
   deploy-typedoc:
-      needs: test
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v3
