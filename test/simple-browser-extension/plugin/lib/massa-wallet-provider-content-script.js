@@ -124,32 +124,251 @@ class ContentScriptProvider {
         });
         // ================================================================
     }
-    attachCallbackHandler(methodName, callback) {
-        this.actionToCallback.set(methodName, callback);
-    }
-    static async registerAsMassaWalletProvider(providerName) {
-        return withTimeoutRejection(new Promise((resolve) => {
-            const registerProvider = () => {
-                if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
-                    return resolve(false);
-                }
-                // answer to the register target
-                const isRegisterEventSent = document
-                    .getElementById(MASSA_WINDOW_OBJECT)
-                    .dispatchEvent(new CustomEvent('register', detailWrapper({
-                    detail: {
-                        providerName: providerName,
-                        eventTarget: providerName,
-                    },
-                })));
-                return resolve(isRegisterEventSent);
-            };
-            if (document.readyState === 'complete' ||
-                document.readyState === 'interactive') {
-                registerProvider();
+    return r;
+  })()(
+    {
+      1: [
+        function (require, module, exports) {
+          'use strict';
+          Object.defineProperty(exports, '__esModule', { value: true });
+          exports.AvailableCommands = void 0;
+          var AvailableCommands;
+          (function (AvailableCommands) {
+            AvailableCommands['ProviderListAccounts'] = 'LIST_ACCOUNTS';
+            AvailableCommands['ProviderDeleteAccount'] = 'DELETE_ACCOUNT';
+            AvailableCommands['ProviderImportAccount'] = 'IMPORT_ACCOUNT';
+            AvailableCommands['ProviderGetNodesUrl'] = 'GET_NODES_URL';
+            AvailableCommands['AccountBalance'] = 'ACCOUNT_BALANCE';
+            AvailableCommands['AccountSign'] = 'ACCOUNT_SIGN';
+          })(
+            (AvailableCommands =
+              exports.AvailableCommands || (exports.AvailableCommands = {})),
+          );
+        },
+        {},
+      ],
+      2: [
+        function (require, module, exports) {
+          'use strict';
+          Object.defineProperty(exports, '__esModule', { value: true });
+          exports.registerAndInitProvider = exports.ContentScriptProvider =
+            void 0;
+          const Commands_1 = require('./Commands');
+          const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
+          // =========================================================
+          const detailWrapper = (detail) => {
+            if (typeof cloneInto === 'function') {
+              return cloneInto(detail, window);
             }
-            else {
-                document.addEventListener('DOMContentLoaded', registerProvider);
+            return detail;
+          };
+          class ContentScriptProvider {
+            constructor(providerName) {
+              this.providerName = providerName;
+              this.actionToCallback = new Map();
+              this.attachCallbackHandler =
+                this.attachCallbackHandler.bind(this);
+              this.sign = this.sign.bind(this);
+              this.balance = this.balance.bind(this);
+              this.deleteAccount = this.deleteAccount.bind(this);
+              this.importAccount = this.importAccount.bind(this);
+              this.listAccounts = this.listAccounts.bind(this);
+              this.getNodesUrl = this.getNodesUrl.bind(this);
+              // this is the current provider html element
+              const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
+              if (!document.getElementById(providerEventTargetName)) {
+                const inv = document.createElement('p');
+                inv.id = providerEventTargetName;
+                document.body.appendChild(inv);
+              }
+              const walletProviderEventTarget =
+                document.getElementById(MASSA_WINDOW_OBJECT);
+              if (!walletProviderEventTarget) {
+                throw new Error(`Wallet Provider Event Target html element with id ${MASSA_WINDOW_OBJECT} not created. 
+        Make sure your "massa-wallet-provider" is already initialized`);
+              }
+              // ======================SIGN===============================
+              // and how the content script listen for commands
+              document
+                .getElementById(providerEventTargetName)
+                .addEventListener(
+                  Commands_1.AvailableCommands.AccountSign,
+                  (evt) => {
+                    const payload = evt.detail;
+                    this.actionToCallback.get(
+                      Commands_1.AvailableCommands.AccountSign,
+                    )(payload);
+                  },
+                );
+              // attach handlers for various methods
+              this.attachCallbackHandler(
+                Commands_1.AvailableCommands.AccountSign,
+                async (payload) => {
+                  const accountSignPayload = payload.params;
+                  const respMessage = {
+                    result: await this.sign(accountSignPayload),
+                    error: null,
+                    requestId: payload.requestId,
+                  };
+                  // answer to the message target
+                  walletProviderEventTarget.dispatchEvent(
+                    new CustomEvent(
+                      'message',
+                      detailWrapper({ detail: respMessage }),
+                    ),
+                  );
+                },
+              );
+              // ===========================BALANCE============================
+              document
+                .getElementById(providerEventTargetName)
+                .addEventListener(
+                  Commands_1.AvailableCommands.AccountBalance,
+                  (evt) => {
+                    const payload = evt.detail;
+                    this.actionToCallback.get(
+                      Commands_1.AvailableCommands.AccountBalance,
+                    )(payload);
+                  },
+                );
+              this.attachCallbackHandler(
+                Commands_1.AvailableCommands.AccountBalance,
+                async (payload) => {
+                  const accountBalancePayload = payload.params;
+                  const respMessage = {
+                    result: await this.balance(accountBalancePayload),
+                    error: null,
+                    requestId: payload.requestId,
+                  };
+                  // answer to the message target
+                  walletProviderEventTarget.dispatchEvent(
+                    new CustomEvent(
+                      'message',
+                      detailWrapper({ detail: respMessage }),
+                    ),
+                  );
+                },
+              );
+              // ============================DELETE ACCOUNT============================
+              document
+                .getElementById(providerEventTargetName)
+                .addEventListener(
+                  Commands_1.AvailableCommands.ProviderDeleteAccount,
+                  (evt) => {
+                    const payload = evt.detail;
+                    this.actionToCallback.get(
+                      Commands_1.AvailableCommands.ProviderDeleteAccount,
+                    )(payload);
+                  },
+                );
+              this.attachCallbackHandler(
+                Commands_1.AvailableCommands.ProviderDeleteAccount,
+                async (payload) => {
+                  const accountDeletionPayload = payload.params;
+                  const respMessage = {
+                    result: await this.deleteAccount(accountDeletionPayload),
+                    error: null,
+                    requestId: payload.requestId,
+                  };
+                  // answer to the message target
+                  walletProviderEventTarget.dispatchEvent(
+                    new CustomEvent(
+                      'message',
+                      detailWrapper({ detail: respMessage }),
+                    ),
+                  );
+                },
+              );
+              // =============================IMPORT ACCOUNT===================================
+              document
+                .getElementById(providerEventTargetName)
+                .addEventListener(
+                  Commands_1.AvailableCommands.ProviderImportAccount,
+                  (evt) => {
+                    const payload = evt.detail;
+                    this.actionToCallback.get(
+                      Commands_1.AvailableCommands.ProviderImportAccount,
+                    )(payload);
+                  },
+                );
+              this.attachCallbackHandler(
+                Commands_1.AvailableCommands.ProviderImportAccount,
+                async (payload) => {
+                  const accountImportPayload = payload.params;
+                  const respMessage = {
+                    result: await this.importAccount(accountImportPayload),
+                    error: null,
+                    requestId: payload.requestId,
+                  };
+                  // answer to the message target
+                  walletProviderEventTarget.dispatchEvent(
+                    new CustomEvent(
+                      'message',
+                      detailWrapper({ detail: respMessage }),
+                    ),
+                  );
+                },
+              );
+              // ==============================LIST ACCOUNTS==================================
+              document
+                .getElementById(providerEventTargetName)
+                .addEventListener(
+                  Commands_1.AvailableCommands.ProviderListAccounts,
+                  (evt) => {
+                    const payload = evt.detail;
+                    this.actionToCallback.get(
+                      Commands_1.AvailableCommands.ProviderListAccounts,
+                    )(payload);
+                  },
+                );
+              this.attachCallbackHandler(
+                Commands_1.AvailableCommands.ProviderListAccounts,
+                async (payload) => {
+                  const respMessage = {
+                    result: await this.listAccounts(),
+                    error: null,
+                    requestId: payload.requestId,
+                  };
+                  // answer to the message target
+                  walletProviderEventTarget.dispatchEvent(
+                    new CustomEvent(
+                      'message',
+                      detailWrapper({ detail: respMessage }),
+                    ),
+                  );
+                },
+              );
+              // ==============================GET NODES URL==================================
+              document
+                .getElementById(providerEventTargetName)
+                .addEventListener(
+                  Commands_1.AvailableCommands.ProviderGetNodesUrl,
+                  (evt) => {
+                    const payload = evt.detail;
+                    this.actionToCallback.get(
+                      Commands_1.AvailableCommands.ProviderGetNodesUrl,
+                    )(payload);
+                  },
+                );
+              this.attachCallbackHandler(
+                Commands_1.AvailableCommands.ProviderGetNodesUrl,
+                async (payload) => {
+                  const respMessage = {
+                    result: await this.getNodesUrl(),
+                    error: null,
+                    requestId: payload.requestId,
+                  };
+                  // answer to the message target
+                  walletProviderEventTarget.dispatchEvent(
+                    new CustomEvent(
+                      'message',
+                      detailWrapper({ detail: respMessage }),
+                    ),
+                  );
+                },
+              );
+                
+              // ================================================================
             }
         }), 5000);
     }
@@ -254,19 +473,19 @@ exports.__spread = __spread;
 exports.__spreadArray = __spreadArray;
 exports.__spreadArrays = __spreadArrays;
 exports.__values = __values;
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 /* global Reflect, Promise */
 

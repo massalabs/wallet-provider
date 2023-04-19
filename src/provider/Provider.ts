@@ -123,4 +123,21 @@ export class Provider implements IProvider {
       );
     });
   }
+
+  /**
+   *
+   */
+  public async getNodesUrl(): Promise<string[]> {
+    return new Promise<string[]>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this.providerName,
+        AvailableCommands.ProviderGetNodesUrl,
+        {},
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as string[]);
+        },
+      );
+    });
+  }
 }
