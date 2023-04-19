@@ -16,13 +16,25 @@ import {
 import { ThyraAccount } from './ThyraAccount';
 import { IAccount } from '../account/IAccount';
 
+/**
+ * The Thyra accounts url
+ */
 export const THYRA_ACCOUNTS_URL =
   'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet';
 
+/**
+ * Thyra's url for importing accounts
+ */
 export const THYRA_IMPORT_ACCOUNTS_URL = `${THYRA_ACCOUNTS_URL}/import/`;
 
+/**
+ * Thyra's wallet provider name
+ */
 export const THYRA_PROVIDER_NAME = 'THYRA';
 
+/**
+ * This interface represents the payload returned by making a call to Thyra's accounts url.
+ */
 export interface IThyraWallet {
   address: string;
   nickname: string;
@@ -34,17 +46,38 @@ export interface IThyraWallet {
   };
 }
 
+/**
+ * This class provides an implementation for communicating with the Thyra wallet provider.
+ * @remarks
+ * This class is used as a proxy to the Thyra server for exchanging message over https calls.
+ */
 export class ThyraProvider implements IProvider {
   private providerName: string;
 
+  /**
+   * Provider constructor
+   *
+   * @param providerName - The name of the provider.
+   * @returns An instance of the Provider class.
+   */
   public constructor() {
     this.providerName = THYRA_PROVIDER_NAME;
   }
 
+  /**
+   * This method returns the name of the provider.
+   * @returns The name of the provider.
+   */
   public name(): string {
     return this.providerName;
   }
 
+  /**
+   * This method sends a message to the Thyra server to get the list of accounts for the provider.
+   * It returns a Promise that resolves to an array of Account instances.
+   *
+   * @returns A promise that resolves to an array of Account instances.
+   */
   public async accounts(): Promise<IAccount[]> {
     let thyraAccountsResponse: JsonRpcResponseData<Array<IThyraWallet>> = null;
     try {
@@ -66,6 +99,16 @@ export class ThyraProvider implements IProvider {
     });
   }
 
+  /**
+   * This method makes an http call to the Thyra server to import an account with the given publicKey and privateKey.
+   *
+   * @remarks This method in not yet implemented and depends on `massalabs/thyra-plugin-wallet#82` to be merged first
+   *
+   * @param publicKey - The public key of the account.
+   * @param privateKey - The private key of the account.
+   * @returns a Promise that resolves to an instance of IAccountImportResponse.
+   *
+   */
   public async importAccount(
     publicKey: string,
     privateKey: string,
@@ -74,6 +117,12 @@ export class ThyraProvider implements IProvider {
     throw new Error(`Unimplemented method!`);
   }
 
+  /**
+   * This method sends an http call to the Thyra server to delete the account associated with the given address.
+   *
+   * @param address - The address of the account.
+   * @returns a Promise that resolves to an instance of IAccountDeletionResponse.
+   */
   public async deleteAccount(
     address: string,
   ): Promise<IAccountDeletionResponse> {

@@ -64,27 +64,6 @@
       const signature = await myAccount.sign([0, 1, 2]);
       console.log("[DAPP_HTML] Account Signature = ", signature);
 
-      // get thyra if present
-      const thyraProvider = window.wallet.providers().find((p) => p.name() === "THYRA");
-      console.log("[DAPP_HTML] Thyra Provider = ", thyraProvider);
-
-      // TODO: need to add thyra specific tests
-      if (thyraProvider) {
-        const thyraAccounts = await thyraProvider.accounts();
-        console.log("[DAPP_HTML] Thyra accounts ...", thyraAccounts);
-
-        for (const thyraAccount of thyraAccounts) {
-          console.log("[DAPP_HTML] Thyra account name - address ...", thyraAccount.name(), thyraAccount.address());
-          const balance = await thyraAccount.balance();
-          console.log("[DAPP_HTML] Thyra account balance ...", balance);
-          const signature = await thyraAccount.sign("100110111010001011101001");
-          console.log("[DAPP_HTML] Thyra account signature ...", signature);
-        }
-        const accountAddressToDelete = thyraAccounts[0].address();
-        const deletionResp = await thyraProvider.deleteAccount(accountAddressToDelete);
-        console.log("[DAPP_HTML] Thyra account deletion response ...", deletionResp);
-      }
-
       // display as list
       const list = document.createElement("ul");
       list.innerHTML = `

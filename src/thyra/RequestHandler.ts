@@ -1,3 +1,12 @@
+/**
+ * This file defines a TypeScript module with methods for performing GET, POST and DELETE http requests.
+ *
+ * @remarks
+ * - The methods implemented here are quite generic and might be useful in other contexts too
+ *  but have been particularly developed for making http calls specific to Thyra's server API
+ * - If you want to work on this repo, you will probably be interested in this object
+ *
+ */
 import axios, { AxiosResponse, AxiosRequestHeaders } from 'axios';
 
 const requestHeaders = {
@@ -11,12 +20,52 @@ const requestHeaders = {
     'Accept,authorization,Authorization,Content-Type',
 } as AxiosRequestHeaders;
 
+/**
+ * This interface represents a payload returned by making an http call
+ */
 export interface JsonRpcResponseData<T> {
   isError: boolean;
   result: T | null;
   error: Error | null;
 }
 
+/**
+ * This method makes a GET request to an http rest point.
+ *
+ *
+ * @param url - The url to call.
+ * @returns a Promise that resolves to an instance of JsonRpcResponseData.
+ *
+ */
+export async function getRequest<T>(
+  url: string,
+): Promise<JsonRpcResponseData<T>> {
+  let resp: AxiosResponse = null;
+  try {
+    resp = await axios.get<unknown, AxiosResponse, object>(url, requestHeaders);
+  } catch (ex) {
+    return {
+      isError: true,
+      result: null,
+      error: new Error('Axios Error: ' + String(ex)),
+    } as JsonRpcResponseData<T>;
+  }
+
+  return {
+    isError: false,
+    result: resp.data as T,
+    error: null,
+  } as JsonRpcResponseData<T>;
+}
+
+/**
+ * This method makes a POST request to an http rest point.
+ *
+ *
+ * @param url - The url to call.
+ * @returns a Promise that resolves to an instance of JsonRpcResponseData.
+ *
+ */
 export async function postRequest<T>(
   url: string,
   body: object,
@@ -43,31 +92,14 @@ export async function postRequest<T>(
   } as JsonRpcResponseData<T>;
 }
 
-// =======================================================
-
-export async function getRequest<T>(
-  url: string,
-): Promise<JsonRpcResponseData<T>> {
-  let resp: AxiosResponse = null;
-  try {
-    resp = await axios.get<unknown, AxiosResponse, object>(url, requestHeaders);
-  } catch (ex) {
-    return {
-      isError: true,
-      result: null,
-      error: new Error('Axios Error: ' + String(ex)),
-    } as JsonRpcResponseData<T>;
-  }
-
-  return {
-    isError: false,
-    result: resp.data as T,
-    error: null,
-  } as JsonRpcResponseData<T>;
-}
-
-// =======================================================================================
-
+/**
+ * This method makes a DELETE request to an http rest point.
+ *
+ *
+ * @param url - The url to call.
+ * @returns a Promise that resolves to an instance of JsonRpcResponseData.
+ *
+ */
 export async function deleteRequest<T>(
   url: string,
 ): Promise<JsonRpcResponseData<T>> {

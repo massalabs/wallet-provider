@@ -1,9 +1,9 @@
-/**
- * This interface represents an Account object.
- */
 import { IAccountBalanceResponse } from './AccountBalance';
 import { IAccountSignResponse } from './AccountSign';
 
+/**
+ * This interface represents an Account object.
+ */
 export interface IAccount {
   address(): string;
   name(): string;

@@ -21,7 +21,7 @@ export class Account implements IAccount {
   private _name: string;
 
   /**
-   * This constructor takes an object of type IAccount and a providerName string as its arguments.
+   * This constructor takes an object of type IAccountDetails and a providerName string as its arguments.
    *
    * @param address - The address of the account.
    * @param name - The name of the account.
@@ -29,8 +29,8 @@ export class Account implements IAccount {
    * @returns An instance of the Account class.
    *
    * @remarks
-   * - The Account constructor takes an object of type IAccount and a providerName string as its arguments.
-   * - The IAccount object contains the account's address and name.
+   * - The Account constructor takes an object of type IAccountDetails and a providerName string as its arguments.
+   * - The IAccountDetails object contains the account's address and name.
    * - The providerName string identifies the provider that is used to interact with the blockchain.
    */
   public constructor({ address, name }: IAccountDetails, providerName: string) {

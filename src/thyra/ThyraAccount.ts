@@ -7,48 +7,94 @@ import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
 import { THYRA_ACCOUNTS_URL } from './ThyraProvider';
 
+/**
+ * The Thyra's account balance url
+ */
 const THYRA_BALANCE_URL = `https://my.massa/massa/addresses?attributes=balance&addresses`;
 
+/**
+ * This interface represents the payload returned by making a call to Thyra's sign operation `/signOperation` url.
+ */
 interface ISignOperation {
   operation: string;
   batch?: boolean;
   correlationId?: string;
 }
 
+/**
+ * This interface represents the the individual wallet's final and pending balances returned by Thyra
+ */
 interface IBalance {
   final: string;
   pending: string;
 }
 
+/**
+ * This interface represents the payload returned by making a call to Thyra's get balances url.
+ */
 interface IAddressesBalances {
   addressesAttributes: {
     [key: string]: { balance: IBalance };
   };
 }
 
+/**
+ * This module contains the ThyraAccount class. It is responsible for representing an account in the Thyra wallet.
+ *
+ * @remarks
+ * This class provides methods to interact with Thyra account's {@link balance} and to {@link sign} messages.
+ *
+ */
 export class ThyraAccount implements IAccount {
   private _providerName: string;
   private _address: string;
   private _name: string;
 
+  /**
+   * This constructor takes an object of type IAccountDetails and a providerName string as its arguments.
+   *
+   * @param address - The address of the account.
+   * @param name - The name of the account.
+   * @param providerName - The name of the provider.
+   * @returns An instance of the Account class.
+   *
+   * @remarks
+   * - The Account constructor takes an object of type IAccountDetails and a providerName string as its arguments.
+   * - The IAccountDetails object contains the account's address and name.
+   * - The providerName string identifies the provider that is used to interact with the blockchain.
+   */
   public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
     this._name = name;
     this._providerName = providerName;
   }
 
+  /**
+   * @returns The address of the account.
+   */
   public address(): string {
     return this._address;
   }
 
+  /**
+   * @returns The name of the account.
+   */
   public name(): string {
     return this._name;
   }
 
+  /**
+   * @returns The name of the provider.
+   */
   public providerName(): string {
     return this._providerName;
   }
 
+  /**
+   * This method aims to retrieve the account's balance.
+   *
+   * @returns A promise that resolves to an object of type IAccountBalanceResponse. It contains the account's balance.
+   */
   public async balance(): Promise<IAccountBalanceResponse> {
     let signOpResponse: JsonRpcResponseData<IAddressesBalances> = null;
     try {
@@ -69,6 +115,12 @@ export class ThyraAccount implements IAccount {
     };
   }
 
+  /**
+   * This method aims to sign a message.
+   *
+   * @param data - The message to be signed.
+   * @returns An IAccountSignResponse object. It contains the signature of the message.
+   */
   public async sign(data: Uint8Array | string): Promise<IAccountSignResponse> {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {

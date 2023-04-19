@@ -2,6 +2,9 @@ import { IAccountDeletionResponse } from './AccountDeletion';
 import { IAccountImportResponse } from './AccountImport';
 import { IAccount } from '../account/IAccount';
 
+/**
+ * This interface represents a general provider definition with its methods
+ */
 export interface IProvider {
   name(): string;
   accounts(): Promise<IAccount[]>;
