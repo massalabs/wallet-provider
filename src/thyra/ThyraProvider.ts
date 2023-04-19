@@ -70,8 +70,8 @@ export class ThyraProvider implements IProvider {
     publicKey: string,
     privateKey: string,
   ): Promise<IAccountImportResponse> {
-    // TODO: cannot import as it goes over the popup dialog (need special url for that)
-    return null;
+    // TODO: once  massalabs/thyra-plugin-wallet#82 is merged, to be updated here
+    throw new Error(`Unimplemented method!`);
   }
 
   public async deleteAccount(
