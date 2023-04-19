@@ -66,8 +66,8 @@
 
       // get nodes url from the provider
       console.log("[DAPP_HTML] Retrieving the nodes url ...")
-      const nodes = await myProvider.getNodesUrl();
-      console.log("[DAPP_HTML] Nodes url = ", nodes.nodesUrl);
+      const nodes = await myProvider.getNodesUrls();
+      console.log("[DAPP_HTML] Nodes url = ", nodes);
 
       // display as list
       const list = document.createElement("ul");
@@ -76,7 +76,7 @@
         <li>Account Address: ${myAccount.address()}</li>
         <li>Account Balance: ${accountBalance.balance}</li>
         <li>Account Signature: ${signature.pubKey}</li>
-        <li>Nodes Url: ${nodes.nodesUrl}</li>
+        <li>Nodes Url: ${nodes}</li>
       `;
       document.body.appendChild(list);
       

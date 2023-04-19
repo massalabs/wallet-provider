@@ -7,7 +7,7 @@ export enum AvailableCommands {
   ProviderListAccounts = 'LIST_ACCOUNTS',
   ProviderDeleteAccount = 'DELETE_ACCOUNT',
   ProviderImportAccount = 'IMPORT_ACCOUNT',
-  ProviderGetNodesUrl = 'GET_NODES_URL',
+  ProviderGetNodesUrls = 'GET_NODES_URLS',
   AccountBalance = 'ACCOUNT_BALANCE',
   AccountSign = 'ACCOUNT_SIGN',
 }

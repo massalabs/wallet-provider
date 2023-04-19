@@ -58,11 +58,11 @@ const WALLET_PROVIDER_NAME = 'SPACE_X';
         );
       });
     }
-    async getNodesUrl(payload) {
+    async getNodesUrls(payload) {
       return new Promise((resolve, reject) => {
         // send a message to background.js and await its response
         mybrowser.runtime.sendMessage(
-          { action: 'getNodesUrl', params: payload },
+          { action: 'getNodesUrls', params: payload },
           (response) => {
             return resolve(response);
           },
