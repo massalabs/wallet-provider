@@ -184,7 +184,7 @@ export class ThyraProvider implements IProvider {
    *
    * @returns a Promise that resolves to the details of the newly generated account.
    */
-  generateNewAccount(name: string): Promise<IAccountDetails> {
+  public async generateNewAccount(name: string): Promise<IAccountDetails> {
     throw new Error('Method not implemented.');
   }
 }

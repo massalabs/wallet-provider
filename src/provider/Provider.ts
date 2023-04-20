@@ -145,8 +145,8 @@ export class Provider implements IProvider {
       );
     });
   }
-   
-  /** 
+
+  /**
    * This method generates a new account by a given name and adds it to the wallet.
    *
    * @param name - The account name

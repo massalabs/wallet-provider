@@ -108,7 +108,10 @@ export class Account implements IAccount {
    * @param fee - The fee to be paid for the transaction.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  buyRolls(amount: string, fee: string): Promise<ITransactionDetails> {
+  public async buyRolls(
+    amount: string,
+    fee: string,
+  ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
@@ -129,7 +132,10 @@ export class Account implements IAccount {
    * @param fee - The fee to be paid for the transaction.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  sellRolls(amount: string, fee: string): Promise<ITransactionDetails> {
+  public async sellRolls(
+    amount: string,
+    fee: string,
+  ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
@@ -150,7 +156,7 @@ export class Account implements IAccount {
    * @param fee - The fee to be paid for the transaction.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  sendTransaction(
+  public async sendTransaction(
     amount: string,
     recipientAddress: string,
     fee: string,
