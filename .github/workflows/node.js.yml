@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Formater and linter
 
 on:
   [push]
