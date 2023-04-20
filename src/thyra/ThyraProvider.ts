@@ -15,6 +15,7 @@ import {
 } from './RequestHandler';
 import { ThyraAccount } from './ThyraAccount';
 import { IAccount } from '../account/IAccount';
+import { IAccountDetails } from '../account';
 
 /**
  * The Thyra accounts url
@@ -168,7 +169,22 @@ export class ThyraProvider implements IProvider {
       response: EAccountDeletionResponse.OK,
     } as IAccountDeletionResponse;
   }
+
+  /**
+   * This method sends an http call to the Thyra server to obtain node urls.
+   *
+   * @returns a Promise that resolves to a list of node urls.
+   */
   public async getNodesUrls(): Promise<string[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * This method sends an http call to the Thyra server to create a new random account.
+   *
+   * @returns a Promise that resolves to the details of the newly generated account.
+   */
+  generateNewAccount(name: string): Promise<IAccountDetails> {
     throw new Error('Method not implemented.');
   }
 }

@@ -9,6 +9,7 @@ import { AvailableCommands } from '..';
 import { IAccountDetails } from '../account/IAccountDetails';
 import { IProvider } from './IProvider';
 import { IAccount } from '../account/IAccount';
+import { IAccountGenerationRequest } from './AccoutGeneration';
 
 /**
  * The Provider class provides a simple and intuitive interface for interacting with a specific
@@ -140,6 +141,27 @@ export class Provider implements IProvider {
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as string[]);
+        },
+      );
+    });
+  }
+   
+  /** 
+   * This method generates a new account by a given name and adds it to the wallet.
+   *
+   * @param name - The account name
+   * @returns a Promise that resolves to an instance of IAccountDetails.
+   */
+  public async generateNewAccount(name: string): Promise<IAccountDetails> {
+    const accountGenerationRequest = { name } as IAccountGenerationRequest;
+    return new Promise<IAccountDetails>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this.providerName,
+        AvailableCommands.ProviderGenerateNewAccount,
+        accountGenerationRequest,
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as IAccountDetails);
         },
       );
     });
