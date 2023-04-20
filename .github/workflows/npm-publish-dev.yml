@@ -19,7 +19,7 @@ jobs:
           node-version: 18
           registry-url: https://registry.npmjs.org
         
-      - name: publish dev version to npm
+      - name: Publish dev version to npm
         run: ./scripts/publish-dev.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
