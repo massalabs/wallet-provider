@@ -168,4 +168,7 @@ export class ThyraProvider implements IProvider {
       response: EAccountDeletionResponse.OK,
     } as IAccountDeletionResponse;
   }
+  public async getNodesUrls(): Promise<string[]> {
+    throw new Error('Method not implemented.');
+  }
 }

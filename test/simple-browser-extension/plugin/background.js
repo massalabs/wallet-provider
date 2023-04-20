@@ -38,6 +38,8 @@ class MassaSpaceWalletImpl {
       };
     } else if (request.action === 'listAccounts') {
       return [{ name: 'my account', address: '0x0' }];
+    } else if (request.action === 'getNodesUrls') {
+      return ['http://localhost:1234', 'https://massa-nodes.net'];
     } else {
       return undefined;
     }

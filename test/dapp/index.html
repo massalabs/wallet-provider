@@ -64,6 +64,11 @@
       const signature = await myAccount.sign([0, 1, 2]);
       console.log("[DAPP_HTML] Account Signature = ", signature);
 
+      // get nodes url from the provider
+      console.log("[DAPP_HTML] Retrieving the nodes url ...")
+      const nodes = await myProvider.getNodesUrls();
+      console.log("[DAPP_HTML] Nodes url = ", nodes);
+
       // display as list
       const list = document.createElement("ul");
       list.innerHTML = `
@@ -71,14 +76,10 @@
         <li>Account Address: ${myAccount.address()}</li>
         <li>Account Balance: ${accountBalance.balance}</li>
         <li>Account Signature: ${signature.publicKey}</li>
+        <li>Nodes Url: ${nodes}</li>
       `;
       document.body.appendChild(list);
-
-      // add p element with id address to display the address
-      const address = document.createElement("p");
-      address.id = "address";
-      address.innerHTML = `Account Address: ${myAccount.address()}`;
-      document.body.appendChild(address);
+      
     </script>
   </body>
 </html>

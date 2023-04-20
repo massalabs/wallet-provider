@@ -79,6 +79,7 @@ test.describe.parallel('Browser Extension Testing', () => {
       '0x0',
       '1234.5',
       '0x0000',
+      'http://localhost:1234,https://massa-nodes.net',
     ]);
   });
 });
