@@ -8,9 +8,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-        node-version: 18
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,7 +18,7 @@ jobs:
           node-version: 18
           
       - name: Clean install
-         run: npm ci
+        run: npm ci
       
       - name: Checks format and lint
         run: npm run fmt:check
