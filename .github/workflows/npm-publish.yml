@@ -1,0 +1,48 @@
+name: Publish doc on massa server and npmjs
+
+on:
+  push:
+    tags:
+      - v*
+
+
+jobs:
+  publish-npm:
+    name: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org
+      - name: publish
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+
+  deploy-typedoc:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Generate doc
+        run: |
+          npm ci
+          npm run doc
+          mv docs/documentation/html wallet-provider
+      - name: Deploy files
+        uses: appleboy/scp-action@v0.1.4
+        env:
+          HOST: ${{ secrets.MASSANET_HOST }}
+          USERNAME: ${{ secrets.MASSANET_USERNAME }}
+          KEY: ${{ secrets.MASSANET_SSHKEY }}
+        with:
+          source: "./wallet-provider"
+          target: "/var/www/type-doc"
+
+
