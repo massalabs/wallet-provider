@@ -9,7 +9,7 @@ import { AvailableCommands } from '..';
 import { IAccount } from '../account/IAccount';
 
 /**
- * The Provider class provides a simple and intuitive interface for interacting with a specific
+ * The Provider class provides a simple and intuitive interface for interacting with a specific 
  * wallet service.
  *
  */
@@ -70,7 +70,7 @@ export class Provider {
    * @remarks
    * - The IAccountImportResponse object contains the address of the imported account.
    * - The address is generated from the public key.
-   *
+   * 
    * @param publicKey - The public key of the account.
    * @param privateKey - The private key of the account.
    * @returns a Promise that resolves to an instance of IAccountImportResponse.
