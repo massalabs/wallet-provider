@@ -40,6 +40,18 @@ class MassaSpaceWalletImpl {
       return [{ name: 'my account', address: '0x0' }];
     } else if (request.action === 'getNodesUrls') {
       return ['http://localhost:1234', 'https://massa-nodes.net'];
+    } else if (request.action === 'buyRolls') {
+      return {
+        operationId: "ABC"
+       }
+    } else if (request.action === 'sellRolls') {
+      return {
+        operationId: "XYZ"
+        }
+    } else if (request.action === 'sendTransaction') {
+      return {
+        operationId: "MNP"
+        }
     } else {
       return undefined;
     }

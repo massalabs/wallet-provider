@@ -70,6 +70,21 @@
       const nodes = await myProvider.getNodesUrls();
       console.log("[DAPP_HTML] Nodes url = ", nodes);
 
+      // buy roles
+      console.log("[DAPP_HTML] Buying rolls ...")
+      const buyRollsTxData = await myAccount.buyRolls("10", "12000000");
+      console.log("[DAPP_HTML] Buy Roles = ", buyRollsTxData);
+
+      // sell roles
+      console.log("[DAPP_HTML] Selling rolls ...")
+      const sellRollsTxData = await myAccount.sellRolls("2", "12000000");
+      console.log("[DAPP_HTML] Sell Roles = ", sellRollsTxData);
+
+      // send transaction
+      console.log("[DAPP_HTML] Sending transaction ...")
+      const sendTxData = await myAccount.sendTransaction("2", "12000000");
+      console.log("[DAPP_HTML] Send Transaction = ", sendTxData);
+
       // display as list
       const list = document.createElement("ul");
       list.innerHTML = `
@@ -79,6 +94,9 @@
         <li>Account Candidate Balance: ${accountBalance.candidateBalance}</li>
         <li>Account Signature: ${signature.publicKey}</li>
         <li>Nodes Url: ${nodes}</li>
+        <li>Buy Rolls Operation Id: ${buyRollsTxData.operationId}</li>
+        <li>Sell Rolls Operation Id: ${sellRollsTxData.operationId}</li>
+        <li>Send Transaction Operation Id: ${sendTxData.operationId}</li>
       `;
       document.body.appendChild(list);
       

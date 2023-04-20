@@ -81,6 +81,9 @@ test.describe.parallel('Browser Extension Testing', () => {
       '500.0',
       '0x0000',
       'http://localhost:1234,https://massa-nodes.net',
+      'ABC',
+      'XYZ',
+      'MNP',
     ]);
   });
 });

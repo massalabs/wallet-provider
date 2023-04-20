@@ -7,9 +7,13 @@
       AvailableCommands["ProviderListAccounts"] = "LIST_ACCOUNTS";
       AvailableCommands["ProviderDeleteAccount"] = "DELETE_ACCOUNT";
       AvailableCommands["ProviderImportAccount"] = "IMPORT_ACCOUNT";
-      AvailableCommands["ProviderGetNodesUrls"] = "GET_NODES_URLS";
       AvailableCommands["AccountBalance"] = "ACCOUNT_BALANCE";
       AvailableCommands["AccountSign"] = "ACCOUNT_SIGN";
+      AvailableCommands["ProviderGenerateNewAccount"] = "GENERATE_NEW_ACCOUNT";
+      AvailableCommands["AccountSellRolls"] = "ACCOUNT_SELL_ROLLS";
+      AvailableCommands["AccountBuyRolls"] = "ACCOUNT_BUY_ROLLS";
+      AvailableCommands["AccountSendTransaction"] = "ACCOUNT_SEND_TRANSACTION";
+      AvailableCommands["ProviderGetNodesUrls"] = "GET_NODES_URLS";
   })(AvailableCommands = exports.AvailableCommands || (exports.AvailableCommands = {}));
   
   },{}],2:[function(require,module,exports){
@@ -34,6 +38,9 @@
           this.balance = this.balance.bind(this);
           this.deleteAccount = this.deleteAccount.bind(this);
           this.importAccount = this.importAccount.bind(this);
+          this.buyRolls = this.buyRolls.bind(this);
+          this.sellRolls = this.sellRolls.bind(this);
+          this.sendTransaction = this.sendTransaction.bind(this);
           this.listAccounts = this.listAccounts.bind(this);
           this.getNodesUrls = this.getNodesUrls.bind(this);
           // this is the current provider html element
@@ -49,7 +56,6 @@
         Make sure your "massa-wallet-provider" is already initialized`);
           }
           // ======================SIGN===============================
-          // and how the content script listen for commands
           document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountSign, (evt) => {
               const payload = evt.detail;
               this.actionToCallback.get(Commands_1.AvailableCommands.AccountSign)(payload);
@@ -124,22 +130,65 @@
               // answer to the message target
               walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
           });
-
-          // ==============================Get nodes==================================
+          // ==============================BUY ROLLS==================================
+          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountBuyRolls, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.AccountBuyRolls)(payload);
+          });
+          this.attachCallbackHandler(Commands_1.AvailableCommands.AccountBuyRolls, async (payload) => {
+              const rollOperationPayload = payload.params;
+              const respMessage = {
+                  result: await this.buyRolls(rollOperationPayload),
+                  error: null,
+                  requestId: payload.requestId,
+              };
+              // answer to the message target
+              walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+          });
+          // ==============================SELL ROLLS==================================
+          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountSellRolls, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.AccountSellRolls)(payload);
+          });
+          this.attachCallbackHandler(Commands_1.AvailableCommands.AccountSellRolls, async (payload) => {
+              const rollOperationPayload = payload.params;
+              const respMessage = {
+                  result: await this.sellRolls(rollOperationPayload),
+                  error: null,
+                  requestId: payload.requestId,
+              };
+              // answer to the message target
+              walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+          });
+          // ==============================SEND TRANSACTION==================================
+          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountSendTransaction, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.AccountSendTransaction)(payload);
+          });
+          this.attachCallbackHandler(Commands_1.AvailableCommands.AccountSendTransaction, async (payload) => {
+              const rollOperationPayload = payload.params;
+              const respMessage = {
+                  result: await this.sendTransaction(rollOperationPayload),
+                  error: null,
+                  requestId: payload.requestId,
+              };
+              // answer to the message target
+              walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+          });
+          // ==============================GET NODE URLS==================================
           document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.ProviderGetNodesUrls, (evt) => {
-            const payload = evt.detail;
-            this.actionToCallback.get(Commands_1.AvailableCommands.ProviderGetNodesUrls)(payload);
-        });
-        this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderGetNodesUrls, async (payload) => {
-            const respMessage = {
-                result: await this.getNodesUrls(),
-                error: null,
-                requestId: payload.requestId,
-            };
-            // answer to the message target
-            walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
-        });
-          // ================================================================
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.ProviderGetNodesUrls)(payload);
+          });
+          this.attachCallbackHandler(Commands_1.AvailableCommands.ProviderGetNodesUrls, async (payload) => {
+              const respMessage = {
+                  result: await this.getNodesUrls(),
+                  error: null,
+                  requestId: payload.requestId,
+              };
+              // answer to the message target
+              walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+          });
       }
       attachCallbackHandler(methodName, callback) {
           this.actionToCallback.set(methodName, callback);
