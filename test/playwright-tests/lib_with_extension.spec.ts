@@ -78,6 +78,7 @@ test.describe.parallel('Browser Extension Testing', () => {
       'SPACE_X',
       '0x0',
       '1234.5',
+      '500.0',
       '0x0000',
       'http://localhost:1234,https://massa-nodes.net',
     ]);

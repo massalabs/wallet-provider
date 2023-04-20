@@ -112,7 +112,8 @@ export class ThyraAccount implements IAccount {
     const balance: IBalance =
       signOpResponse.result.addressesAttributes[this._address].balance;
     return {
-      balance: balance.final,
+      finalBalance: balance.final,
+      candidateBalance: balance.pending,
     };
   }
 

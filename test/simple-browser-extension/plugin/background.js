@@ -30,7 +30,7 @@ class MassaSpaceWalletImpl {
         sender.envType === 'addon_child' && sender.id === browser.runtime.id;
 
     if (request.action === 'balance') {
-      return { balance: '1234.5' };
+      return { finalBalance: '1234.5', candidateBalance: '500.0' };
     } else if (request.action === 'sign') {
       return {
         publicKey: '0x0000',

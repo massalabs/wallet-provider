@@ -57,7 +57,8 @@
       // getting account balance
       console.log("[DAPP_HTML] Retrieving the account balance ...");
       const accountBalance = await myAccount.balance();
-      console.log("[DAPP_HTML] Account Balance = ", accountBalance.balance);
+      console.log("[DAPP_HTML] Account's Final Balance = ", accountBalance.finalBalance);
+      console.log("[DAPP_HTML] Account's Candidate Balance = ", accountBalance.candidateBalance);
 
       // signing a message
       console.log("[DAPP_HTML] Signing a message ...");
@@ -74,7 +75,8 @@
       list.innerHTML = `
         <li>Provider Name: ${myProvider.name()}</li>
         <li>Account Address: ${myAccount.address()}</li>
-        <li>Account Balance: ${accountBalance.balance}</li>
+        <li>Account Final Balance: ${accountBalance.finalBalance}</li>
+        <li>Account Candidate Balance: ${accountBalance.candidateBalance}</li>
         <li>Account Signature: ${signature.publicKey}</li>
         <li>Nodes Url: ${nodes}</li>
       `;

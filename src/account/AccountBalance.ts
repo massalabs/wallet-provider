@@ -9,5 +9,6 @@ export interface IAccountBalanceRequest {
  * This interface represents the response object of the AccountBalance command sent by the content script.
  */
 export interface IAccountBalanceResponse {
-  balance: string;
+  finalBalance: string;
+  candidateBalance: string;
 }
