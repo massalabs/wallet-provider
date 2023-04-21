@@ -1,4 +1,4 @@
-name: Npm nightly publish
+name: Npm dev publish
 
 on:
   push:
