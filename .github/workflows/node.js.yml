@@ -23,4 +23,7 @@ jobs:
       - name: Checks format and lint
         run: npm run fmt:check
 
+      - name: Build package
+        run: npm run build
+
  
