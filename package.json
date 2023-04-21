@@ -60,6 +60,9 @@
         "uid": "^2.0.1"
     },
     "devDependencies": {
+        "prettier": "^2.8.4",
+        "prettier-eslint": "^15.0.1",
+        "prettier-standard": "^16.4.1",
         "@massalabs/eslint-config": "^0.0.9",
         "@massalabs/prettier-config-as": "^0.0.2",
         "@playwright/test": "^1.32.3",
