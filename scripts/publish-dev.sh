@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
+
 npm run build
+
 npm version --preid dev --no-git-tag-version --no-commit-hooks prepatch
 #Use timestamp as package suffix
 TIME=$(date -u +%Y%m%d%H%M%S)
