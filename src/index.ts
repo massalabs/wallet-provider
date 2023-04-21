@@ -10,6 +10,14 @@ export enum AvailableCommands {
   ProviderGetNodesUrls = 'GET_NODES_URLS',
   AccountBalance = 'ACCOUNT_BALANCE',
   AccountSign = 'ACCOUNT_SIGN',
+  ProviderGenerateNewAccount = 'GENERATE_NEW_ACCOUNT',
+  AccountSellRolls = 'ACCOUNT_SELL_ROLLS',
+  AccountBuyRolls = 'ACCOUNT_BUY_ROLLS',
+  AccountSendTransaction = 'ACCOUNT_SEND_TRANSACTION',
+}
+
+export interface ITransactionDetails {
+  operationId: string;
 }
 
 export function providers(): IProvider[] {

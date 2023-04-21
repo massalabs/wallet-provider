@@ -57,7 +57,8 @@
       // getting account balance
       console.log("[DAPP_HTML] Retrieving the account balance ...");
       const accountBalance = await myAccount.balance();
-      console.log("[DAPP_HTML] Account Balance = ", accountBalance.balance);
+      console.log("[DAPP_HTML] Account's Final Balance = ", accountBalance.finalBalance);
+      console.log("[DAPP_HTML] Account's Candidate Balance = ", accountBalance.candidateBalance);
 
       // signing a message
       console.log("[DAPP_HTML] Signing a message ...");
@@ -69,14 +70,33 @@
       const nodes = await myProvider.getNodesUrls();
       console.log("[DAPP_HTML] Nodes url = ", nodes);
 
+      // buy roles
+      console.log("[DAPP_HTML] Buying rolls ...")
+      const buyRollsTxData = await myAccount.buyRolls(BigInt("10"), BigInt("12000000"));
+      console.log("[DAPP_HTML] Buy Roles = ", buyRollsTxData);
+
+      // sell roles
+      console.log("[DAPP_HTML] Selling rolls ...")
+      const sellRollsTxData = await myAccount.sellRolls(BigInt("2"), BigInt("12000000"));
+      console.log("[DAPP_HTML] Sell Roles = ", sellRollsTxData);
+
+      // send transaction
+      console.log("[DAPP_HTML] Sending transaction ...")
+      const sendTxData = await myAccount.sendTransaction(BigInt("2"), "AU19tCSKtiE4k9MJLyLH5sWGDZ7Rr2SiBf1ti3XqeCptwsXGvkef", BigInt("12000000"));
+      console.log("[DAPP_HTML] Send Transaction = ", sendTxData);
+
       // display as list
       const list = document.createElement("ul");
       list.innerHTML = `
         <li>Provider Name: ${myProvider.name()}</li>
         <li>Account Address: ${myAccount.address()}</li>
-        <li>Account Balance: ${accountBalance.balance}</li>
+        <li>Account Final Balance: ${accountBalance.finalBalance}</li>
+        <li>Account Candidate Balance: ${accountBalance.candidateBalance}</li>
         <li>Account Signature: ${signature.publicKey}</li>
         <li>Nodes Url: ${nodes}</li>
+        <li>Buy Rolls Operation Id: ${buyRollsTxData.operationId}</li>
+        <li>Sell Rolls Operation Id: ${sellRollsTxData.operationId}</li>
+        <li>Send Transaction Operation Id: ${sendTxData.operationId}</li>
       `;
       document.body.appendChild(list);
       

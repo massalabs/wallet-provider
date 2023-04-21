@@ -54,7 +54,8 @@ export type AllowedResponses =
   | IAccountSignResponse
   | IAccountImportResponse
   | IAccountDeletionResponse
-  | IAccount[];
+  | IAccount[]
+  | string;
 
 /**
  * This class enables communication with the content script by sending and receiving messages.

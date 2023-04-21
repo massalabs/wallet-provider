@@ -47,6 +47,12 @@ const WALLET_PROVIDER_NAME = 'SPACE_X';
         message: 'Account successfully imported',
       };
     }
+    async generateNewAccount(payload) {
+      return {
+        name: "new-account",
+        address: '0x1234',
+      };
+    }
     async listAccounts(payload) {
       return new Promise((resolve, reject) => {
         // send a message to background.js and await its response
@@ -63,6 +69,39 @@ const WALLET_PROVIDER_NAME = 'SPACE_X';
         // send a message to background.js and await its response
         mybrowser.runtime.sendMessage(
           { action: 'getNodesUrls', params: payload },
+          (response) => {
+            return resolve(response);
+          },
+        );
+      });
+    }
+    async buyRolls(payload) {
+      return new Promise((resolve, reject) => {
+        // send a message to background.js and await its response
+        mybrowser.runtime.sendMessage(
+          { action: 'buyRolls', params: payload },
+          (response) => {
+            return resolve(response);
+          },
+        );
+      });
+    }
+    async sellRolls(payload) {
+      return new Promise((resolve, reject) => {
+        // send a message to background.js and await its response
+        mybrowser.runtime.sendMessage(
+          { action: 'sellRolls', params: payload },
+          (response) => {
+            return resolve(response);
+          },
+        );
+      });
+    }
+    async sendTransaction(payload) {
+      return new Promise((resolve, reject) => {
+        // send a message to background.js and await its response
+        mybrowser.runtime.sendMessage(
+          { action: 'sendTransaction', params: payload },
           (response) => {
             return resolve(response);
           },

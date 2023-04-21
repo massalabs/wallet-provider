@@ -2,6 +2,7 @@ import {
   IAccountBalanceResponse,
   IAccountDetails,
   IAccountSignResponse,
+  ITransactionDetails,
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
@@ -111,7 +112,8 @@ export class ThyraAccount implements IAccount {
     const balance: IBalance =
       signOpResponse.result.addressesAttributes[this._address].balance;
     return {
-      balance: balance.final,
+      finalBalance: balance.final,
+      candidateBalance: balance.pending,
     };
   }
 
@@ -139,5 +141,42 @@ export class ThyraAccount implements IAccount {
       throw signOpResponse.error;
     }
     return signOpResponse.result;
+  }
+
+  /**
+   * This method aims to buy rolls on behalf of the sender.
+   *
+   * @param amount - The amount of rolls to be bought.
+   * @param fee - The fee to be paid for the transaction execution by the node.
+   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   */
+  buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * This method aims to sell rolls on behalf of the sender.
+   *
+   * @param amount - The amount of rolls to be sold.
+   * @param fee - The fee to be paid for the transaction execution by the node.
+   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   */
+  sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * This method aims to transfer MAS on behalf of the sender to a recipient.
+   *
+   * @param amount - The amount of MAS to be transferred.
+   * @param fee - The fee to be paid for the transaction execution by the node.
+   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   */
+  sendTransaction(
+    amount: bigint,
+    recipientAddress: string,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
+    throw new Error('Method not implemented.');
   }
 }

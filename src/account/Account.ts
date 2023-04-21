@@ -5,8 +5,10 @@ import {
 import { IAccountSignRequest, IAccountSignResponse } from './AccountSign';
 import { connector } from '../connector/Connector';
 import { IAccountDetails } from './IAccountDetails';
-import { AvailableCommands } from '..';
+import { AvailableCommands, ITransactionDetails } from '..';
 import { IAccount } from './IAccount';
+import { IAccountRollsRequest } from './IAccountRolls';
+import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
 
 /**
  * This module contains the Account class. It is responsible for representing an account in the wallet.
@@ -94,6 +96,89 @@ export class Account implements IAccount {
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as IAccountSignResponse);
+        },
+      );
+    });
+  }
+
+  /**
+   * This method aims to buy rolls on behalf of the sender.
+   *
+   * @param amount - The amount of rolls to be purchased
+   * @param fee - The fee to be paid for the transaction execution by the node..
+   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   */
+  public async buyRolls(
+    amount: bigint,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
+    return new Promise<ITransactionDetails>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this._providerName,
+        AvailableCommands.AccountBuyRolls,
+        {
+          amount: amount.toString(),
+          fee: fee.toString(),
+        } as IAccountRollsRequest,
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as ITransactionDetails);
+        },
+      );
+    });
+  }
+
+  /**
+   * This method aims to sell rolls on behalf of the sender.
+   *
+   * @param amount - The amount of rolls to be sold.
+   * @param fee - The fee to be paid for the transaction execution by the node..
+   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   */
+  public async sellRolls(
+    amount: bigint,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
+    return new Promise<ITransactionDetails>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this._providerName,
+        AvailableCommands.AccountSellRolls,
+        {
+          amount: amount.toString(),
+          fee: fee.toString(),
+        } as IAccountRollsRequest,
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as ITransactionDetails);
+        },
+      );
+    });
+  }
+
+  /**
+   * This method aims to transfer MAS on behalf of the sender to a recipient.
+   *
+   * @param amount - The amount of MAS to be transferred.
+   * @param fee - The fee to be paid for the transaction execution by the node..
+   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   */
+  public async sendTransaction(
+    amount: bigint,
+    recipientAddress: string,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
+    return new Promise<ITransactionDetails>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this._providerName,
+        AvailableCommands.AccountSendTransaction,
+        {
+          amount: amount.toString(),
+          recipientAddress,
+          fee: fee.toString(),
+        } as IAccountSendTransactionRequest,
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as ITransactionDetails);
         },
       );
     });

@@ -15,6 +15,9 @@ import {
   ICustomEventMessageResponse,
   IAccount,
 } from '../interfaces';
+import { ITransactionDetails } from '../interfaces/ITransactionDetails';
+import { IRollOperations } from '../interfaces/IRollOperations';
+import { ISendTransactionRequest } from '../interfaces/ISendTransactionRequest';
 
 declare function cloneInto<T>(object: T, targetScope: any): T;
 
@@ -45,17 +48,26 @@ export abstract class ContentScriptProvider {
     payload: IAccountImportRequest,
   ): IAccountImportResponse;
   public abstract listAccounts(): IAccount[];
+  public abstract buyRolls(payload: IRollOperations): ITransactionDetails;
+  public abstract sellRolls(payload: IRollOperations): ITransactionDetails;
+  public abstract sendTransaction(
+    payload: ISendTransactionRequest,
+  ): ITransactionDetails;
+  public abstract getNodesUrls(): string[];
 
   public constructor(providerName: string) {
     this.providerName = providerName;
     this.actionToCallback = new Map<string, CallbackFunction>();
     this.attachCallbackHandler = this.attachCallbackHandler.bind(this);
-
     this.sign = this.sign.bind(this);
     this.balance = this.balance.bind(this);
     this.deleteAccount = this.deleteAccount.bind(this);
     this.importAccount = this.importAccount.bind(this);
+    this.buyRolls = this.buyRolls.bind(this);
+    this.sellRolls = this.sellRolls.bind(this);
+    this.sendTransaction = this.sendTransaction.bind(this);
     this.listAccounts = this.listAccounts.bind(this);
+    this.getNodesUrls = this.getNodesUrls.bind(this);
 
     // this is the current provider html element
     const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
@@ -74,7 +86,6 @@ export abstract class ContentScriptProvider {
     }
 
     // ======================SIGN===============================
-    // and how the content script listen for commands
     (
       document.getElementById(providerEventTargetName) as EventTarget
     ).addEventListener(AvailableCommands.AccountSign, (evt: CustomEvent) => {
@@ -207,7 +218,116 @@ export abstract class ContentScriptProvider {
         );
       },
     );
-    // ================================================================
+
+    // ==============================BUY ROLLS==================================
+    (
+      document.getElementById(providerEventTargetName) as EventTarget
+    ).addEventListener(
+      AvailableCommands.AccountBuyRolls,
+      (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.AccountBuyRolls)(payload);
+      },
+    );
+
+    this.attachCallbackHandler(
+      AvailableCommands.AccountBuyRolls,
+      async (payload: ICustomEventMessageRequest) => {
+        const rollOperationPayload = payload.params as IRollOperations;
+        const respMessage = {
+          result: await this.buyRolls(rollOperationPayload),
+          error: null,
+          requestId: payload.requestId,
+        } as ICustomEventMessageResponse;
+        // answer to the message target
+        walletProviderEventTarget.dispatchEvent(
+          new CustomEvent('message', detailWrapper({ detail: respMessage })),
+        );
+      },
+    );
+    // ==============================SELL ROLLS==================================
+    (
+      document.getElementById(providerEventTargetName) as EventTarget
+    ).addEventListener(
+      AvailableCommands.AccountSellRolls,
+      (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.AccountSellRolls)(payload);
+      },
+    );
+
+    this.attachCallbackHandler(
+      AvailableCommands.AccountSellRolls,
+      async (payload: ICustomEventMessageRequest) => {
+        const rollOperationPayload = payload.params as IRollOperations;
+        const respMessage = {
+          result: await this.sellRolls(rollOperationPayload),
+          error: null,
+          requestId: payload.requestId,
+        } as ICustomEventMessageResponse;
+        // answer to the message target
+        walletProviderEventTarget.dispatchEvent(
+          new CustomEvent('message', detailWrapper({ detail: respMessage })),
+        );
+      },
+    );
+
+    // ==============================SEND TRANSACTION==================================
+    (
+      document.getElementById(providerEventTargetName) as EventTarget
+    ).addEventListener(
+      AvailableCommands.AccountSendTransaction,
+      (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.AccountSendTransaction)(
+          payload,
+        );
+      },
+    );
+
+    this.attachCallbackHandler(
+      AvailableCommands.AccountSendTransaction,
+      async (payload: ICustomEventMessageRequest) => {
+        const rollOperationPayload = payload.params as ISendTransactionRequest;
+        const respMessage = {
+          result: await this.sendTransaction(rollOperationPayload),
+          error: null,
+          requestId: payload.requestId,
+        } as ICustomEventMessageResponse;
+        // answer to the message target
+        walletProviderEventTarget.dispatchEvent(
+          new CustomEvent('message', detailWrapper({ detail: respMessage })),
+        );
+      },
+    );
+
+    // ==============================GET NODES URLS==================================
+    (
+      document.getElementById(providerEventTargetName) as EventTarget
+    ).addEventListener(
+      AvailableCommands.ProviderGetNodesUrls,
+      (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.ProviderGetNodesUrls)(
+          payload,
+        );
+      },
+    );
+
+    this.attachCallbackHandler(
+      AvailableCommands.ProviderGetNodesUrls,
+      async (payload: ICustomEventMessageRequest) => {
+        const respMessage = {
+          result: await this.getNodesUrls(),
+          error: null,
+          requestId: payload.requestId,
+        } as ICustomEventMessageResponse;
+        // answer to the message target
+        walletProviderEventTarget.dispatchEvent(
+          new CustomEvent('message', detailWrapper({ detail: respMessage })),
+        );
+      },
+    );
   }
 
   private attachCallbackHandler(

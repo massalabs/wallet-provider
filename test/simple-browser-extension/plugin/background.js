@@ -30,7 +30,7 @@ class MassaSpaceWalletImpl {
         sender.envType === 'addon_child' && sender.id === browser.runtime.id;
 
     if (request.action === 'balance') {
-      return { balance: '1234.5' };
+      return { finalBalance: '1234.5', candidateBalance: '500.0' };
     } else if (request.action === 'sign') {
       return {
         publicKey: '0x0000',
@@ -40,6 +40,18 @@ class MassaSpaceWalletImpl {
       return [{ name: 'my account', address: '0x0' }];
     } else if (request.action === 'getNodesUrls') {
       return ['http://localhost:1234', 'https://massa-nodes.net'];
+    } else if (request.action === 'buyRolls') {
+      return {
+        operationId: "ABC"
+       }
+    } else if (request.action === 'sellRolls') {
+      return {
+        operationId: "XYZ"
+        }
+    } else if (request.action === 'sendTransaction') {
+      return {
+        operationId: "MNP"
+        }
     } else {
       return undefined;
     }
