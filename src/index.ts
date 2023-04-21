@@ -42,6 +42,10 @@ export {
   IAccountBalanceResponse,
   IAccountSignRequest,
   IAccountSignResponse,
+  IAccount,
+  Account,
+  IAccountRollsRequest,
+  IAccountSendTransactionRequest,
 } from './account';
 
 export {
@@ -51,4 +55,6 @@ export {
   IAccountDeletionResponse,
   IAccountImportRequest,
   IAccountImportResponse,
+  IProvider,
+  Provider,
 } from './provider';
