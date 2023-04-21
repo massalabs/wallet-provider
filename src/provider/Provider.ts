@@ -152,7 +152,7 @@ export class Provider implements IProvider {
    * @param name - The account name
    * @returns a Promise that resolves to an instance of IAccountDetails.
    */
-  public async generateNewAccount(name: string): Promise<IAccountDetails> {
+  public async generateNewAccount(name?: string): Promise<IAccountDetails> {
     const accountGenerationRequest = { name } as IAccountGenerationRequest;
     return new Promise<IAccountDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(

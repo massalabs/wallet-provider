@@ -105,18 +105,21 @@ export class Account implements IAccount {
    * This method aims to buy rolls on behalf of the sender.
    *
    * @param amount - The amount of rolls to be purchased
-   * @param fee - The fee to be paid for the transaction.
+   * @param fee - The fee to be paid for the transaction execution by the node..
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
   public async buyRolls(
-    amount: string,
-    fee: string,
+    amount: bigint,
+    fee: bigint,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountBuyRolls,
-        { amount, fee } as IAccountRollsRequest,
+        {
+          amount: amount.toString(),
+          fee: fee.toString(),
+        } as IAccountRollsRequest,
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);
@@ -129,18 +132,21 @@ export class Account implements IAccount {
    * This method aims to sell rolls on behalf of the sender.
    *
    * @param amount - The amount of rolls to be sold.
-   * @param fee - The fee to be paid for the transaction.
+   * @param fee - The fee to be paid for the transaction execution by the node..
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
   public async sellRolls(
-    amount: string,
-    fee: string,
+    amount: bigint,
+    fee: bigint,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountSellRolls,
-        { amount, fee } as IAccountRollsRequest,
+        {
+          amount: amount.toString(),
+          fee: fee.toString(),
+        } as IAccountRollsRequest,
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);
@@ -153,19 +159,23 @@ export class Account implements IAccount {
    * This method aims to transfer MAS on behalf of the sender to a recipient.
    *
    * @param amount - The amount of MAS to be transferred.
-   * @param fee - The fee to be paid for the transaction.
+   * @param fee - The fee to be paid for the transaction execution by the node..
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
   public async sendTransaction(
-    amount: string,
+    amount: bigint,
     recipientAddress: string,
-    fee: string,
+    fee: bigint,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountSendTransaction,
-        { amount, recipientAddress, fee } as IAccountSendTransactionRequest,
+        {
+          amount: amount.toString(),
+          recipientAddress,
+          fee: fee.toString(),
+        } as IAccountSendTransactionRequest,
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);

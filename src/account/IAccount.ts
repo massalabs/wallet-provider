@@ -11,11 +11,11 @@ export interface IAccount {
   providerName(): string;
   balance(): Promise<IAccountBalanceResponse>;
   sign(data: Uint8Array | string): Promise<IAccountSignResponse>;
-  buyRolls(amount: string, fee: string): Promise<ITransactionDetails>;
-  sellRolls(amount: string, fee: string): Promise<ITransactionDetails>;
+  buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
+  sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
   sendTransaction(
-    amount: string,
+    amount: bigint,
     recipientAddress: string,
-    fee: string,
+    fee: bigint,
   ): Promise<ITransactionDetails>;
 }

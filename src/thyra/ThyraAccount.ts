@@ -147,10 +147,10 @@ export class ThyraAccount implements IAccount {
    * This method aims to buy rolls on behalf of the sender.
    *
    * @param amount - The amount of rolls to be bought.
-   * @param fee - The fee to be paid for the transaction.
+   * @param fee - The fee to be paid for the transaction execution by the node.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  buyRolls(amount: string, fee: string): Promise<ITransactionDetails> {
+  buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
     throw new Error('Method not implemented.');
   }
 
@@ -158,10 +158,10 @@ export class ThyraAccount implements IAccount {
    * This method aims to sell rolls on behalf of the sender.
    *
    * @param amount - The amount of rolls to be sold.
-   * @param fee - The fee to be paid for the transaction.
+   * @param fee - The fee to be paid for the transaction execution by the node.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  sellRolls(amount: string, fee: string): Promise<ITransactionDetails> {
+  sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
     throw new Error('Method not implemented.');
   }
 
@@ -169,13 +169,13 @@ export class ThyraAccount implements IAccount {
    * This method aims to transfer MAS on behalf of the sender to a recipient.
    *
    * @param amount - The amount of MAS to be transferred.
-   * @param fee - The fee to be paid for the transaction.
+   * @param fee - The fee to be paid for the transaction execution by the node.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
   sendTransaction(
-    amount: string,
+    amount: bigint,
     recipientAddress: string,
-    fee: string,
+    fee: bigint,
   ): Promise<ITransactionDetails> {
     throw new Error('Method not implemented.');
   }
