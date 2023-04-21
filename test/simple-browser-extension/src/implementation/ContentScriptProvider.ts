@@ -301,7 +301,7 @@ export abstract class ContentScriptProvider {
       },
     );
 
-    // ==============================GET NODE URLS==================================
+    // ==============================GET NODES URLS==================================
     (
       document.getElementById(providerEventTargetName) as EventTarget
     ).addEventListener(
