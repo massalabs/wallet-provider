@@ -187,14 +187,14 @@ export class Account implements IAccount {
 
   /**
    * This method aims to interact with a smart contract deployed on the massa blockchain on on behalf of the sender.
-   * 
+   *
    * @param contractAddress - The address of the smart contract.
    * @param functionName - The name of the function to be called.
    * @param parameter - The parameters of the function to be called (array composed of string, bigint and/or boolean).
    * @param fee - The fee to be paid for the transaction execution by the node.
-   * 
+   *
    * @returns An ITransactionDetails object. It contains the operationId on the network.
-   * 
+   *
    */
   public async interactWithSC(
     contractAddress: string,
