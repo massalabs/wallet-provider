@@ -52,6 +52,10 @@ class MassaSpaceWalletImpl {
       return {
         operationId: "MNP"
         }
+    } else if (request.action === 'interactWithSC') {
+      return {
+        operationId: "RST"
+        }
     } else {
       return undefined;
     }

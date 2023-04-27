@@ -14,6 +14,7 @@ export enum AvailableCommands {
   AccountSellRolls = 'ACCOUNT_SELL_ROLLS',
   AccountBuyRolls = 'ACCOUNT_BUY_ROLLS',
   AccountSendTransaction = 'ACCOUNT_SEND_TRANSACTION',
+  AccountInteractWithSC = 'ACCOUNT_INTERACT_WITH_SC',
 }
 
 export interface ITransactionDetails {
@@ -46,6 +47,7 @@ export {
   Account,
   IAccountRollsRequest,
   IAccountSendTransactionRequest,
+  IAccountInteractWithSCRequest,
 } from './account';
 
 export {

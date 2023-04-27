@@ -9,6 +9,7 @@ import { AvailableCommands, ITransactionDetails } from '..';
 import { IAccount } from './IAccount';
 import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
+import { IAccountInteractWithSCRequest } from './IAccountInteractWithSCRequest';
 
 /**
  * This module contains the Account class. It is responsible for representing an account in the wallet.
@@ -176,6 +177,30 @@ export class Account implements IAccount {
           recipientAddress,
           fee: fee.toString(),
         } as IAccountSendTransactionRequest,
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as ITransactionDetails);
+        },
+      );
+    });
+  }
+
+  public async interactWithSC(
+    contractAddress: string,
+    functionName: string,
+    parameter: (string | bigint | boolean)[],
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
+    return new Promise<ITransactionDetails>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this._providerName,
+        AvailableCommands.AccountInteractWithSC,
+        {
+          contractAddress,
+          functionName,
+          parameter,
+          fee,
+        } as IAccountInteractWithSCRequest,
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);

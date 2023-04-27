@@ -14,6 +14,7 @@
       AvailableCommands["AccountBuyRolls"] = "ACCOUNT_BUY_ROLLS";
       AvailableCommands["AccountSendTransaction"] = "ACCOUNT_SEND_TRANSACTION";
       AvailableCommands["ProviderGetNodesUrls"] = "GET_NODES_URLS";
+      AvailableCommands["AccountInteractWithSC"] = "ACCOUNT_INTERACT_WITH_SC";
   })(AvailableCommands = exports.AvailableCommands || (exports.AvailableCommands = {}));
   
   },{}],2:[function(require,module,exports){
@@ -42,6 +43,7 @@
           this.sellRolls = this.sellRolls.bind(this);
           this.sendTransaction = this.sendTransaction.bind(this);
           this.listAccounts = this.listAccounts.bind(this);
+          this.interactWithSC = this.interactWithSC.bind(this);
           this.getNodesUrls = this.getNodesUrls.bind(this);
           // this is the current provider html element
           const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
@@ -175,6 +177,21 @@
               // answer to the message target
               walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
           });
+          // ==============================INTERACT WITH SC==================================
+          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountInteractWithSC, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.AccountInteractWithSC)(payload);
+          });
+          this.attachCallbackHandler(Commands_1.AvailableCommands.AccountInteractWithSC, async (payload) => {
+              const rollOperationPayload = payload.params;
+              const respMessage = {
+                  result: await this.interactWithSC(rollOperationPayload),
+                  error: null,
+                  requestId: payload.requestId,
+              };
+              // answer to the message target
+              walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+          });
           // ==============================GET NODES URLS==================================
           document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.ProviderGetNodesUrls, (evt) => {
               const payload = evt.detail;
@@ -189,6 +206,7 @@
               // answer to the message target
               walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
           });
+          // ===============================================================================
       }
       attachCallbackHandler(methodName, callback) {
           this.actionToCallback.set(methodName, callback);
