@@ -55,6 +55,7 @@ export type AllowedResponses =
   | IAccountImportResponse
   | IAccountDeletionResponse
   | IAccount[]
+  | boolean
   | string;
 
 /**

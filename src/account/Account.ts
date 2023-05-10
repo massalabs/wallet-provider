@@ -102,6 +102,36 @@ export class Account implements IAccount {
   }
 
   /**
+   * Verify a signature.
+   *
+   * @param data - The signed data to verify
+   * @param signature - The signature to verify
+   * @param signerPubKey - The public key of the signer
+   * @returns true if the signature is valid, false otherwise
+   */
+  public async verifySignature(
+    data: Uint8Array,
+    signature: Uint8Array,
+    signerPubKey: string,
+  ): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this._providerName,
+        AvailableCommands.AccountVerifySignature,
+        {
+          data,
+          signature,
+          signerPubKey,
+        },
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as boolean);
+        },
+      );
+    });
+  }
+
+  /**
    * This method aims to buy rolls on behalf of the sender.
    *
    * @param amount - The amount of rolls to be purchased

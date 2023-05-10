@@ -52,6 +52,8 @@ class MassaSpaceWalletImpl {
       return {
         operationId: "MNP"
         }
+    } else if(request.action === 'verifySignature') {
+      return true;
     } else {
       return undefined;
     }

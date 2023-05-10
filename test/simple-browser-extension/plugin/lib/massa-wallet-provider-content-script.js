@@ -9,6 +9,7 @@
       AvailableCommands["ProviderImportAccount"] = "IMPORT_ACCOUNT";
       AvailableCommands["AccountBalance"] = "ACCOUNT_BALANCE";
       AvailableCommands["AccountSign"] = "ACCOUNT_SIGN";
+      AvailableCommands["AccountVerifySignature"] = "ACCOUNT_VERIFY_SIGNATURE";
       AvailableCommands["ProviderGenerateNewAccount"] = "GENERATE_NEW_ACCOUNT";
       AvailableCommands["AccountSellRolls"] = "ACCOUNT_SELL_ROLLS";
       AvailableCommands["AccountBuyRolls"] = "ACCOUNT_BUY_ROLLS";
@@ -35,6 +36,7 @@
           this.actionToCallback = new Map();
           this.attachCallbackHandler = this.attachCallbackHandler.bind(this);
           this.sign = this.sign.bind(this);
+          this.verifySignature = this.verifySignature.bind(this);
           this.balance = this.balance.bind(this);
           this.deleteAccount = this.deleteAccount.bind(this);
           this.importAccount = this.importAccount.bind(this);
@@ -65,6 +67,21 @@
               const accountSignPayload = payload.params;
               const respMessage = {
                   result: await this.sign(accountSignPayload),
+                  error: null,
+                  requestId: payload.requestId,
+              };
+              // answer to the message target
+              walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+          });
+          // ======================VERIFY SIGNATURE===============================
+          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountVerifySignature, (evt) => {
+              const payload = evt.detail;
+              this.actionToCallback.get(Commands_1.AvailableCommands.AccountVerifySignature)(payload);
+          });
+          this.attachCallbackHandler(Commands_1.AvailableCommands.AccountVerifySignature, async (payload) => {
+              const accountVerifySignaturePayload = payload.params;
+              const respMessage = {
+                  result: await this.verifySignature(accountVerifySignaturePayload),
                   error: null,
                   requestId: payload.requestId,
               };

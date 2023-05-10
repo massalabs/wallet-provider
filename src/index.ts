@@ -10,6 +10,7 @@ export enum AvailableCommands {
   ProviderGetNodesUrls = 'GET_NODES_URLS',
   AccountBalance = 'ACCOUNT_BALANCE',
   AccountSign = 'ACCOUNT_SIGN',
+  AccountVerifySignature = 'ACCOUNT_VERIFY_SIGNATURE',
   ProviderGenerateNewAccount = 'GENERATE_NEW_ACCOUNT',
   AccountSellRolls = 'ACCOUNT_SELL_ROLLS',
   AccountBuyRolls = 'ACCOUNT_BUY_ROLLS',

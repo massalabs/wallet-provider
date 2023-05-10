@@ -85,6 +85,14 @@
       const sendTxData = await myAccount.sendTransaction(BigInt("2"), "AU19tCSKtiE4k9MJLyLH5sWGDZ7Rr2SiBf1ti3XqeCptwsXGvkef", BigInt("12000000"));
       console.log("[DAPP_HTML] Send Transaction = ", sendTxData);
 
+      // verify a signature
+      console.log("[DAPP_HTML] verifying transaction ...")
+      const data = 'hello world';
+      const sig = "B1Gy7pAstdqzjghn8fdLDtn1qLUhsxWu4x1j8N4W9wxa3hTPNsFyPeFkSkfEjVCRnCAE9jrBjernGyoDL1yt2Wgafb8uu";
+      const signerPubKey = "P1c6udwDMs6CY2YDUm7phdrv6S5ACjTV5jW4Kriio44yDpRWK8t";
+      const verified = await myAccount.verifySignature(data,sig,signerPubKey);
+      console.log("[DAPP_HTML] Valid signature = ", verified);
+
       // display as list
       const list = document.createElement("ul");
       list.innerHTML = `
@@ -97,6 +105,7 @@
         <li>Buy Rolls Operation Id: ${buyRollsTxData.operationId}</li>
         <li>Sell Rolls Operation Id: ${sellRollsTxData.operationId}</li>
         <li>Send Transaction Operation Id: ${sendTxData.operationId}</li>
+        <li>Verify Signature: ${verified}
       `;
       document.body.appendChild(list);
       
