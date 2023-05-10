@@ -84,6 +84,7 @@ test.describe.parallel('Browser Extension Testing', () => {
       'ABC',
       'XYZ',
       'MNP',
+      'true',
     ]);
   });
 });
