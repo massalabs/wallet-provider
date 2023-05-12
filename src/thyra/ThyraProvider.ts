@@ -6,12 +6,14 @@ import {
 import {
   IAccountImportRequest,
   IAccountImportResponse,
+  EAccountImportResponse,
 } from '../provider/AccountImport';
 import { IProvider } from '../provider/IProvider';
 import {
   JsonRpcResponseData,
   deleteRequest,
   getRequest,
+  postRequest,
 } from './RequestHandler';
 import { ThyraAccount } from './ThyraAccount';
 import { IAccount } from '../account/IAccount';
@@ -21,17 +23,22 @@ import { IAccountDetails } from '../account';
  * The Thyra accounts url
  */
 export const THYRA_ACCOUNTS_URL =
-  'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet';
+  'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet/';
 
 /**
  * Thyra's url for importing accounts
  */
-export const THYRA_IMPORT_ACCOUNTS_URL = `${THYRA_ACCOUNTS_URL}/import/`;
+export const THYRA_IMPORT_ACCOUNTS_URL = `${THYRA_ACCOUNTS_URL}/api/accounts/`;
 
 /**
  * Thyra's wallet provider name
  */
 export const THYRA_PROVIDER_NAME = 'THYRA';
+
+/**
+ * Thyra's base url
+ */
+export const THYRA_BASE_URL = 'http://my.massa/';
 
 /**
  * This interface represents the payload returned by making a call to Thyra's accounts url.
@@ -103,8 +110,6 @@ export class ThyraProvider implements IProvider {
   /**
    * This method makes an http call to the Thyra server to import an account with the given publicKey and privateKey.
    *
-   * @remarks This method in not yet implemented and depends on `massalabs/thyra-plugin-wallet#82` to be merged first
-   *
    * @param publicKey - The public key of the account.
    * @param privateKey - The private key of the account.
    * @returns a Promise that resolves to an instance of IAccountImportResponse.
@@ -114,8 +119,26 @@ export class ThyraProvider implements IProvider {
     publicKey: string,
     privateKey: string,
   ): Promise<IAccountImportResponse> {
-    // TODO: once  massalabs/thyra-plugin-wallet#82 is merged, to be updated here
-    throw new Error(`Unimplemented method!`);
+    const accountImportRequest: IAccountImportRequest = {
+      publicKey,
+      privateKey,
+    };
+    let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
+    try {
+      thyraAccountsResponse = await getRequest<unknown>(
+        THYRA_IMPORT_ACCOUNTS_URL,
+      );
+    } catch (ex) {
+      console.error(`Thyra accounts retrieval error`);
+      throw ex;
+    }
+    if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
+      throw thyraAccountsResponse.error.message;
+    }
+    return {
+      response: EAccountImportResponse.OK,
+      message: 'Account imported successfully',
+    } as IAccountImportResponse;
   }
 
   /**
@@ -148,7 +171,7 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
     try {
       thyraAccountsResponse = await deleteRequest<unknown>(
-        `${THYRA_ACCOUNTS_URL}/${accountToDelete.nickname}`,
+        `${THYRA_ACCOUNTS_URL}/api/accounts/${accountToDelete.nickname}`,
       );
     } catch (ex) {
       console.error(`Thyra accounts deletion error`, ex);
@@ -176,7 +199,19 @@ export class ThyraProvider implements IProvider {
    * @returns a Promise that resolves to a list of node urls.
    */
   public async getNodesUrls(): Promise<string[]> {
-    throw new Error('Method not implemented.');
+    let nodesResponse: JsonRpcResponseData<unknown> = null;
+    try {
+      nodesResponse = await getRequest<unknown>(`${THYRA_BASE_URL}nodes`);
+      if (nodesResponse.isError || nodesResponse.error) {
+        throw nodesResponse.error.message;
+      }
+      // transform nodesResponse.result to a json and then get the "url" property
+      const nodes = JSON.parse(JSON.stringify(nodesResponse.result));
+      return nodes.map((node: any) => node.url) as string[];
+    } catch (ex) {
+      console.error(`Thyra nodes retrieval error`, ex);
+      throw ex;
+    }
   }
 
   /**
@@ -185,6 +220,25 @@ export class ThyraProvider implements IProvider {
    * @returns a Promise that resolves to the details of the newly generated account.
    */
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
-    throw new Error('Method not implemented.');
+    let generateNewAccountResponse: JsonRpcResponseData<IThyraWallet> = null;
+    try {
+      generateNewAccountResponse = await postRequest<IThyraWallet>(
+        THYRA_ACCOUNTS_URL,
+        { name },
+      );
+    } catch (ex) {
+      console.error(`Thyra new account creation error`, ex);
+      throw ex;
+    }
+    if (
+      generateNewAccountResponse.isError ||
+      generateNewAccountResponse.error
+    ) {
+      throw generateNewAccountResponse.error.message;
+    }
+    return {
+      address: generateNewAccountResponse.result.address,
+      name: generateNewAccountResponse.result.nickname,
+    } as IAccountDetails;
   }
 }
