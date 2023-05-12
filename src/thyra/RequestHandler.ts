@@ -63,6 +63,7 @@ export async function getRequest<T>(
  *
  *
  * @param url - The url to call.
+ * @param body - The body of the request.
  * @returns a Promise that resolves to an instance of JsonRpcResponseData.
  *
  */
@@ -114,6 +115,41 @@ export async function deleteRequest<T>(
       isError: true,
       result: null,
       error: new Error('Axios Error: ' + String(ex)),
+    } as JsonRpcResponseData<T>;
+  }
+
+  return {
+    isError: false,
+    result: resp.data as T,
+    error: null,
+  } as JsonRpcResponseData<T>;
+}
+
+/**
+ * This method makes a PUT request to an http rest point.
+ *
+ *
+ * @param url - The url to call.
+ * @param body - The body of the request.
+ * @returns a Promise that resolves to an instance of JsonRpcResponseData.
+ *
+ */
+export async function putRequest<T>(
+  url: string,
+  body: object,
+): Promise<JsonRpcResponseData<T>> {
+  let resp: AxiosResponse = null;
+  try {
+    resp = await axios.put<unknown, AxiosResponse, object>(
+      url,
+      body,
+      requestHeaders,
+    );
+  } catch (ex) {
+    return {
+      isError: true,
+      result: null,
+      error: new Error('Axios error: ' + String(ex)),
     } as JsonRpcResponseData<T>;
   }
 
