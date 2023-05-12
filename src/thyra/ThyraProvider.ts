@@ -25,6 +25,8 @@ import { IAccountDetails } from '../account';
 export const THYRA_BASE_URL =
   'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet/';
 
+export const THYRA_URL = 'http://my.massa';
+
 /**
  * Thyra's url for importing accounts
  */
@@ -197,13 +199,13 @@ export class ThyraProvider implements IProvider {
   public async getNodesUrls(): Promise<string[]> {
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     try {
-      nodesResponse = await getRequest<unknown>(`${THYRA_BASE_URL}nodes`);
+      nodesResponse = await getRequest<unknown>(`${THYRA_URL}/massa/node`);
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
       }
       // transform nodesResponse.result to a json and then get the "url" property
       const nodes = JSON.parse(JSON.stringify(nodesResponse.result));
-      return nodes.map((node: any) => node.url) as string[];
+      return Array(nodes.url);
     } catch (ex) {
       console.error(`Thyra nodes retrieval error`, ex);
       throw ex;
