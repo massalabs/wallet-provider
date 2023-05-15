@@ -183,9 +183,9 @@
               this.actionToCallback.get(Commands_1.AvailableCommands.AccountInteractWithSC)(payload);
           });
           this.attachCallbackHandler(Commands_1.AvailableCommands.AccountInteractWithSC, async (payload) => {
-              const rollOperationPayload = payload.params;
+              const operationPayload = payload.params;
               const respMessage = {
-                  result: await this.interactWithSC(rollOperationPayload),
+                  result: await this.interactWithSC(operationPayload),
                   error: null,
                   requestId: payload.requestId,
               };
