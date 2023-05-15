@@ -22,15 +22,15 @@ import { IAccountDetails } from '../account';
 /**
  * The Thyra accounts url
  */
-export const THYRA_BASE_URL =
+export const THYRA_WALLET_URL =
   'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet/';
 
-export const THYRA_URL = 'http://my.massa';
+export const THYRA_URL = 'https://my.massa';
 
 /**
  * Thyra's url for importing accounts
  */
-export const THYRA_ACCOUNTS_URL = `${THYRA_BASE_URL}api/accounts/`;
+export const THYRA_ACCOUNTS_URL = `${THYRA_WALLET_URL}api/accounts/`;
 
 /**
  * Thyra's wallet provider name
@@ -87,7 +87,7 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<Array<IThyraWallet>> = null;
     try {
       thyraAccountsResponse = await getRequest<Array<IThyraWallet>>(
-        THYRA_BASE_URL,
+        THYRA_WALLET_URL,
       );
     } catch (ex) {
       console.error(`Thyra accounts retrieval error`);
@@ -123,11 +123,11 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
     try {
       thyraAccountsResponse = await putRequest<unknown>(
-        `${THYRA_BASE_URL}api/accounts`,
+        THYRA_ACCOUNTS_URL,
         accountImportRequest,
       );
     } catch (ex) {
-      console.error(`Thyra accounts retrieval error`);
+      console.log(`Thyra accounts retrieval error`);
       throw ex;
     }
     if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
@@ -159,7 +159,6 @@ export class ThyraProvider implements IProvider {
     if (allAccounts.isError || allAccounts.error) {
       throw allAccounts.error.message;
     }
-    console.log(`allAccounts`, allAccounts);
     // find the account with the desired address
     const accountToDelete = allAccounts.result.find(
       (account) => account.address.toLowerCase() === address.toLowerCase(),
@@ -169,7 +168,7 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
     try {
       thyraAccountsResponse = await deleteRequest<unknown>(
-        `${THYRA_BASE_URL}/api/accounts/${accountToDelete.nickname}`,
+        `${THYRA_ACCOUNTS_URL}${accountToDelete.nickname}`,
       );
     } catch (ex) {
       console.error(`Thyra accounts deletion error`, ex);
@@ -199,12 +198,13 @@ export class ThyraProvider implements IProvider {
   public async getNodesUrls(): Promise<string[]> {
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     try {
+      console.log(`${THYRA_URL}/massa/node`);
       nodesResponse = await getRequest<unknown>(`${THYRA_URL}/massa/node`);
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
       }
       // transform nodesResponse.result to a json and then get the "url" property
-      const nodes = JSON.parse(JSON.stringify(nodesResponse.result));
+      const nodes = nodesResponse.result as { url: string };
       return Array(nodes.url);
     } catch (ex) {
       console.error(`Thyra nodes retrieval error`, ex);
@@ -218,26 +218,6 @@ export class ThyraProvider implements IProvider {
    * @returns a Promise that resolves to the details of the newly generated account.
    */
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
-    let generateNewAccountResponse: JsonRpcResponseData<IThyraWallet> = null;
-    try {
-      console.log(`generateNewAccount:`, THYRA_ACCOUNTS_URL + name);
-      generateNewAccountResponse = await postRequest<IThyraWallet>(
-        THYRA_ACCOUNTS_URL + name,
-        { name },
-      );
-    } catch (ex) {
-      console.error(`Thyra new account creation error`, ex);
-      throw ex;
-    }
-    if (
-      generateNewAccountResponse.isError ||
-      generateNewAccountResponse.error
-    ) {
-      throw generateNewAccountResponse.error.message;
-    }
-    return {
-      address: generateNewAccountResponse.result.address,
-      name: generateNewAccountResponse.result.nickname,
-    } as IAccountDetails;
+    throw 'Not implemented';
   }
 }
