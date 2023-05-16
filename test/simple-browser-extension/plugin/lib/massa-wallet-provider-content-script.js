@@ -191,6 +191,7 @@
               };
               // answer to the message target
               walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
+              return Promise.resolve();
           });
           // ==============================GET NODES URLS==================================
           document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.ProviderGetNodesUrls, (evt) => {
