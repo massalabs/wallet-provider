@@ -24,7 +24,7 @@ declare function cloneInto<T>(object: T, targetScope: any): T;
 
 const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
-type CallbackFunction = (evt: ICustomEventMessageRequest) => Promise<void>;
+type CallbackFunction = (evt: ICustomEventMessageRequest) => void;
 
 // =========================================================
 const detailWrapper = (detail) => {
@@ -364,7 +364,7 @@ export abstract class ContentScriptProvider {
 
   private attachCallbackHandler(
     methodName: string,
-    callback: (payload: ICustomEventMessageRequest) => Promise<void>,
+    callback: (payload: ICustomEventMessageRequest) => void,
   ): void {
     this.actionToCallback.set(methodName, callback);
   }
