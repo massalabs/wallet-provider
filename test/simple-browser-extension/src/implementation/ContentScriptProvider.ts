@@ -364,10 +364,9 @@ export abstract class ContentScriptProvider {
 
   private attachCallbackHandler(
     methodName: string,
-    callback: (payload: ICustomEventMessageRequest) => void,
-  ): Promise<void> {
+    callback: (payload: ICustomEventMessageRequest) => Promise<void>,
+  ): void {
     this.actionToCallback.set(methodName, callback);
-    return Promise.resolve();
   }
 
   public static async registerAsMassaWalletProvider(
