@@ -24,7 +24,7 @@ declare function cloneInto<T>(object: T, targetScope: any): T;
 
 const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
-type CallbackFunction = (evt: ICustomEventMessageRequest) => void;
+type CallbackFunction = (evt: ICustomEventMessageRequest) => Promise<void>;
 
 // =========================================================
 const detailWrapper = (detail) => {
