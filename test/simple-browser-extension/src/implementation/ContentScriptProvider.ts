@@ -361,7 +361,7 @@ export abstract class ContentScriptProvider {
       },
     );
   }
-
+  // =======================================================================
   private attachCallbackHandler(
     methodName: string,
     callback: (payload: ICustomEventMessageRequest) => void,
