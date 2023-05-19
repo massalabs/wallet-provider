@@ -107,7 +107,7 @@ export class Account implements IAccount {
    * @param data - The signed data to verify
    * @param signature - The signature to verify
    * @param signerPubKey - The public key of the signer
-   * @returns true if the signature is valid, false otherwise
+   * @returns A Promise that resolves to true if the signature is valid, and false otherwise.
    */
   public async verifySignature(
     data: Uint8Array,
