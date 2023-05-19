@@ -25,6 +25,17 @@ const WALLET_PROVIDER_NAME = 'SPACE_X';
         );
       });
     }
+    async verifySignature(payload) {
+      return new Promise((resolve, reject) => {
+        // send a message to background.js and await its response
+        mybrowser.runtime.sendMessage(
+          { action: 'verifySignature', params: payload },
+          (response) => {
+            return resolve(response);
+          },
+        );
+      });
+    }
     async balance(payload) {
       return new Promise((resolve, reject) => {
         // send a message to background.js and await its response
