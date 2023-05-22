@@ -18,6 +18,7 @@ import {
 import { ITransactionDetails } from '../interfaces/ITransactionDetails';
 import { IRollOperations } from '../interfaces/IRollOperations';
 import { ISendTransactionRequest } from '../interfaces/ISendTransactionRequest';
+import { IAccountInteractWithSCRequest } from '../interfaces/IAccountInteractWithSCRequest';
 
 declare function cloneInto<T>(object: T, targetScope: any): T;
 
@@ -53,6 +54,9 @@ export abstract class ContentScriptProvider {
   public abstract sendTransaction(
     payload: ISendTransactionRequest,
   ): ITransactionDetails;
+  public abstract interactWithSC(
+    payload: IAccountInteractWithSCRequest
+  ): ITransactionDetails;
   public abstract getNodesUrls(): string[];
 
   public constructor(providerName: string) {
@@ -68,6 +72,7 @@ export abstract class ContentScriptProvider {
     this.sendTransaction = this.sendTransaction.bind(this);
     this.listAccounts = this.listAccounts.bind(this);
     this.getNodesUrls = this.getNodesUrls.bind(this);
+    this.interactWithSC = this.interactWithSC.bind(this);
 
     // this is the current provider html element
     const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
@@ -301,6 +306,33 @@ export abstract class ContentScriptProvider {
       },
     );
 
+    // ==============================INTERACT WITH SC==================================
+    (
+      document.getElementById(providerEventTargetName) as EventTarget
+    ).addEventListener(
+      AvailableCommands.AccountInteractWithSC,
+      (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.AccountInteractWithSC)(payload);
+      },
+    );
+
+    this.attachCallbackHandler(
+      AvailableCommands.AccountInteractWithSC,
+      async (payload: ICustomEventMessageRequest) => {
+        const operationPayload = payload.params as IAccountInteractWithSCRequest;
+        const respMessage = {
+          result: await this.interactWithSC(operationPayload),
+          error: null,
+          requestId: payload.requestId,
+        } as ICustomEventMessageResponse;
+        // answer to the message target
+        walletProviderEventTarget.dispatchEvent(
+          new CustomEvent('message', detailWrapper({ detail: respMessage })),
+        );
+      },
+    );
+
     // ==============================GET NODES URLS==================================
     (
       document.getElementById(providerEventTargetName) as EventTarget
@@ -329,7 +361,7 @@ export abstract class ContentScriptProvider {
       },
     );
   }
-
+  // =======================================================================
   private attachCallbackHandler(
     methodName: string,
     callback: (payload: ICustomEventMessageRequest) => void,
