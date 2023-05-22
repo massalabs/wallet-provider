@@ -198,8 +198,8 @@ export class Account implements IAccount {
   public async interactWithSC(
     contractAddress: string,
     functionName: string,
-    parameter: (string | bigint | boolean)[],
-    fee: bigint,
+    parameter: (string | boolean)[],
+    fee: string,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
