@@ -198,7 +198,6 @@ export class ThyraProvider implements IProvider {
   public async getNodesUrls(): Promise<string[]> {
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     try {
-      console.log(`${THYRA_URL}/massa/node`);
       nodesResponse = await getRequest<unknown>(`${THYRA_URL}/massa/node`);
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
