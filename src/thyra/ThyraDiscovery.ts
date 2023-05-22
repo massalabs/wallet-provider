@@ -83,11 +83,6 @@ export class ThyraDiscovery extends EventEmitter {
     if ((resp.isError || resp.error) && this.isDiscovered) {
       this.emit(ON_THYRA_DISCONNECTED);
     }
-
-    // reset the interval
-    this.timeoutId = new Timeout(this.pollIntervalMillis, () =>
-      this.callback(),
-    );
   }
 
   /**
