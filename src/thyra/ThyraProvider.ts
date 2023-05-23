@@ -3,7 +3,6 @@ import {
   IAccountDeletionResponse,
 } from '../provider/AccountDeletion';
 import {
-  IAccountImportRequest,
   IAccountImportResponse,
   EAccountImportResponse,
 } from '../provider/AccountImport';
@@ -23,7 +22,7 @@ import { IAccountDetails } from '../account';
  * The Thyra accounts url
  */
 export const THYRA_WALLET_URL =
-  'https://my.massa/thyra/plugin/massalabs/wallet/rest/wallet/';
+  'https://my.massa/thyra/plugin/massalabs/wallet/';
 
 export const THYRA_URL = 'https://my.massa';
 
@@ -87,7 +86,7 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<Array<IThyraWallet>> = null;
     try {
       thyraAccountsResponse = await getRequest<Array<IThyraWallet>>(
-        THYRA_WALLET_URL,
+        THYRA_ACCOUNTS_URL,
       );
     } catch (ex) {
       console.error(`Thyra accounts retrieval error`);
