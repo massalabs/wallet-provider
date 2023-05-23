@@ -2,10 +2,7 @@ import {
   EAccountDeletionResponse,
   IAccountDeletionResponse,
 } from '../provider/AccountDeletion';
-import {
-  IAccountImportResponse,
-  EAccountImportResponse,
-} from '../provider/AccountImport';
+import { IAccountImportResponse } from '../provider/AccountImport';
 import { IProvider } from '../provider/IProvider';
 import {
   JsonRpcResponseData,

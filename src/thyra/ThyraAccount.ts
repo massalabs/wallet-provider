@@ -150,18 +150,20 @@ export class ThyraAccount implements IAccount {
    * @param fee - The fee to be paid for the transaction execution by the node.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  public async buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
+  public async buyRolls(
+    amount: bigint,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
     let buyRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
     const body = {
-      "fee": fee.toString(),
-      "amount": amount.toString(),
-      "side": "buy"
+      fee: fee.toString(),
+      amount: amount.toString(),
+      side: 'buy',
     };
     try {
       buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
-    }
-    catch (ex) {
+    } catch (ex) {
       console.error(`Thyra account: error while buying rolls`);
       throw ex;
     }
@@ -178,18 +180,20 @@ export class ThyraAccount implements IAccount {
    * @param fee - The fee to be paid for the transaction execution by the node.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  public async sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
+  public async sellRolls(
+    amount: bigint,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
     let sellRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
     const body = {
-      "fee": fee.toString(),
-      "amount": amount.toString(),
-      "side": "sell"
+      fee: fee.toString(),
+      amount: amount.toString(),
+      side: 'sell',
     };
     try {
       sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
-    }
-    catch (ex) {
+    } catch (ex) {
       console.error(`Thyra account: error while selling rolls`);
       throw ex;
     }
