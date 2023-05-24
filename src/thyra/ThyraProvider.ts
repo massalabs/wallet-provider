@@ -103,8 +103,8 @@ export class ThyraProvider implements IProvider {
    *
    * @param publicKey - The public key of the account.
    * @param privateKey - The private key of the account.
-   * @returns a Promise that resolves to an instance of IAccountImportResponse.
    *
+   * @returns a Promise that resolves to an instance of IAccountImportResponse.
    */
   public async importAccount(
     publicKey: string,
