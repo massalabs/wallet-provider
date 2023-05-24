@@ -18,15 +18,8 @@ import { IAccountDetails } from '../account';
 /**
  * The Thyra accounts url
  */
-export const THYRA_WALLET_URL =
-  'https://my.massa/thyra/plugin/massalabs/wallet/';
-
-export const THYRA_URL = 'https://my.massa';
-
-/**
- * Thyra's url for importing accounts
- */
-export const THYRA_ACCOUNTS_URL = `${THYRA_WALLET_URL}api/accounts/`;
+export const THYRA_ACCOUNTS_URL =
+  'https://my.massa/thyra/plugin/massalabs/wallet/api/accounts';
 
 /**
  * Thyra's wallet provider name
