@@ -22,6 +22,11 @@ export const THYRA_ACCOUNTS_URL =
   'https://my.massa/thyra/plugin/massalabs/wallet/api/accounts';
 
 /**
+ * Thyra's url for importing accounts
+ */
+export const THYRA_IMPORT_ACCOUNTS_URL = `${THYRA_ACCOUNTS_URL}/import/`;
+
+/**
  * Thyra's wallet provider name
  */
 export const THYRA_PROVIDER_NAME = 'THYRA';
