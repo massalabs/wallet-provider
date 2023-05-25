@@ -164,7 +164,7 @@ export class ThyraAccount implements IAccount {
     try {
       buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
     } catch (ex) {
-      console.error(`Thyra account: error while buying rolls`);
+      console.error(`Thyra account: error while buying rolls: ${ex}`);
       throw ex;
     }
     if (buyRollsOpResponse.isError || buyRollsOpResponse.error) {
@@ -194,7 +194,7 @@ export class ThyraAccount implements IAccount {
     try {
       sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
     } catch (ex) {
-      console.error(`Thyra account: error while selling rolls`);
+      console.error(`Thyra account: error while selling rolls: ${ex}`);
       throw ex;
     }
     if (sellRollsOpResponse.isError || sellRollsOpResponse.error) {
