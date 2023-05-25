@@ -60,3 +60,11 @@ export {
   IProvider,
   Provider,
 } from './provider';
+
+export {
+  IThyraWallet,
+} from './thyra/ThyraProvider';
+
+export {
+  ThyraAccount,
+} from './thyra/ThyraAccount';
