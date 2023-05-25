@@ -127,7 +127,7 @@ export class ThyraAccount implements IAccount {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
-        `${THYRA_ACCOUNTS_URL}/${this._name}/signOperation`,
+        `${THYRA_ACCOUNTS_URL}/${this._name}/sign`,
         {
           operation: data,
           batch: false,
@@ -150,8 +150,27 @@ export class ThyraAccount implements IAccount {
    * @param fee - The fee to be paid for the transaction execution by the node.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
-    throw new Error('Method not implemented.');
+  public async buyRolls(
+    amount: bigint,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
+    let buyRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
+    const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
+    const body = {
+      fee: fee.toString(),
+      amount: amount.toString(),
+      side: 'buy',
+    };
+    try {
+      buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
+    } catch (ex) {
+      console.error(`Thyra account: error while buying rolls: ${ex}`);
+      throw ex;
+    }
+    if (buyRollsOpResponse.isError || buyRollsOpResponse.error) {
+      throw buyRollsOpResponse.error;
+    }
+    return buyRollsOpResponse.result;
   }
 
   /**
@@ -161,8 +180,27 @@ export class ThyraAccount implements IAccount {
    * @param fee - The fee to be paid for the transaction execution by the node.
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails> {
-    throw new Error('Method not implemented.');
+  public async sellRolls(
+    amount: bigint,
+    fee: bigint,
+  ): Promise<ITransactionDetails> {
+    let sellRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
+    const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
+    const body = {
+      fee: fee.toString(),
+      amount: amount.toString(),
+      side: 'sell',
+    };
+    try {
+      sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
+    } catch (ex) {
+      console.error(`Thyra account: error while selling rolls: ${ex}`);
+      throw ex;
+    }
+    if (sellRollsOpResponse.isError || sellRollsOpResponse.error) {
+      throw sellRollsOpResponse.error;
+    }
+    return sellRollsOpResponse.result;
   }
 
   /**
