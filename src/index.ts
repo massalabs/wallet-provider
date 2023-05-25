@@ -61,10 +61,6 @@ export {
   Provider,
 } from './provider';
 
-export {
-  IThyraWallet,
-} from './thyra/ThyraProvider';
+export { IThyraWallet } from './thyra/ThyraProvider';
 
-export {
-  ThyraAccount,
-} from './thyra/ThyraAccount';
+export { ThyraAccount } from './thyra/ThyraAccount';
