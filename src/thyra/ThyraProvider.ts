@@ -127,7 +127,7 @@ export class ThyraProvider implements IProvider {
         accountImportRequest,
       );
     } catch (ex) {
-      console.log(`Thyra accounts retrieval error`);
+      console.log(`Thyra accounts retrieval error: ${ex}`);
       throw ex;
     }
     if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
@@ -153,7 +153,7 @@ export class ThyraProvider implements IProvider {
     try {
       allAccounts = await getRequest<Array<IThyraWallet>>(THYRA_ACCOUNTS_URL);
     } catch (ex) {
-      console.error(`Thyra accounts retrieval error`);
+      console.log(`Thyra accounts retrieval error: ${ex}`);
       throw ex;
     }
     if (allAccounts.isError || allAccounts.error) {
@@ -171,13 +171,13 @@ export class ThyraProvider implements IProvider {
         `${THYRA_ACCOUNTS_URL}${accountToDelete.nickname}`,
       );
     } catch (ex) {
-      console.error(`Thyra accounts deletion error`, ex);
+      console.log(`Thyra accounts deletion error`, ex);
       return {
         response: EAccountDeletionResponse.ERROR,
       } as IAccountDeletionResponse;
     }
     if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
-      console.error(
+      console.log(
         `Thyra accounts deletion error`,
         thyraAccountsResponse.error.message,
       );
