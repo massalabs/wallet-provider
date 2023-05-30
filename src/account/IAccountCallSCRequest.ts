@@ -1,6 +1,3 @@
-import { IGas } from './IGas';
-import { Args } from '@massalabs/massa-web3';
-
 /**
  * This interface represents the request object to send to the content script to
  * interact with a deployed smart contract.
@@ -12,9 +9,8 @@ import { Args } from '@massalabs/massa-web3';
 export interface IAccountCallSCRequest {
   contractAddress: string;
   functionName: string;
-  parameter: Args;
+  parameter: string;
   amount: bigint;
   expiry: bigint;
-  gas: IGas;
   fee: bigint;
 }

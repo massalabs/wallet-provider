@@ -7,7 +7,6 @@ import {
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
 import { THYRA_URL, THYRA_ACCOUNTS_URL } from './ThyraProvider';
-import { Args } from '@massalabs/massa-web3';
 
 /**
  * The Thyra's account balance url
