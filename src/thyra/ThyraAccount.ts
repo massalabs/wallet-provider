@@ -7,11 +7,13 @@ import {
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
 import { THYRA_ACCOUNTS_URL } from './ThyraProvider';
+import { Args } from '@massalabs/massa-web3';
 
 /**
  * The Thyra's account balance url
  */
-const THYRA_BALANCE_URL = `https://my.massa/massa/addresses?attributes=balance&addresses`;
+const THYRA_BASE_URL = `http://my.massa/`;
+const THYRA_BALANCE_URL = `${THYRA_BASE_URL}massa/addresses?attributes=balance&addresses`;
 
 /**
  * This interface represents the payload returned by making a call to Thyra's sign operation `/signOperation` url.
@@ -217,4 +219,34 @@ export class ThyraAccount implements IAccount {
   ): Promise<ITransactionDetails> {
     throw new Error('Method not implemented.');
   }
+
+  public async callSC(
+    contractAddress: string,
+    functionName: string,
+    parameter: Args,
+    amount: number,
+  ): Promise<ITransactionDetails> {
+    let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
+    const url = `${THYRA_BASE_URL}cmd/executeFunction`;
+    const body = {
+      nickname: this._name,
+      name: functionName,
+      at: contractAddress,
+      args: "[]",
+      coins: amount.toString(),
+    }
+    try {
+      CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
+    }
+    catch (ex) {
+      console.log(`Thyra account: error while interacting with smart contract: ${ex}`);
+      throw ex;
+    }
+    if (CallSCOpResponse.isError || CallSCOpResponse.error) {
+      throw CallSCOpResponse.error;
+    }
+    return CallSCOpResponse.result;
+  }  
 }
+
+// args nickname, at, name, coins
