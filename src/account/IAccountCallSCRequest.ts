@@ -10,11 +10,11 @@ import { Args } from '@massalabs/massa-web3';
  * - If your smart contract function parameters contain a number or bigNumber, you must pass it as a string.
  */
 export interface IAccountCallSCRequest {
-  contractAddress: string,
-  functionName: string,
-  parameter: Args,
-  amount: bigint,
-  expiry: bigint,
-  gas: IGas,
-  fee: bigint,
+  contractAddress: string;
+  functionName: string;
+  parameter: Args;
+  amount: bigint;
+  expiry: bigint;
+  gas: IGas;
+  fee: bigint;
 }

@@ -6,14 +6,13 @@ import {
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
-import { THYRA_ACCOUNTS_URL } from './ThyraProvider';
+import { THYRA_URL, THYRA_ACCOUNTS_URL } from './ThyraProvider';
 import { Args } from '@massalabs/massa-web3';
 
 /**
  * The Thyra's account balance url
  */
-const THYRA_BASE_URL = `http://my.massa/`;
-const THYRA_BALANCE_URL = `${THYRA_BASE_URL}massa/addresses?attributes=balance&addresses`;
+const THYRA_BALANCE_URL = `${THYRA_URL}massa/addresses?attributes=balance&addresses`;
 
 /**
  * This interface represents the payload returned by making a call to Thyra's sign operation `/signOperation` url.
@@ -220,33 +219,42 @@ export class ThyraAccount implements IAccount {
     throw new Error('Method not implemented.');
   }
 
+  /**
+   * This method aims to interact with a smart contract deployed on the MASSA blockchain.
+   *
+   * @param contractAddress - The address of the smart contract.
+   * @param functionName - The name of the function to be called.
+   * @param parameter - The parameter to be passed to the function.
+   * @param amount - The amount of MASS to be sent to the smart contract.
+   *
+   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   */
   public async callSC(
     contractAddress: string,
     functionName: string,
-    parameter: Args,
+    parameter: string,
     amount: number,
   ): Promise<ITransactionDetails> {
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
-    const url = `${THYRA_BASE_URL}cmd/executeFunction`;
+    const url = `${THYRA_URL}cmd/executeFunction`;
     const body = {
       nickname: this._name,
       name: functionName,
       at: contractAddress,
-      args: "[]",
-      coins: amount.toString(),
-    }
+      args: parameter,
+      coins: amount,
+    };
     try {
       CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
-    }
-    catch (ex) {
-      console.log(`Thyra account: error while interacting with smart contract: ${ex}`);
+    } catch (ex) {
+      console.log(
+        `Thyra account: error while interacting with smart contract: ${ex}`,
+      );
       throw ex;
     }
     if (CallSCOpResponse.isError || CallSCOpResponse.error) {
       throw CallSCOpResponse.error;
     }
     return CallSCOpResponse.result;
-  }  
+  }
 }
-
-// args nickname, at, name, coins

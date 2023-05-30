@@ -20,20 +20,19 @@ import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
 
 /**
+ * MassaStation url
+ */
+export const THYRA_URL = 'http://my.massa/';
+
+/**
  * The Thyra accounts url
  */
-export const THYRA_ACCOUNTS_URL =
- 'https://my.massa/thyra/plugin/massalabs/wallet/api/accounts';
+export const THYRA_ACCOUNTS_URL = `${THYRA_URL}thyra/plugin/massalabs/wallet/api/accounts`;
 
 /**
  * Thyra's url for importing accounts
  */
 export const THYRA_IMPORT_ACCOUNTS_URL = `${THYRA_ACCOUNTS_URL}/import/`;
-
-/**
- * MassaStation url
- */
-export const THYRA_URL = 'https://my.massa/';
 
 /**
  * Thyra's wallet provider name
