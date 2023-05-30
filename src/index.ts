@@ -47,7 +47,7 @@ export {
   Account,
   IAccountRollsRequest,
   IAccountSendTransactionRequest,
-  IAccountInteractWithSCRequest,
+  IAccountCallSCRequest,
 } from './account';
 
 export {
