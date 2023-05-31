@@ -223,6 +223,10 @@ export class ThyraAccount implements IAccount {
   /**
    * This method aims to interact with a smart contract deployed on the MASSA blockchain.
    *
+   * @remarks For now the MassaStation's api only returns the first event emitted by the contract
+   * (or a message telling that no event was emitted). Once the api is updated, this method will only
+   * return the ID of the operation.
+   *
    * @param contractAddress - The address of the smart contract.
    * @param functionName - The name of the function to be called.
    * @param parameter - The parameters as an Args object to be passed to the function.
