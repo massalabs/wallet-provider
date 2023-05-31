@@ -7,6 +7,8 @@ import {
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
 import { THYRA_URL, THYRA_ACCOUNTS_URL } from './ThyraProvider';
+import { Args } from '@massalabs/massa-web3';
+import { ArgsToBase64 } from '../utils/argsToBase64';
 
 /**
  * The Thyra's account balance url
@@ -223,24 +225,28 @@ export class ThyraAccount implements IAccount {
    *
    * @param contractAddress - The address of the smart contract.
    * @param functionName - The name of the function to be called.
-   * @param parameter - The parameter to be passed to the function.
-   * @param amount - The amount of MASS to be sent to the smart contract.
+   * @param parameter - The parameters as an Args object to be passed to the function.
+   * @param amount - The amount of MASSA coins to be sent to the block creator.
    *
-   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   * @returns An ITransactionDetails object.
+   * - It contains the first event emitted by the contract.
+   * - If the contract does not emit any event, it contains "Function called successfully but no event generated"
    */
   public async callSC(
     contractAddress: string,
     functionName: string,
-    parameter: string,
+    parameter: Args,
     amount: number,
   ): Promise<ITransactionDetails> {
+    // convert parameter to base64
+    const args = ArgsToBase64(parameter);
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${THYRA_URL}cmd/executeFunction`;
     const body = {
       nickname: this._name,
       name: functionName,
       at: contractAddress,
-      args: parameter,
+      args: args,
       coins: amount,
     };
     try {

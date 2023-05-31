@@ -5,7 +5,7 @@
 export interface IAccountCallSCRequest {
     contractAddress: string,
     functionName: string,
-    parameter: (string|bigint|boolean)[],
+    parameter: string,
     fee: bigint,
     }
     

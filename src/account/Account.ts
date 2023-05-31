@@ -10,6 +10,7 @@ import { IAccount } from './IAccount';
 import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
 import { IAccountCallSCRequest } from './IAccountCallSCRequest';
+import { Args } from '@massalabs/massa-web3';
 
 /**
  * This module contains the Account class. It is responsible for representing an account in the wallet.
@@ -186,34 +187,33 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to interact with a smart contract deployed on the massa blockchain on behalf of the sender.
+   * This method aims to interact with a smart contract deployed on the MASSA blockchain.
    *
    * @param contractAddress - The address of the smart contract.
    * @param functionName - The name of the function to be called.
-   * @param parameter - The parameters of the function to be called (array composed of string, bigint and/or boolean).
-   * @param fee - The fee to be paid for the transaction execution by the node.
-   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   * @param parameter - The parameters as an Args object to be passed to the function.
+   * @param amount - The amount of MASSA coins to be sent to the block creator.
    *
+   * @returns An ITransactionDetails object.
+   * - It contains the first event emitted by the contract.
+   * - If the contract does not emit any event, it contains "Function called successfully but no event generated"
    */
   public async callSC(
     contractAddress: string,
     functionName: string,
-    parameter: string,
-    amount: bigint,
-    expiry: bigint,
-    fee: bigint,
+    parameter: Args,
+    amount: number,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountInteractWithSC,
         {
-          contractAddress,
-          functionName,
-          parameter,
-          amount,
-          expiry,
-          fee,
+          nickname: this._name,
+          name: functionName,
+          at: contractAddress,
+          args: parameter,
+          coins: amount,
         } as IAccountCallSCRequest,
         (result, err) => {
           if (err) return reject(err);
