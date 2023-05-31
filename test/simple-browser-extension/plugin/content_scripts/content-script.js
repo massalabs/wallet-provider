@@ -118,7 +118,6 @@ const WALLET_PROVIDER_NAME = 'SPACE_X';
           },
         );
       });
-
     }
   }
 

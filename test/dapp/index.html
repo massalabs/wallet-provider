@@ -17,7 +17,12 @@
   </head>
   <body>
     <script type='text/javascript' src="./bundle.js"></script>
+        <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@massalabs/massa-web3@1.18.0/bundle.js"
+    ></script>
     <script type='module'>
+
       const delay = ms => new Promise(res => setTimeout(res, ms));
   
       console.log("[DAPP_HTML] Hello from Dapp! ");
@@ -85,11 +90,10 @@
       const sendTxData = await myAccount.sendTransaction(BigInt("2"), "AU19tCSKtiE4k9MJLyLH5sWGDZ7Rr2SiBf1ti3XqeCptwsXGvkef", BigInt("12000000"));
       console.log("[DAPP_HTML] Send Transaction = ", sendTxData);
 
-
       // interact with a smart contract
-      console.log("[DAPP_HTML] Interacting with a smart contract ...")
-      const contractAddress = "AU19tCSKtiE4k9MJLyLH5sWGDZ7Rr2SiBf1ti3XqeCptwsXGvkef";
-      const interaction = await myAccount.callSC(contractAddress, "main", ["test"], "2");
+      console.log("[DAPP_HTML] Interacting with a smart contract ...");
+      const account = "AU19tCSKtiE4k9MJLyLH5sWGDZ7Rr2SiBf1ti3XqeCptwsXGvkef";
+      const interaction = await myAccount.callSC(account, "main", new window.massa.Args(), "2");
       console.log("[DAPP_HTML] Interaction = ", interaction);
 
       // display as list
