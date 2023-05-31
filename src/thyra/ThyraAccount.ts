@@ -8,7 +8,7 @@ import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
 import { THYRA_URL, THYRA_ACCOUNTS_URL } from './ThyraProvider';
 import { Args } from '@massalabs/massa-web3';
-import { ArgsToBase64 } from '../utils/argsToBase64';
+import { argsToBase64 } from '../utils/argsToBase64';
 
 /**
  * The Thyra's account balance url
@@ -239,7 +239,7 @@ export class ThyraAccount implements IAccount {
     amount: number,
   ): Promise<ITransactionDetails> {
     // convert parameter to base64
-    const args = ArgsToBase64(parameter);
+    const args = argsToBase64(parameter);
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${THYRA_URL}cmd/executeFunction`;
     const body = {
