@@ -84,13 +84,15 @@ export async function postRequest<T>(
       error: null,
     } as JsonRpcResponseData<T>;
   } catch (ex) {
-    if (ex.response.data.message != undefined) {
-      return {
-        isError: true,
-        result: null,
-        error: new Error(String(ex.response.data.message)),
-      } as JsonRpcResponseData<T>;
-    }
+    try {
+      if (ex.response.data.message != undefined) {
+        return {
+          isError: true,
+          result: null,
+          error: new Error(String(ex.response.data.message)),
+        } as JsonRpcResponseData<T>;
+      }
+    } catch (ex2) {}
     return {
       isError: true,
       result: null,

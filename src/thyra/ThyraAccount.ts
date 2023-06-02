@@ -241,7 +241,13 @@ export class ThyraAccount implements IAccount {
     functionName: string,
     parameter: Args,
     amount: number,
+    dryRun: boolean = false,
   ): Promise<ITransactionDetails> {
+    if (dryRun) {
+      throw new Error(
+        'Dry run not supported by MassaStation. When possible, we update the method',
+      );
+    }
     // convert parameter to base64
     const args = argsToBase64(parameter);
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;

@@ -203,17 +203,19 @@ export class Account implements IAccount {
     functionName: string,
     parameter: Args,
     amount: number,
+    dryRun: boolean = false,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
-        AvailableCommands.AccountInteractWithSC,
+        AvailableCommands.AccountCallSC,
         {
           nickname: this._name,
           name: functionName,
           at: contractAddress,
           args: parameter,
           coins: amount,
+          dryRun: dryRun,
         } as IAccountCallSCRequest,
         (result, err) => {
           if (err) return reject(err);
