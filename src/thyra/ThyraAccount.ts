@@ -241,7 +241,7 @@ export class ThyraAccount implements IAccount {
     functionName: string,
     parameter: Args,
     amount: number,
-    dryRun: boolean = false,
+    dryRun = false,
   ): Promise<ITransactionDetails> {
     if (dryRun) {
       throw new Error(

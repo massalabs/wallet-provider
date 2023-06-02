@@ -203,7 +203,7 @@ export class Account implements IAccount {
     functionName: string,
     parameter: Args,
     amount: number,
-    dryRun: boolean = false,
+    dryRun = false,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {
       connector.sendMessageToContentScript(
