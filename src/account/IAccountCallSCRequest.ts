@@ -20,6 +20,6 @@ export interface IAccountCallSCRequest {
   name: string;
   at: string;
   args: Args;
-  coins: number;
+  coins: bigint;
   dryRun: boolean;
 }

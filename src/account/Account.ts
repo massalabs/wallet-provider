@@ -202,7 +202,7 @@ export class Account implements IAccount {
     contractAddress: string,
     functionName: string,
     parameter: Args,
-    amount: number,
+    amount: bigint,
     dryRun = false,
   ): Promise<ITransactionDetails> {
     return new Promise<ITransactionDetails>((resolve, reject) => {

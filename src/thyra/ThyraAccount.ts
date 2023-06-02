@@ -240,7 +240,7 @@ export class ThyraAccount implements IAccount {
     contractAddress: string,
     functionName: string,
     parameter: Args,
-    amount: number,
+    amount: bigint,
     dryRun = false,
   ): Promise<ITransactionDetails> {
     if (dryRun) {
