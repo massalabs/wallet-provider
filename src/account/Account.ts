@@ -9,7 +9,7 @@ import { AvailableCommands, ITransactionDetails } from '..';
 import { IAccount } from './IAccount';
 import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
-import { IAccountInteractWithSCRequest } from './IAccountInteractWithSCRequest';
+import { IAccountCallSCRequest } from './IAccountCallSCRequest';
 
 /**
  * This module contains the Account class. It is responsible for representing an account in the wallet.
@@ -195,7 +195,7 @@ export class Account implements IAccount {
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    *
    */
-  public async interactWithSC(
+  public async callSC(
     contractAddress: string,
     functionName: string,
     parameter: (string | boolean)[],
@@ -210,7 +210,7 @@ export class Account implements IAccount {
           functionName,
           parameter,
           fee,
-        } as IAccountInteractWithSCRequest,
+        } as IAccountCallSCRequest,
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);

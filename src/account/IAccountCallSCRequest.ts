@@ -6,7 +6,7 @@
  * - If your smart contract function does not require any parameters, you can pass an empty array.
  * - If your smart contract function parameters contain a number or bigNumber, you must pass it as a string.
  */
-export interface IAccountInteractWithSCRequest {
+export interface IAccountCallSCRequest {
   contractAddress: string;
   functionName: string;
   parameter: (string | boolean)[];

@@ -108,11 +108,11 @@ const WALLET_PROVIDER_NAME = 'SPACE_X';
         );
       });
     }
-    async interactWithSC(payload) {
+    async callSC(payload) {
       // send a message to background.js and await its response
       return new Promise((resolve, reject) => {
         mybrowser.runtime.sendMessage(
-          { action: 'interactWithSC', params: payload },
+          { action: 'callSC', params: payload },
           (response) => {
             return resolve(response);
           },

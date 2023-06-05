@@ -88,8 +88,8 @@
 
       // interact with a smart contract
       console.log("[DAPP_HTML] Interacting with a smart contract ...")
-      const contractAddress = "AU19tCSKtiE4k9MJLyLH5sWGDZ7Rr2SiBf1ti3XqeCptwsXGvkef";
-      const interaction = await myAccount.interactWithSC(contractAddress, "main", ["test"], "2");
+      const account = "AU19tCSKtiE4k9MJLyLH5sWGDZ7Rr2SiBf1ti3XqeCptwsXGvkef";
+      const interaction = await myAccount.callSC(account, "main", ["Test"], "2");
       console.log("[DAPP_HTML] Interaction = ", interaction);
 
       // display as list

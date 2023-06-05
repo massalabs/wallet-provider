@@ -18,7 +18,7 @@ import {
 import { ITransactionDetails } from '../interfaces/ITransactionDetails';
 import { IRollOperations } from '../interfaces/IRollOperations';
 import { ISendTransactionRequest } from '../interfaces/ISendTransactionRequest';
-import { IAccountInteractWithSCRequest } from '../interfaces/IAccountInteractWithSCRequest';
+import { IAccountCallSCRequest } from '../interfaces/IAccountCallSCRequest';
 
 declare function cloneInto<T>(object: T, targetScope: any): T;
 
@@ -55,7 +55,7 @@ export abstract class ContentScriptProvider {
     payload: ISendTransactionRequest,
   ): ITransactionDetails;
   public abstract interactWithSC(
-    payload: IAccountInteractWithSCRequest
+    payload: IAccountCallSCRequest
   ): ITransactionDetails;
   public abstract getNodesUrls(): string[];
 
@@ -72,7 +72,7 @@ export abstract class ContentScriptProvider {
     this.sendTransaction = this.sendTransaction.bind(this);
     this.listAccounts = this.listAccounts.bind(this);
     this.getNodesUrls = this.getNodesUrls.bind(this);
-    this.interactWithSC = this.interactWithSC.bind(this);
+    this.callSC = this.callSC.bind(this);
 
     // this is the current provider html element
     const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
@@ -306,23 +306,23 @@ export abstract class ContentScriptProvider {
       },
     );
 
-    // ==============================INTERACT WITH SC==================================
+    // ==============================CALL SC==================================
     (
       document.getElementById(providerEventTargetName) as EventTarget
     ).addEventListener(
-      AvailableCommands.AccountInteractWithSC,
+      AvailableCommands.AccountCallSC,
       (evt: CustomEvent) => {
         const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.AccountInteractWithSC)(payload);
+        this.actionToCallback.get(AvailableCommands.AccountCallSC)(payload);
       },
     );
 
     this.attachCallbackHandler(
-      AvailableCommands.AccountInteractWithSC,
+      AvailableCommands.AccountCallSC,
       async (payload: ICustomEventMessageRequest) => {
-        const operationPayload = payload.params as IAccountInteractWithSCRequest;
+        const operationPayload = payload.params as IAccountCallSCRequest;
         const respMessage = {
-          result: await this.interactWithSC(operationPayload),
+          result: await this.callSC(operationPayload),
           error: null,
           requestId: payload.requestId,
         } as ICustomEventMessageResponse;
