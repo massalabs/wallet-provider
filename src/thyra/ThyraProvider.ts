@@ -22,7 +22,7 @@ import { IAccountDetails } from '../account';
 /**
  * MassaStation url
  */
-export const THYRA_URL = 'http://my.massa/';
+export const THYRA_URL = 'https://my.massa/';
 
 /**
  * The Thyra accounts url
