@@ -10,9 +10,8 @@ import { IAccount } from './IAccount';
 import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
 import { IAccountCallSCRequest } from './IAccountCallSCRequest';
-import { IContractReadOperationResponse } from './IContractReadOperationResponse';
 import { IDryRunData } from './IDryRunData';
-import { Args } from '@massalabs/massa-web3';
+import { Args, IContractReadOperationResponse } from '@massalabs/massa-web3';
 
 /**
  * This module contains the Account class. It is responsible for representing an account in the wallet.
