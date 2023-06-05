@@ -84,17 +84,6 @@ export async function postRequest<T>(
       error: null,
     } as JsonRpcResponseData<T>;
   } catch (ex) {
-    try {
-      if (ex.response.data.message != undefined) {
-        return {
-          isError: true,
-          result: null,
-          error: new Error(String(ex.response.data.message)),
-        } as JsonRpcResponseData<T>;
-      }
-    } catch (ex2) {
-      console.error('Error parsing response data');
-    }
     return {
       isError: true,
       result: null,
