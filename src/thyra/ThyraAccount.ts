@@ -242,9 +242,9 @@ export class ThyraAccount implements IAccount {
    * @param amount - The amount of MASSA coins to be sent to the block creator.
    * @param dryRun - The dryRun object to be passed to the function.
    *
-   * @returns if dryRun.dryRun is true, it returns an IContractReadOperationResponse object. Otherwise, it returns an ITransactionDetails
-   * object which contains the first event emitted by the contract. If the contract does not emit any event,
-   * it returns "Function called successfully but no event generated"
+   * @returns if dryRun.dryRun is true, it returns an IContractReadOperationResponse object. Otherwise,
+   * it returns an ITransactionDetails object which contains the first event emitted by the contract.
+   * If the contract does not emit any event, it returns "Function called successfully but no event generated"
    *
    */
   public async callSC(
@@ -278,7 +278,10 @@ export class ThyraAccount implements IAccount {
       }
       if (dryRun.maxGas > MAX_READ_BLOCK_GAS) {
         throw new Error(
-          `The gas submitted ${dryRun.maxGas.toString()} exceeds the max. allowed block gas of ${MAX_READ_BLOCK_GAS.toString()}`,
+          `
+          The gas submitted ${dryRun.maxGas.toString()} exceeds the max. allowed block gas of 
+          ${MAX_READ_BLOCK_GAS.toString()}
+          `,
         );
       }
 

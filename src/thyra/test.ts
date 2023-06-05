@@ -14,7 +14,7 @@ const account = new ThyraAccount(
 // interact with a smart contract
 const contractAddress = 'AS12sCaiDjDUnSXtRnjBPKTcivK6pcczLr7aLJd8ALjRWz2GdNcee';
 const amount = 0n;
-const functionName = 'argEventAndReturn';
+const functionName = 'argEventAndReturn'; 
 let args = new Args();
 args.addString('Hello World!');
 
