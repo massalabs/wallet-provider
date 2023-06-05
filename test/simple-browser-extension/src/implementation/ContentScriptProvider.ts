@@ -54,7 +54,7 @@ export abstract class ContentScriptProvider {
   public abstract sendTransaction(
     payload: ISendTransactionRequest,
   ): ITransactionDetails;
-  public abstract interactWithSC(
+  public abstract callSC(
     payload: IAccountCallSCRequest
   ): ITransactionDetails;
   public abstract getNodesUrls(): string[];
