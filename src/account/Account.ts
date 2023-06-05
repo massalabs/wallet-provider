@@ -10,6 +10,8 @@ import { IAccount } from './IAccount';
 import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
 import { IAccountCallSCRequest } from './IAccountCallSCRequest';
+import { IContractReadOperationResponse } from './IContractReadOperationResponse';
+import { IDryRunData } from './IDryRunData';
 import { Args } from '@massalabs/massa-web3';
 
 /**
@@ -203,25 +205,46 @@ export class Account implements IAccount {
     functionName: string,
     parameter: Args,
     amount: bigint,
-    dryRun = false,
-  ): Promise<ITransactionDetails> {
-    return new Promise<ITransactionDetails>((resolve, reject) => {
-      connector.sendMessageToContentScript(
-        this._providerName,
-        AvailableCommands.AccountCallSC,
-        {
-          nickname: this._name,
-          name: functionName,
-          at: contractAddress,
-          args: parameter,
-          coins: amount,
-          dryRun: dryRun,
-        } as IAccountCallSCRequest,
-        (result, err) => {
-          if (err) return reject(err);
-          return resolve(result as ITransactionDetails);
-        },
-      );
-    });
+    dryRun: IDryRunData,
+  ): Promise<ITransactionDetails | IContractReadOperationResponse> {
+    if (dryRun.dryRun) {
+      return new Promise<IContractReadOperationResponse>((resolve, reject) => {
+        connector.sendMessageToContentScript(
+          this._providerName,
+          AvailableCommands.AccountCallSC,
+          {
+            nickname: this._name,
+            name: functionName,
+            at: contractAddress,
+            args: parameter,
+            coins: amount,
+            dryRun: dryRun,
+          } as IAccountCallSCRequest,
+          (result, err) => {
+            if (err) return reject(err);
+            return resolve(result as IContractReadOperationResponse);
+          },
+        );
+      });
+    } else {
+      return new Promise<ITransactionDetails>((resolve, reject) => {
+        connector.sendMessageToContentScript(
+          this._providerName,
+          AvailableCommands.AccountCallSC,
+          {
+            nickname: this._name,
+            name: functionName,
+            at: contractAddress,
+            args: parameter,
+            coins: amount,
+            dryRun: dryRun,
+          } as IAccountCallSCRequest,
+          (result, err) => {
+            if (err) return reject(err);
+            return resolve(result as ITransactionDetails);
+          },
+        );
+      });
+    }
   }
 }

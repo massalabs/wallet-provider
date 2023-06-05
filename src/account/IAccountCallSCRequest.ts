@@ -1,4 +1,5 @@
 import { Args } from '@massalabs/massa-web3';
+import { IDryRunData } from './IDryRunData';
 
 /**
  * This interface represents the request object to send to the content script to
@@ -13,7 +14,6 @@ import { Args } from '@massalabs/massa-web3';
  * @see at - The address of the smart contract.
  * @see args - The parameters as an Args object to be passed to the function.
  * @see coins - The amount of MASSA coins to be sent to the block creator.
- * @see dryRun - If true, the transaction will not be sent to the network.
  */
 export interface IAccountCallSCRequest {
   nickname: string;
@@ -21,5 +21,5 @@ export interface IAccountCallSCRequest {
   at: string;
   args: Args;
   coins: bigint;
-  dryRun: boolean;
+  dryRun: IDryRunData;
 }
