@@ -188,7 +188,7 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to interact with a smart contract deployed on the MASSA blockchain.
+   * This method aims to interact with a smart contract deployed on the massa blockchain on behalf of the sender.
    *
    * @param contractAddress - The address of the smart contract.
    * @param functionName - The name of the function to be called.

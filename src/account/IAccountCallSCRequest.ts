@@ -7,7 +7,6 @@ import { IDryRunData } from './IDryRunData';
  *
  * @remarks
  * - If your smart contract function does not require any parameters, you can pass an empty array.
- * - If your smart contract function parameters contain a number or bigNumber, you must pass it as a string.
  *
  * @see nickname - The nickname of the account to use.
  * @see name - The name of the function to be called.
