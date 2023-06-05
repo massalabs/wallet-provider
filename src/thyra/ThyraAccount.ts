@@ -6,12 +6,14 @@ import {
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
-import { THYRA_URL, THYRA_ACCOUNTS_URL, ThyraProvider } from './ThyraProvider';
-import { Args } from '@massalabs/massa-web3';
+import { THYRA_URL, THYRA_ACCOUNTS_URL } from './ThyraProvider';
+import {
+  Args,
+  IContractReadOperationResponse,
+  IContractReadOperationData,
+} from '@massalabs/massa-web3';
 import { argsToBase64 } from '../utils/argsToBase64';
 import { IDryRunData } from '../account/IDryRunData';
-import { IContractReadOperationResponse } from '../account/IContractReadOperationResponse';
-import { IContractReadOperationData } from '../account/IContractReadOperationData';
 
 /**
  * The Thyra's account balance url
