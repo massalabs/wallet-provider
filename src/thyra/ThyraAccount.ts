@@ -252,7 +252,9 @@ export class ThyraAccount implements IAccount {
     functionName: string,
     parameter: Args,
     amount: bigint,
-    dryRun?: IDryRunData,
+    dryRun = {
+      dryRun: false,
+    } as IDryRunData,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     if (dryRun != undefined && dryRun.dryRun) {
       // get the node url from the thyra

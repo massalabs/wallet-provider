@@ -205,7 +205,9 @@ export class Account implements IAccount {
     functionName: string,
     parameter: Args,
     amount: bigint,
-    dryRun: IDryRunData,
+    dryRun = {
+      dryRun: false,
+    } as IDryRunData,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     if (dryRun.dryRun) {
       return new Promise<IContractReadOperationResponse>((resolve, reject) => {
