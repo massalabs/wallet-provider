@@ -223,7 +223,7 @@ export class Account implements IAccount {
         (result, err) => {
           if (err) return reject(err);
           return resolve(
-            dryRun != undefined && dryRun.dryRun
+            dryRun?.dryRun
               ? (result as IContractReadOperationResponse)
               : (result as ITransactionDetails),
           );

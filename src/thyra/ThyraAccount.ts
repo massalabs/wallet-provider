@@ -258,7 +258,7 @@ export class ThyraAccount implements IAccount {
       dryRun: false,
     } as IDryRunData,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
-    if (dryRun != undefined && dryRun.dryRun) {
+    if (dryRun?.dryRun) {
       return this.callSCDryRun(
         contractAddress,
         functionName,
@@ -374,7 +374,7 @@ export class ThyraAccount implements IAccount {
     }
     return {
       returnValue: jsonRpcCallResult[0].result[0].result.Ok as Uint8Array,
-      info: jsonRpcCallResult[0] as IContractReadOperationData,
+      info: jsonRpcCallResult[0],
     } as IContractReadOperationResponse;
   }
 }
