@@ -71,37 +71,27 @@ export async function postRequest<T>(
   url: string,
   body: object,
 ): Promise<JsonRpcResponseData<T>> {
-  let resp: AxiosResponse = null;
   try {
-    resp = await axios.post<unknown, AxiosResponse, object>(
+    const resp = await axios.post<unknown, AxiosResponse, object>(
       url,
       body,
       requestHeaders,
     );
+
+    return {
+      isError: false,
+      result: resp.data as T,
+      error: null,
+    } as JsonRpcResponseData<T>;
   } catch (ex) {
-    try {
-      if (ex.response.data.message != undefined) {
-        return {
-          isError: true,
-          result: null,
-          error: new Error(String(ex.response.data.message)),
-        } as JsonRpcResponseData<T>;
-      }
-    } catch (ex2) {
-      console.error('Error parsing response data');
-    }
     return {
       isError: true,
       result: null,
-      error: new Error('Axios error: ' + String(ex)),
+      error: ex.response?.data?.message
+        ? new Error(String(ex.response.data.message))
+        : new Error('Axios error: ' + String(ex)),
     } as JsonRpcResponseData<T>;
   }
-
-  return {
-    isError: false,
-    result: resp.data as T,
-    error: null,
-  } as JsonRpcResponseData<T>;
 }
 
 /**
