@@ -265,31 +265,30 @@ export class ThyraAccount implements IAccount {
         parameter,
         dryRun,
       );
-    } else {
-      // convert parameter to base64
-      const args = argsToBase64(parameter);
-      let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
-      const url = `${THYRA_URL}cmd/executeFunction`;
-      const body = {
-        nickname: this._name,
-        name: functionName,
-        at: contractAddress,
-        args: args,
-        coins: Number(amount),
-      };
-      try {
-        CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
-      } catch (ex) {
-        console.log(
-          `Thyra account: error while interacting with smart contract: ${ex}`,
-        );
-        throw ex;
-      }
-      if (CallSCOpResponse.isError || CallSCOpResponse.error) {
-        throw CallSCOpResponse.error;
-      }
-      return CallSCOpResponse.result;
     }
+    // convert parameter to base64
+    const args = argsToBase64(parameter);
+    let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
+    const url = `${THYRA_URL}cmd/executeFunction`;
+    const body = {
+      nickname: this._name,
+      name: functionName,
+      at: contractAddress,
+      args: args,
+      coins: Number(amount),
+    };
+    try {
+      CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
+    } catch (ex) {
+      console.log(
+        `Thyra account: error while interacting with smart contract: ${ex}`,
+      );
+      throw ex;
+    }
+    if (CallSCOpResponse.isError || CallSCOpResponse.error) {
+      throw CallSCOpResponse.error;
+    }
+    return CallSCOpResponse.result;
   }
 
   public async getNodeUrlFromThyra(providerName: string): Promise<string> {
