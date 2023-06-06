@@ -13,6 +13,7 @@ import { IDryRunData } from './IDryRunData';
  * @see at - The address of the smart contract.
  * @see args - The parameters as an Args object to be passed to the function.
  * @see coins - The amount of MASSA coins to be sent to the block creator.
+ * @see dryRun - The parameters for the dry run.
  */
 export interface IAccountCallSCRequest {
   nickname: string;

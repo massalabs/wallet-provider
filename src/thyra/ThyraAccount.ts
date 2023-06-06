@@ -259,84 +259,12 @@ export class ThyraAccount implements IAccount {
     } as IDryRunData,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     if (dryRun != undefined && dryRun.dryRun) {
-      // get the node url from the thyra
-      let nodesResponse: JsonRpcResponseData<unknown> = null;
-      let node = '';
-      try {
-        nodesResponse = await getRequest<unknown>(`${THYRA_URL}massa/node`);
-        if (nodesResponse.isError || nodesResponse.error) {
-          throw nodesResponse.error.message;
-        }
-        // transform nodesResponse.result to a json and then get the "url" property
-        const nodes = nodesResponse.result as { url: string };
-        node = nodes.url;
-      } catch (ex) {
-        throw new Error(`Thyra nodes retrieval error: ${ex}`);
-      }
-
-      // Read the smart contract :
-      if (!dryRun.maxGas) {
-        dryRun.maxGas = MAX_READ_BLOCK_GAS;
-      }
-      if (dryRun.maxGas > MAX_READ_BLOCK_GAS) {
-        throw new Error(
-          `
-          The gas submitted ${dryRun.maxGas.toString()} exceeds the max. allowed block gas of 
-          ${MAX_READ_BLOCK_GAS.toString()}
-          `,
-        );
-      }
-
-      // convert parameter to an array of numbers
-      const argumentArray = Array.from(parameter.serialize());
-
-      const data = {
-        max_gas: Number(dryRun.maxGas),
-        target_address: contractAddress,
-        target_function: functionName,
-        parameter: argumentArray,
-        caller_address: this._address,
-      };
-      const body = [
-        {
-          jsonrpc: '2.0',
-          method: 'execute_read_only_call',
-          params: [[data]],
-          id: 0,
-        },
-      ];
-      // returns operation ids
-      let jsonRpcCallResult: Array<IContractReadOperationData> = [];
-      try {
-        console.log('node: ', node);
-        console.log('body: ', body);
-        console.log('data: ', data);
-        let resp = await postRequest<Array<IContractReadOperationData>>(
-          node,
-          body,
-        );
-        if (resp.isError || resp.error) {
-          throw resp.error.message;
-        }
-        jsonRpcCallResult = resp.result;
-      } catch (ex) {
-        throw new Error(
-          `Thyra account: error while interacting with smart contract: ${ex}`,
-        );
-      }
-      console.log('jsonRpcCallResult: ', jsonRpcCallResult);
-      if (jsonRpcCallResult.length <= 0) {
-        throw new Error(
-          `Read operation bad response. No results array in json rpc response. Inspect smart contract`,
-        );
-      }
-      if (jsonRpcCallResult[0].result.Error) {
-        throw new Error(jsonRpcCallResult[0].result.Error);
-      }
-      return {
-        returnValue: jsonRpcCallResult[0].result[0].result.Ok as Uint8Array,
-        info: jsonRpcCallResult[0] as IContractReadOperationData,
-      } as IContractReadOperationResponse;
+      return this.callSCDryRun(
+        contractAddress,
+        functionName,
+        parameter,
+        dryRun,
+      );
     } else {
       // convert parameter to base64
       const args = argsToBase64(parameter);
@@ -362,5 +290,92 @@ export class ThyraAccount implements IAccount {
       }
       return CallSCOpResponse.result;
     }
+  }
+
+  public async getNodeUrlFromThyra(providerName: string): Promise<string> {
+    // get the node url from the thyra
+    let nodesResponse: JsonRpcResponseData<unknown> = null;
+    let node = '';
+    try {
+      nodesResponse = await getRequest<unknown>(`${THYRA_URL}massa/node`);
+      if (nodesResponse.isError || nodesResponse.error) {
+        throw nodesResponse.error.message;
+      }
+      // transform nodesResponse.result to a json and then get the "url" property
+      const nodes = nodesResponse.result as { url: string };
+      node = nodes.url;
+    } catch (ex) {
+      throw new Error(`Thyra nodes retrieval error: ${ex}`);
+    }
+    return node;
+  }
+
+  public async callSCDryRun(
+    contractAddress: string,
+    functionName: string,
+    parameter: Args,
+    dryRun: IDryRunData,
+  ): Promise<IContractReadOperationResponse> {
+    const node = await this.getNodeUrlFromThyra(this._providerName);
+
+    // Gas amount check
+    if (!dryRun.maxGas) {
+      dryRun.maxGas = MAX_READ_BLOCK_GAS;
+    }
+    if (dryRun.maxGas > MAX_READ_BLOCK_GAS) {
+      throw new Error(
+        `
+        The gas submitted ${dryRun.maxGas.toString()} exceeds the max. allowed block gas of 
+        ${MAX_READ_BLOCK_GAS.toString()}
+        `,
+      );
+    }
+
+    // convert parameter to an array of numbers
+    const argumentArray = Array.from(parameter.serialize());
+    // setup the request body
+    const data = {
+      max_gas: Number(dryRun.maxGas),
+      target_address: contractAddress,
+      target_function: functionName,
+      parameter: argumentArray,
+      caller_address: this._address,
+    };
+    const body = [
+      {
+        jsonrpc: '2.0',
+        method: 'execute_read_only_call',
+        params: [[data]],
+        id: 0,
+      },
+    ];
+    // returns operation ids
+    let jsonRpcCallResult: Array<IContractReadOperationData> = [];
+    try {
+      let resp = await postRequest<Array<IContractReadOperationData>>(
+        node,
+        body,
+      );
+      if (resp.isError || resp.error) {
+        throw resp.error.message;
+      }
+      jsonRpcCallResult = resp.result;
+    } catch (ex) {
+      throw new Error(
+        `Thyra account: error while interacting with smart contract: ${ex}`,
+      );
+    }
+    if (jsonRpcCallResult.length <= 0) {
+      throw new Error(
+        `Read operation bad response. No results array in json rpc response. Inspect smart contract`,
+      );
+    }
+    if (jsonRpcCallResult[0].result.Error) {
+      throw new Error(jsonRpcCallResult[0].result.Error);
+    }
+    return {
+      returnValue: jsonRpcCallResult[0].result[0].result.Ok as Uint8Array,
+      info: jsonRpcCallResult[0] as IContractReadOperationData,
+    } as IContractReadOperationResponse;
   }
 }

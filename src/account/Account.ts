@@ -208,44 +208,27 @@ export class Account implements IAccount {
       dryRun: false,
     } as IDryRunData,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
-    if (dryRun.dryRun) {
-      return new Promise<IContractReadOperationResponse>((resolve, reject) => {
-        connector.sendMessageToContentScript(
-          this._providerName,
-          AvailableCommands.AccountCallSC,
-          {
-            nickname: this._name,
-            name: functionName,
-            at: contractAddress,
-            args: parameter,
-            coins: amount,
-            dryRun: dryRun,
-          } as IAccountCallSCRequest,
-          (result, err) => {
-            if (err) return reject(err);
-            return resolve(result as IContractReadOperationResponse);
-          },
-        );
-      });
-    } else {
-      return new Promise<ITransactionDetails>((resolve, reject) => {
-        connector.sendMessageToContentScript(
-          this._providerName,
-          AvailableCommands.AccountCallSC,
-          {
-            nickname: this._name,
-            name: functionName,
-            at: contractAddress,
-            args: parameter,
-            coins: amount,
-            dryRun: dryRun,
-          } as IAccountCallSCRequest,
-          (result, err) => {
-            if (err) return reject(err);
-            return resolve(result as ITransactionDetails);
-          },
-        );
-      });
-    }
+    return new Promise((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this._providerName,
+        AvailableCommands.AccountCallSC,
+        {
+          nickname: this._name,
+          name: functionName,
+          at: contractAddress,
+          args: parameter,
+          coins: amount,
+          dryRun: dryRun,
+        } as IAccountCallSCRequest,
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(
+            dryRun != undefined && dryRun.dryRun
+              ? (result as IContractReadOperationResponse)
+              : (result as ITransactionDetails),
+          );
+        },
+      );
+    });
   }
 }

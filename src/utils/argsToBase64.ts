@@ -7,10 +7,6 @@ import { Args } from '@massalabs/massa-web3';
  * @returns The base64 string
  */
 export function argsToBase64(arg: Args): string {
-  let binary = '';
-  const array = new Uint8Array(arg.serialize());
-  for (let i = 0; i < array.length; i++) {
-    binary += String.fromCharCode(array[i]);
-  }
-  return btoa(binary);
+  const array = arg.serialize();
+  return Buffer.from(array).toString('base64');
 }
