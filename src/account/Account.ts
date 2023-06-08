@@ -204,7 +204,7 @@ export class Account implements IAccount {
     functionName: string,
     parameter: Args,
     amount: bigint,
-    dryRun = {
+    nonPersistentExecution = {
       dryRun: false,
     } as IDryRunData,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
