@@ -10,7 +10,7 @@ import { IAccount } from './IAccount';
 import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
 import { IAccountCallSCRequest } from './IAccountCallSCRequest';
-import { IDryRunData } from './IDryRunData';
+import { NonPersistentExecution } from './INonPersistentExecution';
 import { Args, IContractReadOperationResponse } from '@massalabs/massa-web3';
 
 /**
@@ -205,8 +205,8 @@ export class Account implements IAccount {
     parameter: Args,
     amount: bigint,
     nonPersistentExecution = {
-      dryRun: false,
-    } as IDryRunData,
+      isNPE: false,
+    } as NonPersistentExecution,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     return new Promise((resolve, reject) => {
       connector.sendMessageToContentScript(
@@ -218,12 +218,12 @@ export class Account implements IAccount {
           at: contractAddress,
           args: parameter,
           coins: amount,
-          dryRun: dryRun,
+          nonPersistentExecution: nonPersistentExecution,
         } as IAccountCallSCRequest,
         (result, err) => {
           if (err) return reject(err);
           return resolve(
-            dryRun?.dryRun
+            nonPersistentExecution?.isNPE
               ? (result as IContractReadOperationResponse)
               : (result as ITransactionDetails),
           );

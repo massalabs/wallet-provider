@@ -1,5 +1,5 @@
 import { Args } from '@massalabs/massa-web3';
-import { IDryRunData } from './IDryRunData';
+import { NonPersistentExecution } from './INonPersistentExecution';
 
 /**
  * This interface represents the request object to send to the content script to
@@ -21,5 +21,5 @@ export interface IAccountCallSCRequest {
   at: string;
   args: Args;
   coins: bigint;
-  dryRun: IDryRunData;
+  nonPersistentExecution: NonPersistentExecution;
 }

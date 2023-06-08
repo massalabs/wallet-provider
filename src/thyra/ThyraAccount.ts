@@ -6,19 +6,19 @@ import {
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
-import { THYRA_URL, THYRA_ACCOUNTS_URL } from './ThyraProvider';
+import { MASSA_STATION_URL, MASSA_STATION_ACCOUNTS_URL } from './ThyraProvider';
 import {
   Args,
   IContractReadOperationResponse,
   IContractReadOperationData,
 } from '@massalabs/massa-web3';
 import { argsToBase64 } from '../utils/argsToBase64';
-import { IDryRunData } from '../account/IDryRunData';
+import { NonPersistentExecution } from '../account/INonPersistentExecution';
 
 /**
  * The Thyra's account balance url
  */
-const THYRA_BALANCE_URL = `${THYRA_URL}massa/addresses?attributes=balance&addresses`;
+const THYRA_BALANCE_URL = `${MASSA_STATION_URL}massa/addresses?attributes=balance&addresses`;
 
 /**
  * The maximum allowed gas for a read operation
@@ -139,7 +139,7 @@ export class ThyraAccount implements IAccount {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
-        `${THYRA_ACCOUNTS_URL}/${this._name}/sign`,
+        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/sign`,
         {
           operation: data,
           batch: false,
@@ -167,7 +167,7 @@ export class ThyraAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     let buyRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
-    const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
+    const url = `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/rolls`;
     const body = {
       fee: fee.toString(),
       amount: amount.toString(),
@@ -197,7 +197,7 @@ export class ThyraAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     let sellRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
-    const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
+    const url = `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/rolls`;
     const body = {
       fee: fee.toString(),
       amount: amount.toString(),
@@ -254,22 +254,22 @@ export class ThyraAccount implements IAccount {
     functionName: string,
     parameter: Args,
     amount: bigint,
-    dryRun = {
-      dryRun: false,
-    } as IDryRunData,
+    nonPersistentExecution = {
+      isNPE: false,
+    } as NonPersistentExecution,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
-    if (dryRun?.dryRun) {
-      return this.callSCDryRun(
+    if (nonPersistentExecution?.isNPE) {
+      return this.nonPersistentCallSC(
         contractAddress,
         functionName,
         parameter,
-        dryRun,
+        nonPersistentExecution,
       );
     }
     // convert parameter to base64
     const args = argsToBase64(parameter);
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
-    const url = `${THYRA_URL}cmd/executeFunction`;
+    const url = `${MASSA_STATION_URL}cmd/executeFunction`;
     const body = {
       nickname: this._name,
       name: functionName,
@@ -296,7 +296,9 @@ export class ThyraAccount implements IAccount {
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     let node = '';
     try {
-      nodesResponse = await getRequest<unknown>(`${THYRA_URL}massa/node`);
+      nodesResponse = await getRequest<unknown>(
+        `${MASSA_STATION_URL}massa/node`,
+      );
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
       }
@@ -309,11 +311,11 @@ export class ThyraAccount implements IAccount {
     return node;
   }
 
-  public async callSCDryRun(
+  public async nonPersistentCallSC(
     contractAddress: string,
     functionName: string,
     parameter: Args,
-    dryRun: IDryRunData,
+    dryRun: NonPersistentExecution,
   ): Promise<IContractReadOperationResponse> {
     const node = await this.getNodeUrlFromThyra(this._providerName);
 
