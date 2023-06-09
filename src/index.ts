@@ -1,7 +1,7 @@
 import { connector } from './connector/Connector';
 import { IProvider } from './provider/IProvider';
 import { Provider } from './provider/Provider';
-import { THYRA_PROVIDER_NAME, ThyraProvider } from './thyra/ThyraProvider';
+import { MASSA_STATION_PROVIDER_NAME, MassaStationProvider } from './massaStation/MassaStationProvider';
 
 export enum AvailableCommands {
   ProviderListAccounts = 'LIST_ACCOUNTS',
@@ -24,8 +24,8 @@ export interface ITransactionDetails {
 export function providers(): IProvider[] {
   let providers: IProvider[] = [];
   for (const providerName of Object.keys(connector.getWalletProviders())) {
-    if (providerName === THYRA_PROVIDER_NAME) {
-      const p = new ThyraProvider();
+    if (providerName === MASSA_STATION_PROVIDER_NAME) {
+      const p = new MassaStationProvider();
       providers.push(p);
     } else {
       const p = new Provider(providerName);
@@ -61,6 +61,6 @@ export {
   Provider,
 } from './provider';
 
-export { IThyraWallet } from './thyra/ThyraProvider';
+export { IMassaStationWallet } from './massaStation/MassaStationProvider';
 
-export { ThyraAccount } from './thyra/ThyraAccount';
+export { MassaStationAccount } from './massaStation/MassaStationAccount';

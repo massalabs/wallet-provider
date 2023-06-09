@@ -23,11 +23,11 @@ import {
   IAccountSignResponse,
 } from '..';
 import {
-  ON_THYRA_DISCOVERED,
-  ON_THYRA_DISCONNECTED,
-  ThyraDiscovery,
-} from '../thyra/ThyraDiscovery';
-import { THYRA_PROVIDER_NAME } from '../thyra/ThyraProvider';
+  ON_MASSA_STATION_DISCOVERED,
+  ON_MASSA_STATION_DISCONNECTED,
+  MassaStationDiscovery,
+} from '../massaStation/MassaStationDiscovery';
+import { MASSA_STATION_PROVIDER_NAME } from '../massaStation/MassaStationProvider';
 import { IAccount } from '../account/IAccount';
 
 /**
@@ -67,7 +67,7 @@ export type AllowedResponses =
 class Connector {
   private registeredProviders: { [key: string]: string } = {};
   private pendingRequests: Map<string, CallbackFunction>;
-  private thyraListener: ThyraDiscovery;
+  private massaStationListener: MassaStationDiscovery;
 
   /**
    * Connector constructor
@@ -125,16 +125,16 @@ class Connector {
           providerEventTargetName;
       });
 
-    // start thyra discovery
-    this.thyraListener = new ThyraDiscovery(1000);
-    this.thyraListener.startListening();
-    this.thyraListener.on(ON_THYRA_DISCOVERED, () => {
+    // start MassaStation discovery
+    this.massaStationListener = new MassaStationDiscovery(1000);
+    this.massaStationListener.startListening();
+    this.massaStationListener.on(ON_MASSA_STATION_DISCOVERED, () => {
       this.registeredProviders[
-        THYRA_PROVIDER_NAME
-      ] = `${MASSA_WINDOW_OBJECT}_${THYRA_PROVIDER_NAME}`;
+        MASSA_STATION_PROVIDER_NAME
+      ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
     });
-    this.thyraListener.on(ON_THYRA_DISCONNECTED, () => {
-      delete this.registeredProviders[THYRA_PROVIDER_NAME];
+    this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
+      delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
     });
   }
 

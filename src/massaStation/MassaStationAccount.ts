@@ -6,7 +6,7 @@ import {
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
-import { MASSA_STATION_URL, MASSA_STATION_ACCOUNTS_URL } from './ThyraProvider';
+import { MASSA_STATION_URL, MASSA_STATION_ACCOUNTS_URL } from './MassaStationProvider';
 import {
   Args,
   IContractReadOperationResponse,
@@ -15,10 +15,11 @@ import {
 import { argsToBase64 } from '../utils/argsToBase64';
 import { NonPersistentExecution } from '../account/INonPersistentExecution';
 
+
 /**
- * The Thyra's account balance url
+ * The MassaStation's account balance url
  */
-const THYRA_BALANCE_URL = `${MASSA_STATION_URL}massa/addresses?attributes=balance&addresses`;
+const MASSA_STATION_BALANCE_URL = `${MASSA_STATION_URL}massa/addresses?attributes=balance&addresses`;
 
 /**
  * The maximum allowed gas for a read operation
@@ -26,7 +27,7 @@ const THYRA_BALANCE_URL = `${MASSA_STATION_URL}massa/addresses?attributes=balanc
 const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
 
 /**
- * This interface represents the payload returned by making a call to Thyra's sign operation `/signOperation` url.
+ * This interface represents the payload returned by making a call to MassaStation's sign operation `/signOperation` url.
  */
 interface ISignOperation {
   operation: string;
@@ -35,7 +36,7 @@ interface ISignOperation {
 }
 
 /**
- * This interface represents the the individual wallet's final and pending balances returned by Thyra
+ * This interface represents the the individual wallet's final and pending balances returned by MassaStation
  */
 interface IBalance {
   final: string;
@@ -43,7 +44,7 @@ interface IBalance {
 }
 
 /**
- * This interface represents the payload returned by making a call to Thyra's get balances url.
+ * This interface represents the payload returned by making a call to MassaStation's get balances url.
  */
 interface IAddressesBalances {
   addressesAttributes: {
@@ -52,13 +53,13 @@ interface IAddressesBalances {
 }
 
 /**
- * This module contains the ThyraAccount class. It is responsible for representing an account in the Thyra wallet.
+ * This module contains the MassaStationAccount class. It is responsible for representing an account in the MassaStation wallet.
  *
  * @remarks
- * This class provides methods to interact with Thyra account's {@link balance} and to {@link sign} messages.
+ * This class provides methods to interact with MassaStation account's {@link balance} and to {@link sign} messages.
  *
  */
-export class ThyraAccount implements IAccount {
+export class MassaStationAccount implements IAccount {
   private _providerName: string;
   private _address: string;
   private _name: string;
@@ -112,10 +113,10 @@ export class ThyraAccount implements IAccount {
     let signOpResponse: JsonRpcResponseData<IAddressesBalances> = null;
     try {
       signOpResponse = await getRequest<IAddressesBalances>(
-        `${THYRA_BALANCE_URL}=${this._address}`,
+        `${MASSA_STATION_BALANCE_URL}=${this._address}`,
       );
     } catch (ex) {
-      console.error(`Thyra account balance error`);
+      console.error(`MassaStation account balance error`);
       throw ex;
     }
     if (signOpResponse.isError || signOpResponse.error) {
@@ -146,7 +147,7 @@ export class ThyraAccount implements IAccount {
         } as ISignOperation,
       );
     } catch (ex) {
-      console.error(`Thyra account signing error`);
+      console.error(`MassaStation account signing error`);
       throw ex;
     }
     if (signOpResponse.isError || signOpResponse.error) {
@@ -176,7 +177,7 @@ export class ThyraAccount implements IAccount {
     try {
       buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
     } catch (ex) {
-      console.error(`Thyra account: error while buying rolls: ${ex}`);
+      console.error(`MassaStation account: error while buying rolls: ${ex}`);
       throw ex;
     }
     if (buyRollsOpResponse.isError || buyRollsOpResponse.error) {
@@ -206,7 +207,7 @@ export class ThyraAccount implements IAccount {
     try {
       sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
     } catch (ex) {
-      console.error(`Thyra account: error while selling rolls: ${ex}`);
+      console.error(`MassaStation account: error while selling rolls: ${ex}`);
       throw ex;
     }
     if (sellRollsOpResponse.isError || sellRollsOpResponse.error) {
