@@ -16,7 +16,8 @@ import { JsonRpcResponseData, getRequest } from './RequestHandler';
 /**
  * Url used for the MassaStation discovery and pinging the MassaStation server's index.html
  */
-export const MASSA_STATION_DISCOVERY_URL = 'https://my.massa/thyra/home/index.html';
+export const MASSA_STATION_DISCOVERY_URL =
+  'https://my.massa/thyra/home/index.html';
 
 /**
  * A message emitted on successful MassaStation discovery

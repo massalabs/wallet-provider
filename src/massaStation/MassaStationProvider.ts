@@ -86,21 +86,29 @@ export class MassaStationProvider implements IProvider {
    * @returns A promise that resolves to an array of Account instances.
    */
   public async accounts(): Promise<IAccount[]> {
-    let massaStationAccountsResponse: JsonRpcResponseData<Array<IMassaStationWallet>> = null;
+    let massaStationAccountsResponse: JsonRpcResponseData<
+      Array<IMassaStationWallet>
+    > = null;
     try {
-      massaStationAccountsResponse = await getRequest<Array<IMassaStationWallet>>(
-        MASSA_STATION_ACCOUNTS_URL,
-      );
+      massaStationAccountsResponse = await getRequest<
+        Array<IMassaStationWallet>
+      >(MASSA_STATION_ACCOUNTS_URL);
     } catch (ex) {
       console.error(`MassaStation accounts retrieval error`);
       throw ex;
     }
-    if (massaStationAccountsResponse.isError || massaStationAccountsResponse.error) {
+    if (
+      massaStationAccountsResponse.isError ||
+      massaStationAccountsResponse.error
+    ) {
       throw massaStationAccountsResponse.error.message;
     }
     return massaStationAccountsResponse.result.map((massaStationAccount) => {
       return new MassaStationAccount(
-        { address: massaStationAccount.address, name: massaStationAccount.nickname },
+        {
+          address: massaStationAccount.address,
+          name: massaStationAccount.nickname,
+        },
         this.providerName,
       );
     });
@@ -132,7 +140,10 @@ export class MassaStationProvider implements IProvider {
       console.log(`MassaStation accounts retrieval error: ${ex}`);
       throw ex;
     }
-    if (massaStationAccountsResponse.isError || massaStationAccountsResponse.error) {
+    if (
+      massaStationAccountsResponse.isError ||
+      massaStationAccountsResponse.error
+    ) {
       throw massaStationAccountsResponse.error.message;
     }
     return {
@@ -153,7 +164,9 @@ export class MassaStationProvider implements IProvider {
     // get all accounts
     let allAccounts: JsonRpcResponseData<Array<IMassaStationWallet>> = null;
     try {
-      allAccounts = await getRequest<Array<IMassaStationWallet>>(MASSA_STATION_ACCOUNTS_URL);
+      allAccounts = await getRequest<Array<IMassaStationWallet>>(
+        MASSA_STATION_ACCOUNTS_URL,
+      );
     } catch (ex) {
       console.log(`MassaStation accounts retrieval error: ${ex}`);
       throw ex;
@@ -178,7 +191,10 @@ export class MassaStationProvider implements IProvider {
         response: EAccountDeletionResponse.ERROR,
       } as IAccountDeletionResponse;
     }
-    if (massaStationAccountsResponse.isError || massaStationAccountsResponse.error) {
+    if (
+      massaStationAccountsResponse.isError ||
+      massaStationAccountsResponse.error
+    ) {
       console.log(
         `MassaStation accounts deletion error`,
         massaStationAccountsResponse.error.message,
@@ -200,7 +216,9 @@ export class MassaStationProvider implements IProvider {
   public async getNodesUrls(): Promise<string[]> {
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     try {
-      nodesResponse = await getRequest<unknown>(`${MASSA_STATION_URL}massa/node`);
+      nodesResponse = await getRequest<unknown>(
+        `${MASSA_STATION_URL}massa/node`,
+      );
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
       }
@@ -219,14 +237,18 @@ export class MassaStationProvider implements IProvider {
    * @returns a Promise that resolves to the details of the newly generated account.
    */
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
-    let massaStationAccountsResponse: JsonRpcResponseData<IMassaStationWallet> = null;
+    let massaStationAccountsResponse: JsonRpcResponseData<IMassaStationWallet> =
+      null;
     console.log(MASSA_STATION_ACCOUNTS_URL + '/' + name);
     try {
       massaStationAccountsResponse = await postRequest<IMassaStationWallet>(
         MASSA_STATION_ACCOUNTS_URL + '/' + name,
         {},
       );
-      if (massaStationAccountsResponse.isError || massaStationAccountsResponse.error) {
+      if (
+        massaStationAccountsResponse.isError ||
+        massaStationAccountsResponse.error
+      ) {
         throw massaStationAccountsResponse.error.message;
       }
       return {

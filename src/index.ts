@@ -1,7 +1,10 @@
 import { connector } from './connector/Connector';
 import { IProvider } from './provider/IProvider';
 import { Provider } from './provider/Provider';
-import { MASSA_STATION_PROVIDER_NAME, MassaStationProvider } from './massaStation/MassaStationProvider';
+import {
+  MASSA_STATION_PROVIDER_NAME,
+  MassaStationProvider,
+} from './massaStation/MassaStationProvider';
 
 export enum AvailableCommands {
   ProviderListAccounts = 'LIST_ACCOUNTS',
