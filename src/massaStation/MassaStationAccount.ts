@@ -6,7 +6,10 @@ import {
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
-import { MASSA_STATION_URL, MASSA_STATION_ACCOUNTS_URL } from './MassaStationProvider';
+import {
+  MASSA_STATION_URL,
+  MASSA_STATION_ACCOUNTS_URL,
+} from './MassaStationProvider';
 import {
   Args,
   IContractReadOperationResponse,
@@ -14,7 +17,6 @@ import {
 } from '@massalabs/massa-web3';
 import { argsToBase64 } from '../utils/argsToBase64';
 import { NonPersistentExecution } from '../account/INonPersistentExecution';
-
 
 /**
  * The MassaStation's account balance url
@@ -284,7 +286,7 @@ export class MassaStationAccount implements IAccount {
       CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
     } catch (ex) {
       console.log(
-        `Thyra account: error while interacting with smart contract: ${ex}`,
+        `MassaStation account: error while interacting with smart contract: ${ex}`,
       );
       throw ex;
     }
@@ -294,8 +296,10 @@ export class MassaStationAccount implements IAccount {
     return CallSCOpResponse.result;
   }
 
-  public async getNodeUrlFromThyra(providerName: string): Promise<string> {
-    // get the node url from the thyra
+  public async getNodeUrlFromMassaStation(
+    providerName: string,
+  ): Promise<string> {
+    // get the node url from MassaStation
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     let node = '';
     try {
@@ -309,7 +313,7 @@ export class MassaStationAccount implements IAccount {
       const nodes = nodesResponse.result as { url: string };
       node = nodes.url;
     } catch (ex) {
-      throw new Error(`Thyra nodes retrieval error: ${ex}`);
+      throw new Error(`MassaStation nodes retrieval error: ${ex}`);
     }
     return node;
   }
@@ -320,7 +324,7 @@ export class MassaStationAccount implements IAccount {
     parameter: Args,
     dryRun: NonPersistentExecution,
   ): Promise<IContractReadOperationResponse> {
-    const node = await this.getNodeUrlFromThyra(this._providerName);
+    const node = await this.getNodeUrlFromMassaStation(this._providerName);
 
     // Gas amount check
     if (!dryRun.maxGas) {
@@ -366,7 +370,7 @@ export class MassaStationAccount implements IAccount {
       jsonRpcCallResult = resp.result;
     } catch (ex) {
       throw new Error(
-        `Thyra account: error while interacting with smart contract: ${ex}`,
+        `MassaStation account: error while interacting with smart contract: ${ex}`,
       );
     }
     if (jsonRpcCallResult.length <= 0) {

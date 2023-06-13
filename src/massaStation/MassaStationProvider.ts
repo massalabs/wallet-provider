@@ -25,7 +25,7 @@ import { IAccountDetails } from '../account';
 export const MASSA_STATION_URL = 'https://my.massa/';
 
 /**
- * The Thyra accounts url
+ * The MassaStation accounts url
  */
 export const MASSA_STATION_ACCOUNTS_URL = `${MASSA_STATION_URL}thyra/plugin/massalabs/wallet/api/accounts`;
 
