@@ -20,20 +20,19 @@ import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
 
 /**
+ * MassaStation url
+ */
+export const MASSA_STATION_URL = 'https://my.massa/';
+
+/**
  * The Thyra accounts url
  */
-export const THYRA_ACCOUNTS_URL =
-  'https://my.massa/thyra/plugin/massalabs/wallet/api/accounts';
+export const MASSA_STATION_ACCOUNTS_URL = `${MASSA_STATION_URL}thyra/plugin/massalabs/wallet/api/accounts`;
 
 /**
  * Thyra's url for importing accounts
  */
-export const THYRA_IMPORT_ACCOUNTS_URL = `${THYRA_ACCOUNTS_URL}/import/`;
-
-/**
- * MassaStation url
- */
-export const THYRA_URL = 'https://my.massa/';
+export const THYRA_IMPORT_ACCOUNTS_URL = `${MASSA_STATION_ACCOUNTS_URL}/import/`;
 
 /**
  * Thyra's wallet provider name
@@ -90,7 +89,7 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<Array<IThyraWallet>> = null;
     try {
       thyraAccountsResponse = await getRequest<Array<IThyraWallet>>(
-        THYRA_ACCOUNTS_URL,
+        MASSA_STATION_ACCOUNTS_URL,
       );
     } catch (ex) {
       console.error(`Thyra accounts retrieval error`);
@@ -126,7 +125,7 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
     try {
       thyraAccountsResponse = await putRequest<unknown>(
-        THYRA_ACCOUNTS_URL,
+        MASSA_STATION_ACCOUNTS_URL,
         accountImportRequest,
       );
     } catch (ex) {
@@ -154,7 +153,9 @@ export class ThyraProvider implements IProvider {
     // get all accounts
     let allAccounts: JsonRpcResponseData<Array<IThyraWallet>> = null;
     try {
-      allAccounts = await getRequest<Array<IThyraWallet>>(THYRA_ACCOUNTS_URL);
+      allAccounts = await getRequest<Array<IThyraWallet>>(
+        MASSA_STATION_ACCOUNTS_URL,
+      );
     } catch (ex) {
       console.log(`Thyra accounts retrieval error: ${ex}`);
       throw ex;
@@ -171,7 +172,7 @@ export class ThyraProvider implements IProvider {
     let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
     try {
       thyraAccountsResponse = await deleteRequest<unknown>(
-        `${THYRA_ACCOUNTS_URL}/${accountToDelete.nickname}`,
+        `${MASSA_STATION_ACCOUNTS_URL}/${accountToDelete.nickname}`,
       );
     } catch (ex) {
       console.log(`Thyra accounts deletion error`, ex);
@@ -201,7 +202,9 @@ export class ThyraProvider implements IProvider {
   public async getNodesUrls(): Promise<string[]> {
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     try {
-      nodesResponse = await getRequest<unknown>(`${THYRA_URL}massa/node`);
+      nodesResponse = await getRequest<unknown>(
+        `${MASSA_STATION_URL}massa/node`,
+      );
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
       }
@@ -221,10 +224,10 @@ export class ThyraProvider implements IProvider {
    */
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
     let thyraAccountsResponse: JsonRpcResponseData<IThyraWallet> = null;
-    console.log(THYRA_ACCOUNTS_URL + '/' + name);
+    console.log(MASSA_STATION_ACCOUNTS_URL + '/' + name);
     try {
       thyraAccountsResponse = await postRequest<IThyraWallet>(
-        THYRA_ACCOUNTS_URL + '/' + name,
+        MASSA_STATION_ACCOUNTS_URL + '/' + name,
         {},
       );
       if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {

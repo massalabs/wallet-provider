@@ -14,7 +14,7 @@
       AvailableCommands["AccountBuyRolls"] = "ACCOUNT_BUY_ROLLS";
       AvailableCommands["AccountSendTransaction"] = "ACCOUNT_SEND_TRANSACTION";
       AvailableCommands["ProviderGetNodesUrls"] = "GET_NODES_URLS";
-      AvailableCommands["AccountInteractWithSC"] = "ACCOUNT_INTERACT_WITH_SC";
+      AvailableCommands["AccountCallSC"] = "ACCOUNT_CALL_SC";
   })(AvailableCommands = exports.AvailableCommands || (exports.AvailableCommands = {}));
   
   },{}],2:[function(require,module,exports){
@@ -43,7 +43,7 @@
           this.sellRolls = this.sellRolls.bind(this);
           this.sendTransaction = this.sendTransaction.bind(this);
           this.listAccounts = this.listAccounts.bind(this);
-          this.interactWithSC = this.interactWithSC.bind(this);
+          this.callSC = this.callSC.bind(this);
           this.getNodesUrls = this.getNodesUrls.bind(this);
           // this is the current provider html element
           const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
@@ -177,15 +177,15 @@
               // answer to the message target
               walletProviderEventTarget.dispatchEvent(new CustomEvent('message', detailWrapper({ detail: respMessage })));
           });
-          // ==============================INTERACT WITH SC==================================
-          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountInteractWithSC, (evt) => {
+          // ==============================CALL SC==================================
+          document.getElementById(providerEventTargetName).addEventListener(Commands_1.AvailableCommands.AccountCallSC, (evt) => {
               const payload = evt.detail;
-              this.actionToCallback.get(Commands_1.AvailableCommands.AccountInteractWithSC)(payload);
+              this.actionToCallback.get(Commands_1.AvailableCommands.AccountCallSC)(payload);
           });
-          this.attachCallbackHandler(Commands_1.AvailableCommands.AccountInteractWithSC, async (payload) => {
+          this.attachCallbackHandler(Commands_1.AvailableCommands.AccountCallSC, async (payload) => {
               const operationPayload = payload.params;
               const respMessage = {
-                  result: await this.interactWithSC(operationPayload),
+                  result: await this.callSC(operationPayload),
                   error: null,
                   requestId: payload.requestId,
               };

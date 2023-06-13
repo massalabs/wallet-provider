@@ -9,5 +9,5 @@ export enum AvailableCommands {
   AccountBuyRolls = 'ACCOUNT_BUY_ROLLS',
   AccountSendTransaction = 'ACCOUNT_SEND_TRANSACTION',
   ProviderGetNodesUrls = 'GET_NODES_URLS',
-  AccountInteractWithSC = 'ACCOUNT_INTERACT_WITH_SC',
+  AccountCallSC = 'ACCOUNT_CALL_SC',
 }

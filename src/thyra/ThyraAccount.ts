@@ -6,12 +6,24 @@ import {
 } from '..';
 import { IAccount } from '../account/IAccount';
 import { JsonRpcResponseData, getRequest, postRequest } from './RequestHandler';
-import { THYRA_ACCOUNTS_URL } from './ThyraProvider';
+import { MASSA_STATION_URL, MASSA_STATION_ACCOUNTS_URL } from './ThyraProvider';
+import {
+  Args,
+  IContractReadOperationResponse,
+  IContractReadOperationData,
+} from '@massalabs/massa-web3';
+import { argsToBase64 } from '../utils/argsToBase64';
+import { NonPersistentExecution } from '../account/INonPersistentExecution';
 
 /**
  * The Thyra's account balance url
  */
-const THYRA_BALANCE_URL = `https://my.massa/massa/addresses?attributes=balance&addresses`;
+const THYRA_BALANCE_URL = `${MASSA_STATION_URL}massa/addresses?attributes=balance&addresses`;
+
+/**
+ * The maximum allowed gas for a read operation
+ */
+const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
 
 /**
  * This interface represents the payload returned by making a call to Thyra's sign operation `/signOperation` url.
@@ -127,7 +139,7 @@ export class ThyraAccount implements IAccount {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
-        `${THYRA_ACCOUNTS_URL}/${this._name}/sign`,
+        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/sign`,
         {
           operation: data,
           batch: false,
@@ -155,7 +167,7 @@ export class ThyraAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     let buyRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
-    const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
+    const url = `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/rolls`;
     const body = {
       fee: fee.toString(),
       amount: amount.toString(),
@@ -185,7 +197,7 @@ export class ThyraAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     let sellRollsOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
-    const url = `${THYRA_ACCOUNTS_URL}/${this._name}/rolls`;
+    const url = `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/rolls`;
     const body = {
       fee: fee.toString(),
       amount: amount.toString(),
@@ -216,5 +228,155 @@ export class ThyraAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     throw new Error('Method not implemented.');
+  }
+
+  /**
+   * This method aims to interact with a smart contract deployed on the MASSA blockchain.
+   *
+   * @remarks
+   * If dryRun.dryRun is true, the method will dry run the smart contract call and return an
+   * IContractReadOperationResponse object which contains all the information about the dry run
+   * (state changes, gas used, etc.)
+   *
+   * @param contractAddress - The address of the smart contract.
+   * @param functionName - The name of the function to be called.
+   * @param parameter - The parameters as an Args object to be passed to the function.
+   * @param amount - The amount of MASSA coins to be sent to the block creator.
+   * @param dryRun - The dryRun object to be passed to the function.
+   *
+   * @returns if dryRun.dryRun is true, it returns an IContractReadOperationResponse object. Otherwise,
+   * it returns an ITransactionDetails object which contains the first event emitted by the contract.
+   * If the contract does not emit any event, it returns "Function called successfully but no event generated"
+   *
+   */
+  public async callSC(
+    contractAddress: string,
+    functionName: string,
+    parameter: Args,
+    amount: bigint,
+    nonPersistentExecution = {
+      isNPE: false,
+    } as NonPersistentExecution,
+  ): Promise<ITransactionDetails | IContractReadOperationResponse> {
+    if (nonPersistentExecution?.isNPE) {
+      return this.nonPersistentCallSC(
+        contractAddress,
+        functionName,
+        parameter,
+        nonPersistentExecution,
+      );
+    }
+    // convert parameter to base64
+    const args = argsToBase64(parameter);
+    let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
+    const url = `${MASSA_STATION_URL}cmd/executeFunction`;
+    const body = {
+      nickname: this._name,
+      name: functionName,
+      at: contractAddress,
+      args: args,
+      coins: Number(amount),
+    };
+    try {
+      CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
+    } catch (ex) {
+      console.log(
+        `Thyra account: error while interacting with smart contract: ${ex}`,
+      );
+      throw ex;
+    }
+    if (CallSCOpResponse.isError || CallSCOpResponse.error) {
+      throw CallSCOpResponse.error;
+    }
+    return CallSCOpResponse.result;
+  }
+
+  public async getNodeUrlFromThyra(providerName: string): Promise<string> {
+    // get the node url from the thyra
+    let nodesResponse: JsonRpcResponseData<unknown> = null;
+    let node = '';
+    try {
+      nodesResponse = await getRequest<unknown>(
+        `${MASSA_STATION_URL}massa/node`,
+      );
+      if (nodesResponse.isError || nodesResponse.error) {
+        throw nodesResponse.error.message;
+      }
+      // transform nodesResponse.result to a json and then get the "url" property
+      const nodes = nodesResponse.result as { url: string };
+      node = nodes.url;
+    } catch (ex) {
+      throw new Error(`Thyra nodes retrieval error: ${ex}`);
+    }
+    return node;
+  }
+
+  public async nonPersistentCallSC(
+    contractAddress: string,
+    functionName: string,
+    parameter: Args,
+    dryRun: NonPersistentExecution,
+  ): Promise<IContractReadOperationResponse> {
+    const node = await this.getNodeUrlFromThyra(this._providerName);
+
+    // Gas amount check
+    if (!dryRun.maxGas) {
+      dryRun.maxGas = MAX_READ_BLOCK_GAS;
+    }
+    if (dryRun.maxGas > MAX_READ_BLOCK_GAS) {
+      throw new Error(
+        `
+        The gas submitted ${dryRun.maxGas.toString()} exceeds the max. allowed block gas of 
+        ${MAX_READ_BLOCK_GAS.toString()}
+        `,
+      );
+    }
+
+    // convert parameter to an array of numbers
+    const argumentArray = Array.from(parameter.serialize());
+    // setup the request body
+    const data = {
+      max_gas: Number(dryRun.maxGas),
+      target_address: contractAddress,
+      target_function: functionName,
+      parameter: argumentArray,
+      caller_address: this._address,
+    };
+    const body = [
+      {
+        jsonrpc: '2.0',
+        method: 'execute_read_only_call',
+        params: [[data]],
+        id: 0,
+      },
+    ];
+    // returns operation ids
+    let jsonRpcCallResult: Array<IContractReadOperationData> = [];
+    try {
+      let resp = await postRequest<Array<IContractReadOperationData>>(
+        node,
+        body,
+      );
+      if (resp.isError || resp.error) {
+        throw resp.error.message;
+      }
+      jsonRpcCallResult = resp.result;
+    } catch (ex) {
+      throw new Error(
+        `Thyra account: error while interacting with smart contract: ${ex}`,
+      );
+    }
+    if (jsonRpcCallResult.length <= 0) {
+      throw new Error(
+        `Read operation bad response. No results array in json rpc response. Inspect smart contract`,
+      );
+    }
+    if (jsonRpcCallResult[0].result.Error) {
+      throw new Error(jsonRpcCallResult[0].result.Error);
+    }
+    return {
+      returnValue: jsonRpcCallResult[0].result[0].result.Ok as Uint8Array,
+      info: jsonRpcCallResult[0],
+    } as IContractReadOperationResponse;
   }
 }
