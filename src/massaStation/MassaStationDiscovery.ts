@@ -32,7 +32,8 @@ export const ON_MASSA_STATION_DISCONNECTED = 'ON_MASSA_STATION_DISCONNECTED';
 /**
  * This file defines a TypeScript class named MassaStation.
  * The class is being used to recursively ping MassaStation's server
- * and if a response is received emit a message so MassaStation can be enlisted as a wallet provider in the `Connector` class.
+ * and if a response is received emit a message so MassaStation can be enlisted as
+ * a wallet provider in the `Connector` class.
  */
 export class MassaStationDiscovery extends EventEmitter {
   private timeoutId: Timeout | null = null;

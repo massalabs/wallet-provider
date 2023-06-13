@@ -115,7 +115,8 @@ export class MassaStationProvider implements IProvider {
   }
 
   /**
-   * This method makes an http call to the MassaStation server to import an account with the given publicKey and privateKey.
+   * This method makes an http call to the MassaStation server to import an account with
+   * the given publicKey and privateKey.
    *
    * @param publicKey - The public key of the account.
    * @param privateKey - The private key of the account.

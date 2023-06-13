@@ -27,7 +27,8 @@ const MASSA_STATION_BALANCE_URL = `${MASSA_STATION_URL}massa/addresses?attribute
 const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
 
 /**
- * This interface represents the payload returned by making a call to MassaStation's sign operation `/signOperation` url.
+ * This interface represents the payload returned by making a call to MassaStation's sign
+ * operation `/signOperation` url.
  */
 interface ISignOperation {
   operation: string;
@@ -53,7 +54,8 @@ interface IAddressesBalances {
 }
 
 /**
- * This module contains the MassaStationAccount class. It is responsible for representing an account in the MassaStation wallet.
+ * This module contains the MassaStationAccount class. It is responsible for representing an account in
+ * the MassaStation wallet.
  *
  * @remarks
  * This class provides methods to interact with MassaStation account's {@link balance} and to {@link sign} messages.
