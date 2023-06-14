@@ -4,7 +4,7 @@
  * and if so report this via emitting messages.
  *
  * @remarks
- * - If you are only looking to use our library, the connector MassaStation will not be useful to you.
+ * - If you are only looking to use our library, the connector MassaStationDiscovery will not be useful to you.
  * - If you want to work on this repo, you will probably be interested in this object
  *
  */
