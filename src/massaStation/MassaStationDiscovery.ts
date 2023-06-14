@@ -1,5 +1,5 @@
 /**
- * This file defines a TypeScript class named MassaStation.
+ * This file defines a TypeScript class named MassaStationDiscovery.
  * The class is being used to recursively search for a connection to MassaStation's server
  * and if so report this via emitting messages.
  *
