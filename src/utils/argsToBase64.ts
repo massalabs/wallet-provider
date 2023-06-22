@@ -17,6 +17,6 @@ export function argsToBase64(arg: Args): string {
  * @param arg - The Uint8Array to convert to base64
  * @returns The base64 string
  */
-export function Uint8ArrayToBase64(arg: Uint8Array): string {
+export function uint8ArrayToBase64(arg: Uint8Array): string {
   return Buffer.from(arg).toString('base64');
 }

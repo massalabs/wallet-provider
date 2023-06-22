@@ -15,7 +15,7 @@ import {
   IContractReadOperationResponse,
   IContractReadOperationData,
 } from '@massalabs/massa-web3';
-import { argsToBase64, Uint8ArrayToBase64 } from '../utils/argsToBase64';
+import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { NonPersistentExecution } from '../account/INonPersistentExecution';
 
 /**
@@ -276,7 +276,7 @@ export class MassaStationAccount implements IAccount {
     if (parameter instanceof Args) {
       args = argsToBase64(parameter);
     } else {
-      args = Uint8ArrayToBase64(parameter);
+      args = uint8ArrayToBase64(parameter);
     }
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${MASSA_STATION_URL}cmd/executeFunction`;
