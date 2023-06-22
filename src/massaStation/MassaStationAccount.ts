@@ -273,10 +273,10 @@ export class MassaStationAccount implements IAccount {
     }
     // convert parameter to base64
     let args = '';
-    if (parameter instanceof Args) {
-      args = argsToBase64(parameter);
-    } else {
+    if (parameter instanceof Uint8Array) {
       args = uint8ArrayToBase64(parameter);
+    } else {
+      args = argsToBase64(parameter);
     }
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${MASSA_STATION_URL}cmd/executeFunction`;
@@ -343,10 +343,10 @@ export class MassaStationAccount implements IAccount {
 
     // convert parameter to an array of numbers
     let argumentArray = [];
-    if (parameter instanceof Args) {
-      argumentArray = Array.from(parameter.serialize());
-    } else {
+    if (parameter instanceof Uint8Array) {
       argumentArray = Array.from(parameter);
+    } else {
+      argumentArray = Array.from(parameter.serialize());
     }
     // setup the request body
     const data = {
