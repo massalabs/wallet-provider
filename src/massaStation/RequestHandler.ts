@@ -3,7 +3,7 @@
  *
  * @remarks
  * - The methods implemented here are quite generic and might be useful in other contexts too
- *  but have been particularly developed for making http calls specific to Thyra's server API
+ *  but have been particularly developed for making http calls specific to MassaStation's server API
  * - If you want to work on this repo, you will probably be interested in this object
  *
  */

@@ -15,7 +15,7 @@ import {
   postRequest,
   putRequest,
 } from './RequestHandler';
-import { ThyraAccount } from './ThyraAccount';
+import { MassaStationAccount } from './MassaStationAccount';
 import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
 
@@ -25,24 +25,24 @@ import { IAccountDetails } from '../account';
 export const MASSA_STATION_URL = 'https://my.massa/';
 
 /**
- * The Thyra accounts url
+ * The MassaStation accounts url
  */
 export const MASSA_STATION_ACCOUNTS_URL = `${MASSA_STATION_URL}thyra/plugin/massalabs/wallet/api/accounts`;
 
 /**
- * Thyra's url for importing accounts
+ * MassaStation's url for importing accounts
  */
-export const THYRA_IMPORT_ACCOUNTS_URL = `${MASSA_STATION_ACCOUNTS_URL}/import/`;
+export const MASSA_STATION_IMPORT_ACCOUNTS_URL = `${MASSA_STATION_ACCOUNTS_URL}/import/`;
 
 /**
- * Thyra's wallet provider name
+ * MassaStation's wallet provider name
  */
-export const THYRA_PROVIDER_NAME = 'THYRA';
+export const MASSA_STATION_PROVIDER_NAME = 'MASSASTATION';
 
 /**
- * This interface represents the payload returned by making a call to Thyra's accounts url.
+ * This interface represents the payload returned by making a call to MassaStation's accounts url.
  */
-export interface IThyraWallet {
+export interface IMassaStationWallet {
   address: string;
   nickname: string;
   keyPair: {
@@ -54,11 +54,11 @@ export interface IThyraWallet {
 }
 
 /**
- * This class provides an implementation for communicating with the Thyra wallet provider.
+ * This class provides an implementation for communicating with the MassaStation wallet provider.
  * @remarks
- * This class is used as a proxy to the Thyra server for exchanging message over https calls.
+ * This class is used as a proxy to the MassaStation server for exchanging message over https calls.
  */
-export class ThyraProvider implements IProvider {
+export class MassaStationProvider implements IProvider {
   private providerName: string;
 
   /**
@@ -68,7 +68,7 @@ export class ThyraProvider implements IProvider {
    * @returns An instance of the Provider class.
    */
   public constructor() {
-    this.providerName = THYRA_PROVIDER_NAME;
+    this.providerName = MASSA_STATION_PROVIDER_NAME;
   }
 
   /**
@@ -80,34 +80,43 @@ export class ThyraProvider implements IProvider {
   }
 
   /**
-   * This method sends a message to the Thyra server to get the list of accounts for the provider.
+   * This method sends a message to the MassaStation server to get the list of accounts for the provider.
    * It returns a Promise that resolves to an array of Account instances.
    *
    * @returns A promise that resolves to an array of Account instances.
    */
   public async accounts(): Promise<IAccount[]> {
-    let thyraAccountsResponse: JsonRpcResponseData<Array<IThyraWallet>> = null;
+    let massaStationAccountsResponse: JsonRpcResponseData<
+      Array<IMassaStationWallet>
+    > = null;
     try {
-      thyraAccountsResponse = await getRequest<Array<IThyraWallet>>(
-        MASSA_STATION_ACCOUNTS_URL,
-      );
+      massaStationAccountsResponse = await getRequest<
+        Array<IMassaStationWallet>
+      >(MASSA_STATION_ACCOUNTS_URL);
     } catch (ex) {
-      console.error(`Thyra accounts retrieval error`);
+      console.error(`MassaStation accounts retrieval error`);
       throw ex;
     }
-    if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
-      throw thyraAccountsResponse.error.message;
+    if (
+      massaStationAccountsResponse.isError ||
+      massaStationAccountsResponse.error
+    ) {
+      throw massaStationAccountsResponse.error.message;
     }
-    return thyraAccountsResponse.result.map((thyraAccount) => {
-      return new ThyraAccount(
-        { address: thyraAccount.address, name: thyraAccount.nickname },
+    return massaStationAccountsResponse.result.map((massaStationAccount) => {
+      return new MassaStationAccount(
+        {
+          address: massaStationAccount.address,
+          name: massaStationAccount.nickname,
+        },
         this.providerName,
       );
     });
   }
 
   /**
-   * This method makes an http call to the Thyra server to import an account with the given publicKey and privateKey.
+   * This method makes an http call to the MassaStation server to import an account with
+   * the given publicKey and privateKey.
    *
    * @param publicKey - The public key of the account.
    * @param privateKey - The private key of the account.
@@ -122,18 +131,21 @@ export class ThyraProvider implements IProvider {
       publicKey,
       privateKey,
     };
-    let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
+    let massaStationAccountsResponse: JsonRpcResponseData<unknown> = null;
     try {
-      thyraAccountsResponse = await putRequest<unknown>(
+      massaStationAccountsResponse = await putRequest<unknown>(
         MASSA_STATION_ACCOUNTS_URL,
         accountImportRequest,
       );
     } catch (ex) {
-      console.log(`Thyra accounts retrieval error: ${ex}`);
+      console.log(`MassaStation accounts retrieval error: ${ex}`);
       throw ex;
     }
-    if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
-      throw thyraAccountsResponse.error.message;
+    if (
+      massaStationAccountsResponse.isError ||
+      massaStationAccountsResponse.error
+    ) {
+      throw massaStationAccountsResponse.error.message;
     }
     return {
       response: EAccountImportResponse.OK,
@@ -142,7 +154,7 @@ export class ThyraProvider implements IProvider {
   }
 
   /**
-   * This method sends an http call to the Thyra server to delete the account associated with the given address.
+   * This method sends an http call to the MassaStation server to delete the account associated with the given address.
    *
    * @param address - The address of the account.
    * @returns a Promise that resolves to an instance of IAccountDeletionResponse.
@@ -151,13 +163,13 @@ export class ThyraProvider implements IProvider {
     address: string,
   ): Promise<IAccountDeletionResponse> {
     // get all accounts
-    let allAccounts: JsonRpcResponseData<Array<IThyraWallet>> = null;
+    let allAccounts: JsonRpcResponseData<Array<IMassaStationWallet>> = null;
     try {
-      allAccounts = await getRequest<Array<IThyraWallet>>(
+      allAccounts = await getRequest<Array<IMassaStationWallet>>(
         MASSA_STATION_ACCOUNTS_URL,
       );
     } catch (ex) {
-      console.log(`Thyra accounts retrieval error: ${ex}`);
+      console.log(`MassaStation accounts retrieval error: ${ex}`);
       throw ex;
     }
     if (allAccounts.isError || allAccounts.error) {
@@ -169,21 +181,24 @@ export class ThyraProvider implements IProvider {
     );
 
     // delete the account in question
-    let thyraAccountsResponse: JsonRpcResponseData<unknown> = null;
+    let massaStationAccountsResponse: JsonRpcResponseData<unknown> = null;
     try {
-      thyraAccountsResponse = await deleteRequest<unknown>(
+      massaStationAccountsResponse = await deleteRequest<unknown>(
         `${MASSA_STATION_ACCOUNTS_URL}/${accountToDelete.nickname}`,
       );
     } catch (ex) {
-      console.log(`Thyra accounts deletion error`, ex);
+      console.log(`MassaStation accounts deletion error`, ex);
       return {
         response: EAccountDeletionResponse.ERROR,
       } as IAccountDeletionResponse;
     }
-    if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
+    if (
+      massaStationAccountsResponse.isError ||
+      massaStationAccountsResponse.error
+    ) {
       console.log(
-        `Thyra accounts deletion error`,
-        thyraAccountsResponse.error.message,
+        `MassaStation accounts deletion error`,
+        massaStationAccountsResponse.error.message,
       );
       return {
         response: EAccountDeletionResponse.ERROR,
@@ -195,7 +210,7 @@ export class ThyraProvider implements IProvider {
   }
 
   /**
-   * This method sends an http call to the Thyra server to obtain node urls.
+   * This method sends an http call to the MassaStation server to obtain node urls.
    *
    * @returns a Promise that resolves to a list of node urls.
    */
@@ -212,30 +227,34 @@ export class ThyraProvider implements IProvider {
       const nodes = nodesResponse.result as { url: string };
       return Array(nodes.url);
     } catch (ex) {
-      console.error(`Thyra nodes retrieval error`, ex);
+      console.error(`MassaStation nodes retrieval error`, ex);
       throw ex;
     }
   }
 
   /**
-   * This method sends an http call to the Thyra server to create a new random account.
+   * This method sends an http call to the MassaStation server to create a new random account.
    *
    * @returns a Promise that resolves to the details of the newly generated account.
    */
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
-    let thyraAccountsResponse: JsonRpcResponseData<IThyraWallet> = null;
+    let massaStationAccountsResponse: JsonRpcResponseData<IMassaStationWallet> =
+      null;
     console.log(MASSA_STATION_ACCOUNTS_URL + '/' + name);
     try {
-      thyraAccountsResponse = await postRequest<IThyraWallet>(
+      massaStationAccountsResponse = await postRequest<IMassaStationWallet>(
         MASSA_STATION_ACCOUNTS_URL + '/' + name,
         {},
       );
-      if (thyraAccountsResponse.isError || thyraAccountsResponse.error) {
-        throw thyraAccountsResponse.error.message;
+      if (
+        massaStationAccountsResponse.isError ||
+        massaStationAccountsResponse.error
+      ) {
+        throw massaStationAccountsResponse.error.message;
       }
       return {
-        address: thyraAccountsResponse.result.address,
-        name: thyraAccountsResponse.result.nickname,
+        address: massaStationAccountsResponse.result.address,
+        name: massaStationAccountsResponse.result.nickname,
       } as IAccountDetails;
     } catch (ex) {
       console.error(`Error while generating account: ${ex}`);
