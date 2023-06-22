@@ -202,7 +202,7 @@ export class Account implements IAccount {
   public async callSC(
     contractAddress: string,
     functionName: string,
-    parameter: Args,
+    parameter: Uint8Array | Args,
     amount: bigint,
     nonPersistentExecution = {
       isNPE: false,
