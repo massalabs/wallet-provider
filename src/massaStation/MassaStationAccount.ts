@@ -301,7 +301,6 @@ export class MassaStationAccount implements IAccount {
     return CallSCOpResponse.result;
   }
 
-
   public async getNodeUrlFromMassaStation(): Promise<string> {
     // get the node url from MassaStation
     let nodesResponse: JsonRpcResponseData<unknown> = null;
@@ -328,7 +327,6 @@ export class MassaStationAccount implements IAccount {
     parameter: Uint8Array | Args,
     dryRun: NonPersistentExecution,
   ): Promise<IContractReadOperationResponse> {
-
     const node = await this.getNodeUrlFromMassaStation();
     // Gas amount check
     if (!dryRun.maxGas) {
