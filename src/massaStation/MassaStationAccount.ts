@@ -15,7 +15,7 @@ import {
   IContractReadOperationResponse,
   IContractReadOperationData,
 } from '@massalabs/massa-web3';
-import { argsToBase64 } from '../utils/argsToBase64';
+import { argsToBase64, Uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { NonPersistentExecution } from '../account/INonPersistentExecution';
 
 /**
@@ -257,7 +257,7 @@ export class MassaStationAccount implements IAccount {
   public async callSC(
     contractAddress: string,
     functionName: string,
-    parameter: Args,
+    parameter: Uint8Array | Args,
     amount: bigint,
     nonPersistentExecution = {
       isNPE: false,
@@ -272,7 +272,12 @@ export class MassaStationAccount implements IAccount {
       );
     }
     // convert parameter to base64
-    const args = argsToBase64(parameter);
+    let args = '';
+    if (parameter instanceof Args) {
+      args = argsToBase64(parameter);
+    } else {
+      args = Uint8ArrayToBase64(parameter);
+    }
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${MASSA_STATION_URL}cmd/executeFunction`;
     const body = {
@@ -296,9 +301,8 @@ export class MassaStationAccount implements IAccount {
     return CallSCOpResponse.result;
   }
 
-  public async getNodeUrlFromMassaStation(
-    providerName: string,
-  ): Promise<string> {
+
+  public async getNodeUrlFromMassaStation(): Promise<string> {
     // get the node url from MassaStation
     let nodesResponse: JsonRpcResponseData<unknown> = null;
     let node = '';
@@ -321,11 +325,11 @@ export class MassaStationAccount implements IAccount {
   public async nonPersistentCallSC(
     contractAddress: string,
     functionName: string,
-    parameter: Args,
+    parameter: Uint8Array | Args,
     dryRun: NonPersistentExecution,
   ): Promise<IContractReadOperationResponse> {
-    const node = await this.getNodeUrlFromMassaStation(this._providerName);
 
+    const node = await this.getNodeUrlFromMassaStation();
     // Gas amount check
     if (!dryRun.maxGas) {
       dryRun.maxGas = MAX_READ_BLOCK_GAS;
@@ -340,7 +344,12 @@ export class MassaStationAccount implements IAccount {
     }
 
     // convert parameter to an array of numbers
-    const argumentArray = Array.from(parameter.serialize());
+    let argumentArray = [];
+    if (parameter instanceof Args) {
+      argumentArray = Array.from(parameter.serialize());
+    } else {
+      argumentArray = Array.from(parameter);
+    }
     // setup the request body
     const data = {
       max_gas: Number(dryRun.maxGas),

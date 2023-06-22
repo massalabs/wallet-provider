@@ -10,3 +10,13 @@ export function argsToBase64(arg: Args): string {
   const array = arg.serialize();
   return Buffer.from(array).toString('base64');
 }
+
+/**
+ * Converts a Uint8Array to a base64 string
+ *
+ * @param arg - The Uint8Array to convert to base64
+ * @returns The base64 string
+ */
+export function Uint8ArrayToBase64(arg: Uint8Array): string {
+  return Buffer.from(arg).toString('base64');
+}
