@@ -3,15 +3,21 @@ set -e
 
 npm ci
 npm run build
-
 npm version --preid dev --no-git-tag-version --no-commit-hooks prepatch
 #Use timestamp as package suffix
 TIME=$(date -u +%Y%m%d%H%M%S)
 sed -i "/version/s/dev.0/dev.$TIME/g" package.json
+
+PACKAGE_NAME=$(cat package.json | jq -r '.name')
 PUBLISH_VERSION=$(cat package.json | jq -r '.version')
-echo publishing @massalabs/wallet-provider@$PUBLISH_VERSION
+echo publishing ${PACKAGE_NAME}@$PUBLISH_VERSION
 
-# disable husky
-npm pkg delete scripts.prepare
+BRANCH=${GITHUB_REF##*/}
+TAG=""
+if [[ "$BRANCH" == "buildnet" ]]; then
+  TAG="buildnet-"
+elif [[ "$BRANCH" == "testnet" ]]; then
+  TAG="testnet-"
+fi
 
-npm publish --access public --tag dev
+npm publish --access public --tag ${TAG}dev
