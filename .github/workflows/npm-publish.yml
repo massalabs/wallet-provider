@@ -1,10 +1,8 @@
 name: Publish doc on massa server and npmjs
 
 on:
-  push:
-    tags:
-      - v*
-
+  release:
+    types: [created]
 
 jobs:
   publish-npm:
@@ -13,18 +11,23 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
+      
       - name: setup node
         uses: actions/setup-node@v3
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org
-      - name: publish
-        run: |
-              npm ci
-              npm run build
-              npm publish --access public
+
+      - name: Extract tag
+        id: get_tag
+        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+        env:
+          GITHUB_REF: ${{ github.ref }}
+
+      - run: ./scripts/publish.sh ${{ steps.get_tag.outputs.TAG }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+
       - name: bundle
         uses: softprops/action-gh-release@v1
         with:
@@ -35,14 +38,17 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v3
+      
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+      
       - name: Generate doc
         run: |
           npm ci
           npm run doc
           mv docs/documentation/html wallet-provider
+      
       - name: Deploy files
         uses: appleboy/scp-action@v0.1.4
         env:
