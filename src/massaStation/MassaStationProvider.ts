@@ -22,12 +22,12 @@ import { IAccountDetails } from '../account';
 /**
  * MassaStation url
  */
-export const MASSA_STATION_URL = 'https://my.massa/';
+export const MASSA_STATION_URL = 'https://station.massa/';
 
 /**
  * The MassaStation accounts url
  */
-export const MASSA_STATION_ACCOUNTS_URL = `${MASSA_STATION_URL}thyra/plugin/massalabs/wallet/api/accounts`;
+export const MASSA_STATION_ACCOUNTS_URL = `${MASSA_STATION_URL}plugin/massa-labs/massa-wallet/api/accounts`;
 
 /**
  * MassaStation's url for importing accounts
