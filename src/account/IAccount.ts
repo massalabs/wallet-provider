@@ -6,6 +6,7 @@ import { NonPersistentExecution } from './INonPersistentExecution';
 
 /**
  * This interface represents an Account object.
+ *
  */
 export interface IAccount {
   address(): string;
