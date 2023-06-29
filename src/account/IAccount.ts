@@ -25,6 +25,6 @@ export interface IAccount {
     functionName: string,
     parameter: Uint8Array | Args,
     amount: bigint,
-    nonPersistentExecution: NonPersistentExecution,
+    nonPersistentExecution?: NonPersistentExecution,
   );
 }
