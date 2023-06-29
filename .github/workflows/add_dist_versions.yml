@@ -1,14 +1,13 @@
-name: Npm dev publish
+name: Publish NPM dev packages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ add_dist_version ]
 
 jobs:
-  publish-npm-dev:
-
+  publish-npm:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -17,9 +16,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          registry-url: https://registry.npmjs.org
-        
-      - name: Publish dev version to npm
-        run: ./scripts/publish-dev.sh
+          registry-url: https://registry.npmjs.org/
+
+      - name: Publish on npm
+        run: ./scripts/add_versions.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
