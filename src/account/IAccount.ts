@@ -6,6 +6,7 @@ import { NonPersistentExecution } from './INonPersistentExecution';
 
 /**
  * This interface represents an Account object.
+ *
  */
 export interface IAccount {
   address(): string;
@@ -25,6 +26,6 @@ export interface IAccount {
     functionName: string,
     parameter: Uint8Array | Args,
     amount: bigint,
-    nonPersistentExecution: NonPersistentExecution,
+    nonPersistentExecution?: NonPersistentExecution,
   );
 }
