@@ -1,6 +1,8 @@
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse } from './AccountBalance';
 import { IAccountSignResponse } from './AccountSign';
+import { Args } from '@massalabs/massa-web3';
+import { NonPersistentExecution } from './INonPersistentExecution';
 
 /**
  * This interface represents an Account object.
@@ -18,4 +20,11 @@ export interface IAccount {
     recipientAddress: string,
     fee: bigint,
   ): Promise<ITransactionDetails>;
+  callSC(
+    contractAddress: string,
+    functionName: string,
+    parameter: Uint8Array | Args,
+    amount: bigint,
+    nonPersistentExecution: NonPersistentExecution,
+  );
 }
