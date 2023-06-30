@@ -19,11 +19,6 @@ import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { NonPersistentExecution } from '../account/INonPersistentExecution';
 
 /**
- * The MassaStation's account balance url
- */
-const MASSA_STATION_BALANCE_URL = `${MASSA_STATION_URL}massa/addresses?attributes=balance&addresses`;
-
-/**
  * The maximum allowed gas for a read operation
  */
 const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
@@ -117,7 +112,7 @@ export class MassaStationAccount implements IAccount {
     let signOpResponse: JsonRpcResponseData<IAddressesBalances> = null;
     try {
       signOpResponse = await getRequest<IAddressesBalances>(
-        `${MASSA_STATION_BALANCE_URL}=${this._address}`,
+        `${MASSA_STATION_URL}massa/addresses?attributes=balance&addresses=${this._address}`,
       );
     } catch (ex) {
       console.error(`MassaStation account balance error`);
