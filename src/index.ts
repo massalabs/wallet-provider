@@ -1,3 +1,17 @@
+/** Polyfills */
+import { Buffer } from 'buffer';
+
+declare global {
+  interface Window {
+    Buffer: typeof Buffer;
+  }
+}
+
+// Check if we are on browser
+if (typeof window !== 'undefined') {
+  window.Buffer = Buffer;
+}
+
 import { connector } from './connector/Connector';
 import { IProvider } from './provider/IProvider';
 import { Provider } from './provider/Provider';
