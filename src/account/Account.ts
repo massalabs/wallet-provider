@@ -40,7 +40,7 @@ export class Account implements IAccount {
    */
   public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
-    this._name = name;
+    this._name = name ?? '';
     this._providerName = providerName;
   }
 
