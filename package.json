@@ -10,7 +10,6 @@
         "check": "npm outdated",
         "upgrade": "npm run up && npm run check && npm run build",
         "clean-dist": "rimraf dist/*",
-
         "gen-bundle": "browserify dist/index.js -p esmify --standalone wallet > bundle.js",
         "uglify-bundle-optimize": "browserify dist/index.js -p esmify -i node-fetch -i http -i https -o bundle.min.js && browserify dist/index.js -p esmify -i node-fetch -g uglifyify --compress --mangle -o bundle.min.js",
         "build-esm": "tsc --project tsconfig.esm.json",
@@ -69,7 +68,7 @@
     },
     "devDependencies": {
         "@massalabs/eslint-config": "^0.0.9",
-        "@massalabs/massa-web3": "^1.18.0",
+        "@massalabs/massa-web3": "~1.17.4",
         "@massalabs/prettier-config-as": "^0.0.2",
         "@playwright/test": "^1.32.3",
         "@types/bn.js": "^5.1.1",

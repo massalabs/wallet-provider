@@ -67,7 +67,7 @@ export type AllowedResponses =
 class Connector {
   private registeredProviders: { [key: string]: string } = {};
   private pendingRequests: Map<string, CallbackFunction>;
-  private massaStationListener: any;
+  private massaStationListener: MassaStationDiscovery;
 
   /**
    * Connector constructor
