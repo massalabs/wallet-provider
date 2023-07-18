@@ -12,7 +12,7 @@ if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
 }
 
-import { connector } from './connector/Connector';
+import { connector, MASSA_WINDOW_OBJECT } from './connector/Connector';
 import { IProvider } from './provider/IProvider';
 import { Provider } from './provider/Provider';
 import {
@@ -50,6 +50,21 @@ export function providers(): IProvider[] {
     }
   }
   return providers;
+}
+
+/**
+ * Register a provider to interact with the wallet.
+ *
+ * @param name - The name of the provider.
+ */
+export function registerProvider(name: string, id = MASSA_WINDOW_OBJECT): void {
+  const registerEvent = new CustomEvent('register', {
+    detail: { providerName: name },
+  });
+  const element = document.getElementById(id);
+  if (element) {
+    element.dispatchEvent(registerEvent);
+  }
 }
 
 export { AllowedRequests, AllowedResponses } from './connector';

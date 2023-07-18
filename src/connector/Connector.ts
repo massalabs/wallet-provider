@@ -34,7 +34,7 @@ import { IAccount } from '../account/IAccount';
  * A constant string that is used to identify the HTML element that is used for
  * communication between the web page script and the content script.
  */
-const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
+export const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
 type CallbackFunction = (
   result: AllowedResponses,
