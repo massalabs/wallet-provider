@@ -48,7 +48,7 @@ export interface ITransactionDetails {
  */
 export async function providers(
   retry = true,
-  timeout = 2000,
+  timeout = 500,
 ): Promise<IProvider[]> {
   let provider: IProvider[] = [];
   while (provider.length === 0) {
