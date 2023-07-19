@@ -12,7 +12,7 @@ if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
 }
 
-import { connector, MASSA_WINDOW_OBJECT } from './connector/Connector';
+import { MASSA_WINDOW_OBJECT, connector } from './connector/Connector';
 import { IProvider } from './provider/IProvider';
 import { Provider } from './provider/Provider';
 import {
@@ -71,24 +71,6 @@ export async function providers(
     if(timeout <= 0) {
       break;
     }
-  }
-
-  return provider;
-}
-
-/**
- * Manually register a provider to interact with.
- *
- * @param name - The name of the provider.
- * @param id - The id of the HTML element that is used to communicate with the provider.
- */
-export function registerProvider(name: string, id = MASSA_WINDOW_OBJECT): void {
-  const registerEvent = new CustomEvent('register', {
-    detail: { providerName: name },
-  });
-  const element = document.getElementById(id);
-  if (element) {
-    element.dispatchEvent(registerEvent);
   }
 
   return provider;
