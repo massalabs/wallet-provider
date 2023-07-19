@@ -124,7 +124,7 @@ class Connector {
         this.registeredProviders[payload.providerName] =
           providerEventTargetName;
       });
-    try{
+    try {
       // start MassaStation discovery
       this.massaStationListener = new MassaStationDiscovery(1000);
       this.massaStationListener.startListening();

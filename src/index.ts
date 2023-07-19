@@ -68,7 +68,7 @@ export async function providers(
       await new Promise((resolve) => setTimeout(resolve, pollInterval));
     }
     timeout -= pollInterval;
-    if(timeout <= 0) {
+    if (timeout <= 0) {
       break;
     }
   }
