@@ -124,18 +124,21 @@ class Connector {
         this.registeredProviders[payload.providerName] =
           providerEventTargetName;
       });
-
-    // start MassaStation discovery
-    this.massaStationListener = new MassaStationDiscovery(1000);
-    this.massaStationListener.startListening();
-    this.massaStationListener.on(ON_MASSA_STATION_DISCOVERED, () => {
-      this.registeredProviders[
-        MASSA_STATION_PROVIDER_NAME
-      ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
-    });
-    this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
-      delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
-    });
+    try {
+      // start MassaStation discovery
+      this.massaStationListener = new MassaStationDiscovery(1000);
+      this.massaStationListener.startListening();
+      this.massaStationListener.on(ON_MASSA_STATION_DISCOVERED, () => {
+        this.registeredProviders[
+          MASSA_STATION_PROVIDER_NAME
+        ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
+      });
+      this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
+        delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
+      });
+    } catch (e) {
+      console.log('MassaStation is not detected');
+    }
   }
 
   /**

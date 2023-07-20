@@ -12,7 +12,7 @@ if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
 }
 
-import { connector, MASSA_WINDOW_OBJECT } from './connector/Connector';
+import { MASSA_WINDOW_OBJECT, connector } from './connector/Connector';
 import { IProvider } from './provider/IProvider';
 import { Provider } from './provider/Provider';
 import {
@@ -42,13 +42,15 @@ export interface ITransactionDetails {
  * Get the list of providers that are available to interact with.
  *
  * @param retry - If true, will retry to get the list of providers if none are available.
- * @param timeout - The timeout in milliseconds to wait between retries. default is 2000ms.
+ * @param pollInterval - The timeout in milliseconds to wait between retries. default is 2000ms.
+ * @param timeout - The timeout in milliseconds to wait before giving up. default is 3000ms.
  *
  * @returns An array of providers.
  */
 export async function providers(
   retry = true,
-  timeout = 500,
+  pollInterval = 500,
+  timeout = 3000,
 ): Promise<IProvider[]> {
   let provider: IProvider[] = [];
   while (provider.length === 0) {
@@ -63,7 +65,11 @@ export async function providers(
     }
     // If no providers are available, wait and try again
     if (retry && provider.length === 0) {
-      await new Promise((resolve) => setTimeout(resolve, timeout));
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+    }
+    timeout -= pollInterval;
+    if (timeout <= 0) {
+      break;
     }
   }
 
