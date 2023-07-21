@@ -49,11 +49,16 @@ export interface ITransactionDetails {
  */
 export async function providers(
   retry = true,
-  pollInterval = 500,
   timeout = 3000,
+  pollInterval = 500,
 ): Promise<IProvider[]> {
-  let provider: IProvider[] = [];
-  while (provider.length === 0) {
+  if (timeout <= 0) {
+    return [];
+  }
+
+  return new Promise((resolve) => {
+    let provider: IProvider[] = [];
+
     for (const providerName of Object.keys(connector.getWalletProviders())) {
       if (providerName === MASSA_STATION_PROVIDER_NAME) {
         const p = new MassaStationProvider();
@@ -63,17 +68,16 @@ export async function providers(
         provider.push(p);
       }
     }
+
     // If no providers are available, wait and try again
     if (retry && provider.length === 0) {
-      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      setTimeout(() => {
+        providers(retry, timeout - pollInterval, pollInterval).then(resolve);
+      }, pollInterval);
+    } else {
+      resolve(provider);
     }
-    timeout -= pollInterval;
-    if (timeout <= 0) {
-      break;
-    }
-  }
-
-  return provider;
+  });
 }
 
 /**
