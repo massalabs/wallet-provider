@@ -10,7 +10,6 @@ import { IAccount } from './IAccount';
 import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
 import { IAccountCallSCRequest } from './IAccountCallSCRequest';
-import { NonPersistentExecution } from './INonPersistentExecution';
 import { Args, IContractReadOperationResponse } from '@massalabs/massa-web3';
 
 /**
@@ -161,8 +160,8 @@ export class Account implements IAccount {
   /**
    * This method aims to transfer MAS on behalf of the sender to a recipient.
    *
-   * @param amount - The amount of MAS to be transferred.
-   * @param fee - The fee to be paid for the transaction execution by the node..
+   * @param amount - The amount of MAS (in the smallest unit) to be transferred.
+   * @param fee - The fee to be paid for the transaction execution (in the smallest unit).
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
   public async sendTransaction(
@@ -188,25 +187,33 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to interact with a smart contract deployed on the massa blockchain on behalf of the sender.
+   * This method aims to interact with a smart contract deployed on the MASSA blockchain.
+   *
+   * @remarks
+   * If dryRun.dryRun is true, the method will dry run the smart contract call and return an
+   * IContractReadOperationResponse object which contains all the information about the dry run
+   * (state changes, gas used, etc.)
    *
    * @param contractAddress - The address of the smart contract.
    * @param functionName - The name of the function to be called.
    * @param parameter - The parameters as an Args object to be passed to the function.
-   * @param amount - The amount of MASSA coins to be sent to the block creator.
+   * @param amount - The amount of MASSA coins to be sent to the contract (in the smallest unit).
+   * @param fee - The fee to be paid for the transaction execution (in the smallest unit).
+   * @param maxGas - The maximum amount of gas to be used for the transaction execution.
+   * @param nonPersistentExecution - The dryRun object to be passed to the function.
    *
-   * @returns An ITransactionDetails object.
-   * - It contains the first event emitted by the contract.
-   * - If the contract does not emit any event, it contains "Function called successfully but no event generated"
+   * @returns if 'nonPersistentExecution' is true, it returns an IContractReadOperationResponse object. 
+   * Otherwise, it returns an ITransactionDetails object which contains the operationId on the network.
+   *
    */
   public async callSC(
     contractAddress: string,
     functionName: string,
     parameter: Uint8Array | Args,
     amount: bigint,
-    nonPersistentExecution = {
-      isNPE: false,
-    } as NonPersistentExecution,
+    fee: bigint,
+    maxGas: bigint,
+    nonPersistentExecution = false,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     return new Promise((resolve, reject) => {
       connector.sendMessageToContentScript(
@@ -218,12 +225,14 @@ export class Account implements IAccount {
           at: contractAddress,
           args: parameter,
           coins: amount,
+          fee: fee,
+          maxGas: maxGas,
           nonPersistentExecution: nonPersistentExecution,
         } as IAccountCallSCRequest,
         (result, err) => {
           if (err) return reject(err);
           return resolve(
-            nonPersistentExecution?.isNPE
+            nonPersistentExecution
               ? (result as IContractReadOperationResponse)
               : (result as ITransactionDetails),
           );
