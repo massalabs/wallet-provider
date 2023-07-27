@@ -202,7 +202,7 @@ export class Account implements IAccount {
    * @param maxGas - The maximum amount of gas to be used for the transaction execution.
    * @param nonPersistentExecution - The dryRun object to be passed to the function.
    *
-   * @returns if 'nonPersistentExecution' is true, it returns an IContractReadOperationResponse object. 
+   * @returns if 'nonPersistentExecution' is true, it returns an IContractReadOperationResponse object.
    * Otherwise, it returns an ITransactionDetails object which contains the operationId on the network.
    *
    */
