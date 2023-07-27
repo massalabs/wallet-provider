@@ -16,7 +16,6 @@ import {
   IContractReadOperationData,
 } from '@massalabs/massa-web3';
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
-import { NonPersistentExecution } from '../account/INonPersistentExecution';
 
 /**
  * The maximum allowed gas for a read operation
@@ -218,16 +217,34 @@ export class MassaStationAccount implements IAccount {
   /**
    * This method aims to transfer MAS on behalf of the sender to a recipient.
    *
-   * @param amount - The amount of MAS to be transferred.
-   * @param fee - The fee to be paid for the transaction execution by the node.
+   * @param amount - The amount of MAS (in the smallest unit) to be transferred.
+   * @param fee - The fee to be paid for the transaction execution (in the smallest unit).
    * @returns An ITransactionDetails object. It contains the operationId on the network.
    */
-  sendTransaction(
+  async sendTransaction(
     amount: bigint,
     recipientAddress: string,
     fee: bigint,
   ): Promise<ITransactionDetails> {
-    throw new Error('Method not implemented.');
+    let sendTxOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
+    const url = `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/transfer`;
+    const body = {
+      fee: fee.toString(),
+      amount: amount.toString(),
+      recipientAddress: recipientAddress,
+    };
+    try {
+      sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
+    } catch (ex) {
+      console.error(
+        `MassaStation account: error while sending transaction: ${ex}`,
+      );
+      throw ex;
+    }
+    if (sendTxOpResponse.isError || sendTxOpResponse.error) {
+      throw sendTxOpResponse.error;
+    }
+    return sendTxOpResponse.result;
   }
 
   /**
@@ -241,12 +258,13 @@ export class MassaStationAccount implements IAccount {
    * @param contractAddress - The address of the smart contract.
    * @param functionName - The name of the function to be called.
    * @param parameter - The parameters as an Args object to be passed to the function.
-   * @param amount - The amount of MASSA coins to be sent to the block creator.
-   * @param dryRun - The dryRun object to be passed to the function.
+   * @param amount - The amount of MASSA coins to be sent to the contract (in the smallest unit).
+   * @param fee - The fee to be paid for the transaction execution (in the smallest unit).
+   * @param maxGas - The maximum amount of gas to be used for the transaction execution.
+   * @param nonPersistentExecution - The dryRun object to be passed to the function.
    *
-   * @returns if dryRun.dryRun is true, it returns an IContractReadOperationResponse object. Otherwise,
-   * it returns an ITransactionDetails object which contains the first event emitted by the contract.
-   * If the contract does not emit any event, it returns "Function called successfully but no event generated"
+   * @returns if 'nonPersistentExecution' is true, it returns an IContractReadOperationResponse object.
+   * Otherwise, it returns an ITransactionDetails object which contains the operationId on the network.
    *
    */
   public async callSC(
@@ -254,16 +272,18 @@ export class MassaStationAccount implements IAccount {
     functionName: string,
     parameter: Uint8Array | Args,
     amount: bigint,
-    nonPersistentExecution = {
-      isNPE: false,
-    } as NonPersistentExecution,
+    fee: bigint,
+    maxGas: bigint,
+    nonPersistentExecution = false,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
-    if (nonPersistentExecution?.isNPE) {
+    if (nonPersistentExecution) {
       return this.nonPersistentCallSC(
         contractAddress,
         functionName,
         parameter,
-        nonPersistentExecution,
+        amount,
+        fee,
+        maxGas,
       );
     }
     // convert parameter to base64
@@ -320,17 +340,16 @@ export class MassaStationAccount implements IAccount {
     contractAddress: string,
     functionName: string,
     parameter: Uint8Array | Args,
-    dryRun: NonPersistentExecution,
+    amount: bigint,
+    fee: bigint,
+    maxGas: bigint,
   ): Promise<IContractReadOperationResponse> {
     const node = await this.getNodeUrlFromMassaStation();
     // Gas amount check
-    if (!dryRun.maxGas) {
-      dryRun.maxGas = MAX_READ_BLOCK_GAS;
-    }
-    if (dryRun.maxGas > MAX_READ_BLOCK_GAS) {
+    if (maxGas > MAX_READ_BLOCK_GAS) {
       throw new Error(
         `
-        The gas submitted ${dryRun.maxGas.toString()} exceeds the max. allowed block gas of 
+        The gas submitted ${maxGas.toString()} exceeds the max. allowed block gas of 
         ${MAX_READ_BLOCK_GAS.toString()}
         `,
       );
@@ -345,7 +364,7 @@ export class MassaStationAccount implements IAccount {
     }
     // setup the request body
     const data = {
-      max_gas: Number(dryRun.maxGas),
+      max_gas: Number(maxGas),
       target_address: contractAddress,
       target_function: functionName,
       parameter: argumentArray,

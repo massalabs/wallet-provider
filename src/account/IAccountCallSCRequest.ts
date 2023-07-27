@@ -1,5 +1,4 @@
 import { Args } from '@massalabs/massa-web3';
-import { NonPersistentExecution } from './INonPersistentExecution';
 
 /**
  * This interface represents the request object to send to the content script to
@@ -21,5 +20,6 @@ export interface IAccountCallSCRequest {
   at: string;
   args: Args;
   coins: bigint;
-  nonPersistentExecution: NonPersistentExecution;
+  fee: bigint;
+  nonPersistentExecution: boolean;
 }
