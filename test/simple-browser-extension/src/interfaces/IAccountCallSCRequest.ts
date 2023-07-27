@@ -1,4 +1,4 @@
-import { Args } from "@massalabs/massa-web3";
+import { Args } from "@massalabs/web3-utils";
 
 /**
  * This interface represents the request object to send to the content script to 
