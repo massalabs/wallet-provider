@@ -236,7 +236,9 @@ export class MassaStationAccount implements IAccount {
     try {
       sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
     } catch (ex) {
-      console.error(`MassaStation account: error while sending transaction: ${ex}`);
+      console.error(
+        `MassaStation account: error while sending transaction: ${ex}`,
+      );
       throw ex;
     }
     if (sendTxOpResponse.isError || sendTxOpResponse.error) {
@@ -261,7 +263,7 @@ export class MassaStationAccount implements IAccount {
    * @param maxGas - The maximum amount of gas to be used for the transaction execution.
    * @param nonPersistentExecution - The dryRun object to be passed to the function.
    *
-   * @returns if 'nonPersistentExecution' is true, it returns an IContractReadOperationResponse object. 
+   * @returns if 'nonPersistentExecution' is true, it returns an IContractReadOperationResponse object.
    * Otherwise, it returns an ITransactionDetails object which contains the operationId on the network.
    *
    */
