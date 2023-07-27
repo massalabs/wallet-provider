@@ -54,7 +54,7 @@
     ],
     "dependencies": {
         "@massalabs/massa-web3": "^1.21.0",
-        "@massalabs/web3-utils": "^1.0.0",
+        "@massalabs/web3-utils": "^1.1.0",
         "axios": "^0.26.1",
         "bignumber.js": "^9.1.1",
         "buffer": "^6.0.3",
