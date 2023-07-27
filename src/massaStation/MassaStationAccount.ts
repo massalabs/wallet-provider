@@ -10,8 +10,8 @@ import {
   MASSA_STATION_URL,
   MASSA_STATION_ACCOUNTS_URL,
 } from './MassaStationProvider';
+import { Args } from '@massalabs/web3-utils';
 import {
-  Args,
   IContractReadOperationResponse,
   IContractReadOperationData,
 } from '@massalabs/massa-web3';

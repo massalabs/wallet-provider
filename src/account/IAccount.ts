@@ -1,7 +1,7 @@
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse } from './AccountBalance';
 import { IAccountSignResponse } from './AccountSign';
-import { Args } from '@massalabs/massa-web3';
+import { Args } from '@massalabs/web3-utils';
 
 /**
  * This interface represents an Account object.
