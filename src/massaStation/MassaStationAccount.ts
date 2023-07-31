@@ -403,8 +403,8 @@ export class MassaStationAccount implements IAccount {
       throw new Error(jsonRpcCallResult[0].result.Error);
     }
     return {
-      returnValue: jsonRpcCallResult[0].result[0].result.Ok as Uint8Array,
+      returnValue: new Uint8Array(jsonRpcCallResult[0].result[0].result.Ok),
       info: jsonRpcCallResult[0],
-    } as IContractReadOperationResponse;
+    };
   }
 }
