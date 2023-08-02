@@ -1,4 +1,8 @@
-import { Args } from '@massalabs/web3-utils';
+import {
+  Args,
+  IContractReadOperationData,
+  IContractReadOperationResponse,
+} from '@massalabs/web3-utils';
 import { ITransactionDetails } from '..';
 import {
   IAccountBalanceResponse,
@@ -7,6 +11,7 @@ import {
 } from '../account';
 import { IAccount } from '../account/IAccount';
 import { ArgTypes, CallParam, web3 } from '@hicaru/bearby.js';
+import { postRequest } from '../massaStation/RequestHandler';
 
 /**
  * The maximum allowed gas for a read operation
@@ -148,45 +153,23 @@ export class BearbyAccount implements IAccount {
       );
     }
 
-    const formatedParameter: CallParam[] = [];
-    // type: ArgTypes;
-    // vname?: string;
-    // value: string | bigint | number | boolean;
-    //
-    if (parameter instanceof Uint8Array) {
-      formatedParameter.push({
-        type: ArgTypes.U256,
-        value: parameter,
-      });
-    }
+    const formattedParameter: CallParam[] = [];
+
+    // TODO: find a way to get all the arguments from parameter (= deserialize them) and add them to formattedParameter
+    // if (parameter instanceof Uint8Array) {
+    //   formatedParameter.push({
+    //     type: ArgTypes.U256,
+    //     value: parameter,
+    //   });
+    // }
     const hash = await web3.contract.call({
       fee: Number(fee), // should be a bigint or string to avoid overflow
       maxGas: Number(maxGas), // should be a bigint or string to avoid overflow
       coins: Number(amount), // should be a bigint or string to avoid overflow
       targetAddress: contractAddress,
       functionName: functionName,
-      parameters: formatedParameter,
+      parameters: formattedParameter,
     });
-  }
-
-  public async getNodeUrlFromMassaStation(): Promise<string> {
-    // get the node url from MassaStation
-    let nodesResponse: JsonRpcResponseData<unknown> = null;
-    let node = '';
-    try {
-      nodesResponse = await getRequest<unknown>(
-        `${MASSA_STATION_URL}massa/node`,
-      );
-      if (nodesResponse.isError || nodesResponse.error) {
-        throw nodesResponse.error.message;
-      }
-      // transform nodesResponse.result to a json and then get the "url" property
-      const nodes = nodesResponse.result as { url: string };
-      node = nodes.url;
-    } catch (ex) {
-      throw new Error(`MassaStation nodes retrieval error: ${ex}`);
-    }
-    return node;
   }
 
   public async nonPersistentCallSC(
@@ -197,7 +180,9 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
     maxGas: bigint,
   ): Promise<IContractReadOperationResponse> {
-    const node = await this.getNodeUrlFromMassaStation();
+    // TODO: GET THE NODE URL FROM BEARBY or use a default one
+    // (if we do so, we wouldn't be able to switch between buildnet and testnet)
+    const node = '';
     // Gas amount check
     if (maxGas > MAX_READ_BLOCK_GAS) {
       throw new Error(
@@ -222,6 +207,8 @@ export class BearbyAccount implements IAccount {
       target_function: functionName,
       parameter: argumentArray,
       caller_address: this._address,
+      coins: Number(amount),
+      fee: Number(fee),
     };
     const body = [
       {
