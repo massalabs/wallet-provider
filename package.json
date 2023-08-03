@@ -9,7 +9,6 @@
         "check": "npm outdated",
         "upgrade": "npm run up && npm run check && npm run build",
         "clean-dist": "rimraf dist/*",
-        
         "build-package": "tsc -d -p ./tsconfig.json",
         "build-esm": "tsc --project tsconfig.esm.json",
         "build-commonjs": "tsc --project tsconfig.commonjs.json",
