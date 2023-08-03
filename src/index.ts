@@ -74,7 +74,7 @@ export async function providers(
     }
 
     // Look for Bearby
-    if (detectBearby) {
+    if (detectBearby()) {
       const p = new BearbyProvider('Bearby');
       provider.push(p);
     }
