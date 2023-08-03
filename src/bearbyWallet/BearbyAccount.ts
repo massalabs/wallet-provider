@@ -22,7 +22,7 @@ const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
 /**
  * The RPC we are using to query the node
  */
-export const PUBLIC_NODE_RPC = "https://buildnet.massa.net/api/v2";
+export const PUBLIC_NODE_RPC = 'https://buildnet.massa.net/api/v2';
 
 export enum OperationsType {
   Payment,
@@ -56,14 +56,14 @@ export class BearbyAccount implements IAccount {
   }
 
   // needs testing
-  public async balance(): Promise<IAccountBalanceResponse> { // Not available on bearby. we have to manually call the api
-    const body = 
-      {
-        jsonrpc: "2.0",
-        method: "get_addresses",
-        params: [[this._address]],
-        id: 0
-      }
+  public async balance(): Promise<IAccountBalanceResponse> {
+    // Not available on bearby. we have to manually call the api
+    const body = {
+      jsonrpc: '2.0',
+      method: 'get_addresses',
+      params: [[this._address]],
+      id: 0,
+    };
     const addressInfos = await postRequest<BalanceResponse>(
       PUBLIC_NODE_RPC,
       body,
@@ -71,12 +71,11 @@ export class BearbyAccount implements IAccount {
     if (addressInfos.isError || addressInfos.error) {
       throw addressInfos.error.message;
     }
-    
+
     return {
       finalBalance: addressInfos.result[0].final_balance,
       candidateBalance: addressInfos.result[0].candidate_balance,
     } as IAccountBalanceResponse;
-
   }
 
   // need testing
