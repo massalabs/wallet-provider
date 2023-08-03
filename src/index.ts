@@ -56,6 +56,8 @@ export async function providers(
     return [];
   }
 
+  await connector.startMassaStationDiscovery();
+
   return new Promise((resolve) => {
     let provider: IProvider[] = [];
 

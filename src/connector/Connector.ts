@@ -83,6 +83,8 @@ class Connector {
    */
   public constructor() {
     this.pendingRequests = new Map<string, CallbackFunction>();
+    this.massaStationListener = new MassaStationDiscovery();
+    this.initMassaStationListener();
     this.register();
 
     // start listening to messages from content script
@@ -124,18 +126,22 @@ class Connector {
         this.registeredProviders[payload.providerName] =
           providerEventTargetName;
       });
+  }
+
+  private initMassaStationListener() {
+    this.massaStationListener.on(ON_MASSA_STATION_DISCOVERED, () => {
+      this.registeredProviders[
+        MASSA_STATION_PROVIDER_NAME
+      ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
+    });
+    this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
+      delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
+    });
+  }
+
+  public async startMassaStationDiscovery() {
     try {
-      // start MassaStation discovery
-      this.massaStationListener = new MassaStationDiscovery(1000);
-      this.massaStationListener.startListening();
-      this.massaStationListener.on(ON_MASSA_STATION_DISCOVERED, () => {
-        this.registeredProviders[
-          MASSA_STATION_PROVIDER_NAME
-        ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
-      });
-      this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
-        delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
-      });
+      await this.massaStationListener.startListening();
     } catch (e) {
       console.log('MassaStation is not detected');
     }
