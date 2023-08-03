@@ -141,7 +141,7 @@ class Connector {
 
   public async startMassaStationDiscovery() {
     try {
-      this.massaStationListener.startListening();
+      await this.massaStationListener.startListening();
     } catch (e) {
       console.log('MassaStation is not detected');
     }
