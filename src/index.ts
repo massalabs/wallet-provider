@@ -19,6 +19,8 @@ import {
   MASSA_STATION_PROVIDER_NAME,
   MassaStationProvider,
 } from './massaStation/MassaStationProvider';
+import { detectBearby } from './bearbyWallet/BearbyConnect';
+import { BearbyProvider } from './bearbyWallet/bearbyProvider';
 
 export enum AvailableCommands {
   ProviderListAccounts = 'LIST_ACCOUNTS',
@@ -69,6 +71,12 @@ export async function providers(
         const p = new Provider(providerName);
         provider.push(p);
       }
+    }
+
+    // Look for Bearby
+    if (detectBearby) {
+      const p = new BearbyProvider('Bearby');
+      provider.push(p);
     }
 
     // If no providers are available, wait and try again

@@ -51,7 +51,7 @@ export class BearbyAccount implements IAccount {
 
   public async balance(): Promise<IAccountBalanceResponse> {
     throw new Error('Method not implemented.');
-    // not avalaible on bearby. we have to call the api
+    // not available on bearby. we have to call the api
   }
 
   // need testing
@@ -86,7 +86,7 @@ export class BearbyAccount implements IAccount {
     });
 
     // broadcast the transaction
-    const provider = ''; // TODO: GET THE PROVIDER FROM BEARBY
+    const provider = ''; // TODO: GET THE PROVIDER FROM BEARBY (if possible ..)
 
     throw new Error('Method not implemented.');
   }
@@ -170,6 +170,8 @@ export class BearbyAccount implements IAccount {
       functionName: functionName,
       parameters: formattedParameter,
     });
+
+    throw new Error('Method not implemented.');
   }
 
   public async nonPersistentCallSC(
