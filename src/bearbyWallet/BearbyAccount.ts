@@ -99,6 +99,7 @@ export class BearbyAccount implements IAccount {
     } as IAccountSignResponse;
   }
 
+  // need testing
   public async buyRolls(
     amount: bigint,
     fee: bigint,
@@ -116,6 +117,7 @@ export class BearbyAccount implements IAccount {
     throw new Error('Method not implemented.');
   }
 
+  // need testing
   public async sellRolls(
     amount: bigint,
     fee: bigint,
@@ -207,9 +209,8 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
     maxGas: bigint,
   ): Promise<IContractReadOperationResponse> {
-    // TODO: GET THE NODE URL FROM BEARBY or use a default one
-    // (if we do so, we wouldn't be able to switch between buildnet and testnet)
-    const node = '';
+    // not clean but bearby doesn't allow us to get its node urls
+    const node = PUBLIC_NODE_RPC;
     // Gas amount check
     if (maxGas > MAX_READ_BLOCK_GAS) {
       throw new Error(
