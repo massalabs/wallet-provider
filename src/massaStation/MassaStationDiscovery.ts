@@ -10,7 +10,6 @@
  */
 
 import { EventEmitter } from 'events';
-import { Timeout } from '../utils/time';
 import { JsonRpcResponseData, getRequest } from './RequestHandler';
 
 /**
@@ -35,7 +34,6 @@ export const ON_MASSA_STATION_DISCONNECTED = 'ON_MASSA_STATION_DISCONNECTED';
  * a wallet provider in the `Connector` class.
  */
 export class MassaStationDiscovery extends EventEmitter {
-  private timeoutId: Timeout | null = null;
   private isDiscovered = false;
 
   /**
@@ -54,21 +52,18 @@ export class MassaStationDiscovery extends EventEmitter {
    * @returns An instance of the MassaStation class.
    *
    */
-  public constructor(private readonly pollIntervalMillis: number) {
+  public constructor() {
     super();
 
-    // bind class methods
-    this.callback = this.callback.bind(this);
-    this.stopListening = this.stopListening.bind(this);
     this.startListening = this.startListening.bind(this);
   }
 
   /**
-   * A callback method that triggers a ping of the MassaStation's server
+   * A method to start listening for a connection to MassaStation's server.
    *
    * @returns void
    */
-  private async callback(): Promise<void> {
+  public async startListening(): Promise<void> {
     let resp: JsonRpcResponseData<unknown> = null;
     try {
       resp = await getRequest(MASSA_STATION_DISCOVERY_URL);
@@ -82,31 +77,8 @@ export class MassaStationDiscovery extends EventEmitter {
     }
 
     if ((resp.isError || resp.error) && this.isDiscovered) {
+      this.isDiscovered = false;
       this.emit(ON_MASSA_STATION_DISCONNECTED);
     }
-  }
-
-  /**
-   * A method to stop listening for a connection to MassaStation's server
-   *
-   * @returns void
-   */
-  public stopListening(): void {
-    if (this.timeoutId) this.timeoutId.clear();
-  }
-
-  /**
-   * A method to start listening for a connection to MassaStation's server.
-   *
-   * @returns void
-   */
-  public startListening(): void {
-    const that = this;
-    if (this.timeoutId) {
-      return;
-    }
-    this.timeoutId = new Timeout(this.pollIntervalMillis, () =>
-      that.callback(),
-    );
   }
 }
