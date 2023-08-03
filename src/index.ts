@@ -20,7 +20,7 @@ import {
   MassaStationProvider,
 } from './massaStation/MassaStationProvider';
 import { detectBearby } from './bearbyWallet/BearbyConnect';
-import { BearbyProvider } from './bearbyWallet/bearbyProvider';
+import { BearbyProvider } from './bearbyWallet/BearbyProvider';
 
 export enum AvailableCommands {
   ProviderListAccounts = 'LIST_ACCOUNTS',
