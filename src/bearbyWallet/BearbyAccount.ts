@@ -11,7 +11,11 @@ import {
 } from '../account';
 import { IAccount } from '../account/IAccount';
 import { ArgTypes, CallParam, web3 } from '@hicaru/bearby.js';
-import { postRequest, getRequest, JsonRpcResponseData } from '../massaStation/RequestHandler';
+import {
+  postRequest,
+  getRequest,
+  JsonRpcResponseData,
+} from '../massaStation/RequestHandler';
 import { BalanceResponse } from './BalanceResponse';
 import { NodeStatus } from './NodeStatus';
 import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
@@ -109,8 +113,8 @@ export class BearbyAccount implements IAccount {
     }
 
     return {
-      finalBalance: addressInfos.result[0].final_balance,
-      candidateBalance: addressInfos.result[0].candidate_balance,
+      finalBalance: addressInfos.result.result[0].final_balance,
+      candidateBalance: addressInfos.result.result[0].candidate_balance,
     } as IAccountBalanceResponse;
   }
 
@@ -215,9 +219,9 @@ export class BearbyAccount implements IAccount {
     } else {
       argumentArray = Array.from(parameter.serialize());
     }
-    
+
     const callData = {
-      fee: fee, 
+      fee: fee,
       maxGas: maxGas,
       coins: amount,
       targetAddress: contractAddress,
@@ -226,11 +230,9 @@ export class BearbyAccount implements IAccount {
     } as ICallData;
 
     // get next period info to set the expiry period
-    const nodeStatusInfo: NodeStatus =
-      await this.getNodeStatus();
-    const expiryPeriod: number =
-      nodeStatusInfo.next_slot.period + 5; // 5 is the default value used in massa-web3 for expiry period
-
+    const nodeStatusInfo: NodeStatus = await this.getNodeStatus();
+    // 5 is the default value used in massa-web3 for expiry period
+    const expiryPeriod: number = nodeStatusInfo.next_slot.period + 5;
     // bytes compaction
     const bytesCompact: Buffer = compactBytesForOperation(
       callData,
@@ -238,16 +240,15 @@ export class BearbyAccount implements IAccount {
       expiryPeriod,
     );
 
-    // We need the public key but bearby doesn't allow us to get it directly. We have to sign a message and get the public key from the signature
+    // We need the public key but bearby doesn't allow us to get it directly.
+    // We have to sign a message and get the public key from the signature
     const pubKey = (await this.sign('nothing')).publicKey;
     // sign payload
-    const bytesPublicKey: Uint8Array = getBytesPublicKey(
-      pubKey,
-    );
+    const bytesPublicKey: Uint8Array = getBytesPublicKey(pubKey);
     // get the signature and encode it to base58
-    const signatureUInt8Array = (await this.sign(
-      Buffer.concat([bytesPublicKey, bytesCompact]),
-    )).signature;
+    const signatureUInt8Array = (
+      await this.sign(Buffer.concat([bytesPublicKey, bytesCompact]))
+    ).signature;
     const signature = base58Encode(signatureUInt8Array);
     // request data
     const data = {
@@ -280,15 +281,12 @@ export class BearbyAccount implements IAccount {
    *
    * @returns A promise that resolves to the node's status information.
    */
-    public async getNodeStatus(): Promise<NodeStatus> {
-      const jsonRpcRequestMethod = JSON_RPC_REQUEST_METHOD.GET_STATUS;
-        return await this.sendJsonRPCRequest<NodeStatus>(
-          jsonRpcRequestMethod,
-          [],
-        );
-      }
+  public async getNodeStatus(): Promise<NodeStatus> {
+    const jsonRpcRequestMethod = JSON_RPC_REQUEST_METHOD.GET_STATUS;
+    return await this.sendJsonRPCRequest<NodeStatus>(jsonRpcRequestMethod, []);
+  }
 
-      /**
+  /**
    * Sends a post JSON rpc request to the node.
    *
    * @param resource - The rpc method to call.
@@ -340,11 +338,7 @@ export class BearbyAccount implements IAccount {
     };
 
     try {
-      resp = await axios.post(
-        this._nodeUrl,
-        body,
-        requestHeaders,
-      );
+      resp = await axios.post(this._nodeUrl, body, requestHeaders);
     } catch (ex) {
       return {
         isError: true,
@@ -370,7 +364,7 @@ export class BearbyAccount implements IAccount {
     } as JsonRpcResponseData<T>;
   }
 
-    /**
+  /**
    * Find provider for a concrete rpc method
    *
    * @remarks
@@ -384,43 +378,42 @@ export class BearbyAccount implements IAccount {
    *
    * @returns The provider for the rpc method.
    */
-    private getProviderForRpcMethod(
-      requestMethod: JSON_RPC_REQUEST_METHOD,
-    ): IProvider {
-      switch (requestMethod) {
-        case JSON_RPC_REQUEST_METHOD.GET_ADDRESSES:
-        case JSON_RPC_REQUEST_METHOD.GET_STATUS:
-        case JSON_RPC_REQUEST_METHOD.SEND_OPERATIONS:
-        case JSON_RPC_REQUEST_METHOD.GET_OPERATIONS:
-        case JSON_RPC_REQUEST_METHOD.GET_BLOCKS:
-        case JSON_RPC_REQUEST_METHOD.GET_ENDORSEMENTS:
-        case JSON_RPC_REQUEST_METHOD.GET_CLIQUES:
-        case JSON_RPC_REQUEST_METHOD.GET_STAKERS:
-        case JSON_RPC_REQUEST_METHOD.GET_FILTERED_SC_OUTPUT_EVENT:
-        case JSON_RPC_REQUEST_METHOD.EXECUTE_READ_ONLY_BYTECODE:
-        case JSON_RPC_REQUEST_METHOD.EXECUTE_READ_ONLY_CALL:
-        case JSON_RPC_REQUEST_METHOD.GET_DATASTORE_ENTRIES:
-        case JSON_RPC_REQUEST_METHOD.GET_BLOCKCLIQUE_BLOCK_BY_SLOT:
-        case JSON_RPC_REQUEST_METHOD.GET_GRAPH_INTERVAL: {
-          return new BearbyProvider('Bearby');
-        }
-        case JSON_RPC_REQUEST_METHOD.STOP_NODE:
-        case JSON_RPC_REQUEST_METHOD.NODE_BAN_BY_ID:
-        case JSON_RPC_REQUEST_METHOD.NODE_BAN_BY_IP:
-        case JSON_RPC_REQUEST_METHOD.NODE_UNBAN_BY_ID:
-        case JSON_RPC_REQUEST_METHOD.NODE_UNBAN_BY_IP:
-        case JSON_RPC_REQUEST_METHOD.GET_STAKING_ADDRESSES:
-        case JSON_RPC_REQUEST_METHOD.REMOVE_STAKING_ADDRESSES:
-        case JSON_RPC_REQUEST_METHOD.ADD_STAKING_PRIVATE_KEYS:
-        case JSON_RPC_REQUEST_METHOD.NODE_SIGN_MESSAGE:
-        case JSON_RPC_REQUEST_METHOD.NODE_REMOVE_FROM_WHITELIST: {
-          return new BearbyProvider('Bearby');
-        }
-        default:
-          throw new Error(`Unknown Json rpc method: ${requestMethod}`);
+  private getProviderForRpcMethod(
+    requestMethod: JSON_RPC_REQUEST_METHOD,
+  ): IProvider {
+    switch (requestMethod) {
+      case JSON_RPC_REQUEST_METHOD.GET_ADDRESSES:
+      case JSON_RPC_REQUEST_METHOD.GET_STATUS:
+      case JSON_RPC_REQUEST_METHOD.SEND_OPERATIONS:
+      case JSON_RPC_REQUEST_METHOD.GET_OPERATIONS:
+      case JSON_RPC_REQUEST_METHOD.GET_BLOCKS:
+      case JSON_RPC_REQUEST_METHOD.GET_ENDORSEMENTS:
+      case JSON_RPC_REQUEST_METHOD.GET_CLIQUES:
+      case JSON_RPC_REQUEST_METHOD.GET_STAKERS:
+      case JSON_RPC_REQUEST_METHOD.GET_FILTERED_SC_OUTPUT_EVENT:
+      case JSON_RPC_REQUEST_METHOD.EXECUTE_READ_ONLY_BYTECODE:
+      case JSON_RPC_REQUEST_METHOD.EXECUTE_READ_ONLY_CALL:
+      case JSON_RPC_REQUEST_METHOD.GET_DATASTORE_ENTRIES:
+      case JSON_RPC_REQUEST_METHOD.GET_BLOCKCLIQUE_BLOCK_BY_SLOT:
+      case JSON_RPC_REQUEST_METHOD.GET_GRAPH_INTERVAL: {
+        return new BearbyProvider('Bearby');
       }
+      case JSON_RPC_REQUEST_METHOD.STOP_NODE:
+      case JSON_RPC_REQUEST_METHOD.NODE_BAN_BY_ID:
+      case JSON_RPC_REQUEST_METHOD.NODE_BAN_BY_IP:
+      case JSON_RPC_REQUEST_METHOD.NODE_UNBAN_BY_ID:
+      case JSON_RPC_REQUEST_METHOD.NODE_UNBAN_BY_IP:
+      case JSON_RPC_REQUEST_METHOD.GET_STAKING_ADDRESSES:
+      case JSON_RPC_REQUEST_METHOD.REMOVE_STAKING_ADDRESSES:
+      case JSON_RPC_REQUEST_METHOD.ADD_STAKING_PRIVATE_KEYS:
+      case JSON_RPC_REQUEST_METHOD.NODE_SIGN_MESSAGE:
+      case JSON_RPC_REQUEST_METHOD.NODE_REMOVE_FROM_WHITELIST: {
+        return new BearbyProvider('Bearby');
+      }
+      default:
+        throw new Error(`Unknown Json rpc method: ${requestMethod}`);
     }
-
+  }
 
   public async nonPersistentCallSC(
     contractAddress: string,
@@ -497,7 +490,6 @@ export class BearbyAccount implements IAccount {
     };
   }
 }
-
 
 const PUBLIC_KEY_PREFIX = 'P';
 

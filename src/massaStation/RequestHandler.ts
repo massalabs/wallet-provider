@@ -29,7 +29,6 @@ export interface JsonRpcResponseData<T> {
   error: Error | null;
 }
 
-
 /**
  * This method makes a GET request to an http rest point.
  *

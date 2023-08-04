@@ -13,14 +13,15 @@
  * @see contractDataText of type `string | undefined` represents the contract's data as string (optional).
  * @see contractDataBinary of type `Uint8Array | undefined` represents the contract's data as bytecode (optional).
  * @see address of type `string | undefined` represents the smart contract address (optional).
- * @see datastore of type `Map<Uint8Array, Uint8Array> | undefined` represents the smart contract's operational storage data (optional).
+ * @see datastore of type `Map<Uint8Array, Uint8Array> | undefined` represents the
+ * smart contract's operational storage data (optional).
  */
 export interface IContractData {
-    fee: bigint;
-    maxGas: bigint;
-    maxCoins: bigint;
-    contractDataText?: string;
-    contractDataBinary?: Uint8Array;
-    address?: string;
-    datastore?: Map<Uint8Array, Uint8Array>;
-  }
+  fee: bigint;
+  maxGas: bigint;
+  maxCoins: bigint;
+  contractDataText?: string;
+  contractDataBinary?: Uint8Array;
+  address?: string;
+  datastore?: Map<Uint8Array, Uint8Array>;
+}
