@@ -162,11 +162,12 @@ export class BearbyAccount implements IAccount {
     maxGas: bigint,
     nonPersistentExecution = false,
   ) {
-    if (parameter instanceof Uint8Array) {
-      throw new Error(
-        'Bearby wallet does not support protobuf serialized parameters. PLease use another wallet such as MassaStation',
-      );
-    }
+    // if (parameter instanceof Uint8Array) {
+    //   throw new Error(
+    //     'Bearby wallet does not support protobuf serialized parameters.
+    // PLease use another wallet such as MassaStation',
+    //   );
+    // }
 
     if (nonPersistentExecution) {
       return this.nonPersistentCallSC(
@@ -197,6 +198,10 @@ export class BearbyAccount implements IAccount {
       parameters: formattedParameter,
     });
 
+    return {
+      firstEvent: null,
+      operationId: hash,
+    };
     throw new Error('Method not implemented.');
   }
 
