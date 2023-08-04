@@ -3,7 +3,7 @@ import {
   IContractReadOperationData,
   IContractReadOperationResponse,
 } from '@massalabs/web3-utils';
-import { ITransactionDetails } from '..';
+import { IProvider, ITransactionDetails } from '..';
 import {
   IAccountBalanceResponse,
   IAccountDetails,
@@ -11,13 +11,29 @@ import {
 } from '../account';
 import { IAccount } from '../account/IAccount';
 import { ArgTypes, CallParam, web3 } from '@hicaru/bearby.js';
-import { postRequest, getRequest } from '../massaStation/RequestHandler';
+import { postRequest, getRequest, JsonRpcResponseData } from '../massaStation/RequestHandler';
 import { BalanceResponse } from './BalanceResponse';
+import { NodeStatus } from './NodeStatus';
+import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
+import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
+import { BearbyProvider } from './BearbyProvider';
+import { compactBytesForOperation } from './compactBytesForOperation';
+import { ICallData } from './ICallData';
+import { base58Decode, base58Encode } from './Xbqcrypto';
 
 /**
  * The maximum allowed gas for a read operation
  */
 const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
+
+/**
+ * Represents a signature.
+ *
+ * @see base58Encoded - The base58 encoded signature.
+ */
+export interface ISignature {
+  base58Encoded: string;
+}
 
 /**
  * The RPC we are using to query the node
@@ -32,10 +48,30 @@ export enum OperationsType {
   CallSC,
 }
 
+/**
+ * Associates an operation type with a number.
+ */
+export enum OperationTypeId {
+  Transaction = 0,
+  RollBuy = 1,
+  RollSell = 2,
+  ExecuteSC = 3,
+  CallSC = 4,
+}
+
+export const requestHeaders = {
+  Accept:
+    'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+} as AxiosRequestHeaders;
+
 export class BearbyAccount implements IAccount {
   private _providerName: string;
   private _address: string;
   private _name: string;
+  private _nodeUrl = PUBLIC_NODE_RPC;
 
   public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
@@ -162,13 +198,6 @@ export class BearbyAccount implements IAccount {
     maxGas: bigint,
     nonPersistentExecution = false,
   ) {
-    // if (parameter instanceof Uint8Array) {
-    //   throw new Error(
-    //     'Bearby wallet does not support protobuf serialized parameters.
-    // PLease use another wallet such as MassaStation',
-    //   );
-    // }
-
     if (nonPersistentExecution) {
       return this.nonPersistentCallSC(
         contractAddress,
@@ -179,30 +208,219 @@ export class BearbyAccount implements IAccount {
         maxGas,
       );
     }
-
-    const formattedParameter: CallParam[] = [];
-
-    // TODO: find a way to get all the arguments from parameter (= deserialize them) and add them to formattedParameter
-    // if (parameter instanceof Uint8Array) {
-    //   formatedParameter.push({
-    //     type: ArgTypes.U256,
-    //     value: parameter,
-    //   });
-    // }
-    const hash = await web3.contract.call({
-      fee: Number(fee), // should be a bigint or string to avoid overflow
-      maxGas: Number(maxGas), // should be a bigint or string to avoid overflow
-      coins: Number(amount), // should be a bigint or string to avoid overflow
+    // convert parameter to an array of numbers
+    let argumentArray: Array<number> = [];
+    if (parameter instanceof Uint8Array) {
+      argumentArray = Array.from(parameter);
+    } else {
+      argumentArray = Array.from(parameter.serialize());
+    }
+    
+    const callData = {
+      fee: fee, 
+      maxGas: maxGas,
+      coins: amount,
       targetAddress: contractAddress,
       functionName: functionName,
-      parameters: formattedParameter,
-    });
+      parameter: argumentArray,
+    } as ICallData;
+
+    // get next period info to set the expiry period
+    const nodeStatusInfo: NodeStatus =
+      await this.getNodeStatus();
+    const expiryPeriod: number =
+      nodeStatusInfo.next_slot.period + 5; // 5 is the default value used in massa-web3 for expiry period
+
+    // bytes compaction
+    const bytesCompact: Buffer = compactBytesForOperation(
+      callData,
+      OperationTypeId.CallSC,
+      expiryPeriod,
+    );
+
+    // We need the public key but bearby doesn't allow us to get it directly. We have to sign a message and get the public key from the signature
+    const pubKey = (await this.sign('nothing')).publicKey;
+    // sign payload
+    const bytesPublicKey: Uint8Array = getBytesPublicKey(
+      pubKey,
+    );
+    // get the signature and encode it to base58
+    const signatureUInt8Array = (await this.sign(
+      Buffer.concat([bytesPublicKey, bytesCompact]),
+    )).signature;
+    const signature = base58Encode(signatureUInt8Array);
+    // request data
+    const data = {
+      serialized_content: Array.prototype.slice.call(bytesCompact),
+      creator_public_key: pubKey,
+      signature: signature,
+    };
+
+    // returns operation ids
+    let opIds: Array<string> = [];
+    const jsonRpcRequestMethod = JSON_RPC_REQUEST_METHOD.SEND_OPERATIONS;
+    opIds = await this.sendJsonRPCRequest(jsonRpcRequestMethod, [[data]]);
+    if (opIds.length <= 0) {
+      throw new Error(
+        `Call smart contract operation bad response. No results array in json rpc response. Inspect smart contract`,
+      );
+    }
+    return opIds[0];
+  }
+
+  /**
+   * Retrieves the node's status.
+   *
+   * @remarks
+   * The returned information includes:
+   * - Whether the node is reachable
+   * - The number of connected peers
+   * - The node's version
+   * - The node's configuration parameters
+   *
+   * @returns A promise that resolves to the node's status information.
+   */
+    public async getNodeStatus(): Promise<NodeStatus> {
+      const jsonRpcRequestMethod = JSON_RPC_REQUEST_METHOD.GET_STATUS;
+        return await this.sendJsonRPCRequest<NodeStatus>(
+          jsonRpcRequestMethod,
+          [],
+        );
+      }
+
+      /**
+   * Sends a post JSON rpc request to the node.
+   *
+   * @param resource - The rpc method to call.
+   * @param params - The parameters to pass to the rpc method.
+   *
+   * @throws An error if the rpc method returns an error.
+   *
+   * @returns A promise that resolves as the result of the rpc method.
+   */
+  protected async sendJsonRPCRequest<T>(
+    resource: JSON_RPC_REQUEST_METHOD,
+    params: object,
+  ): Promise<T> {
+    let resp: JsonRpcResponseData<T> = null;
+    resp = await this.promisifyJsonRpcCall(resource, params);
+
+    // in case of rpc error, rethrow the error.
+    if (resp.error && resp.error) {
+      throw resp.error;
+    }
+
+    return resp.result;
+  }
+
+  /**
+   * Converts a json rpc call to a promise that resolves as a JsonRpcResponseData
+   *
+   * @privateRemarks
+   * If there is an error while sending the request, the function catches the error, the isError
+   * property is set to true, the result property set to null, and the error property set to a
+   * new Error object with a message indicating that there was an error.
+   *
+   * @param resource - The rpc method to call.
+   * @param params - The parameters to pass to the rpc method.
+   *
+   * @returns A promise that resolves as a JsonRpcResponseData.
+   */
+  private async promisifyJsonRpcCall<T>(
+    resource: JSON_RPC_REQUEST_METHOD,
+    params: object,
+  ): Promise<JsonRpcResponseData<T>> {
+    let resp: AxiosResponse<JsonRpcResponseData<T>> = null;
+
+    const body = {
+      jsonrpc: '2.0',
+      method: resource,
+      params: params,
+      id: 0,
+    };
+
+    try {
+      resp = await axios.post(
+        this._nodeUrl,
+        body,
+        requestHeaders,
+      );
+    } catch (ex) {
+      return {
+        isError: true,
+        result: null,
+        error: new Error('JSON.parse error: ' + String(ex)),
+      } as JsonRpcResponseData<T>;
+    }
+
+    const responseData: JsonRpcResponseData<T> = resp.data;
+
+    if (responseData.error) {
+      return {
+        isError: true,
+        result: null,
+        error: new Error(responseData.error.message),
+      } as JsonRpcResponseData<T>;
+    }
 
     return {
-      firstEvent: null,
-      operationId: hash,
-    };
+      isError: false,
+      result: responseData.result as T,
+      error: null,
+    } as JsonRpcResponseData<T>;
   }
+
+    /**
+   * Find provider for a concrete rpc method
+   *
+   * @remarks
+   * This method chooses the provider to use for a given rpc method.
+   *  - If the rpc method is about getting or sending data to the blockchain,
+   *    it will choose a public provider.
+   *  - If the rpc method is meant to be used by the node itself, it will choose a private provider.
+   *  - An error is thrown if no provider is found for the rpc method.
+   *
+   * @param requestMethod - The rpc method to find the provider for.
+   *
+   * @returns The provider for the rpc method.
+   */
+    private getProviderForRpcMethod(
+      requestMethod: JSON_RPC_REQUEST_METHOD,
+    ): IProvider {
+      switch (requestMethod) {
+        case JSON_RPC_REQUEST_METHOD.GET_ADDRESSES:
+        case JSON_RPC_REQUEST_METHOD.GET_STATUS:
+        case JSON_RPC_REQUEST_METHOD.SEND_OPERATIONS:
+        case JSON_RPC_REQUEST_METHOD.GET_OPERATIONS:
+        case JSON_RPC_REQUEST_METHOD.GET_BLOCKS:
+        case JSON_RPC_REQUEST_METHOD.GET_ENDORSEMENTS:
+        case JSON_RPC_REQUEST_METHOD.GET_CLIQUES:
+        case JSON_RPC_REQUEST_METHOD.GET_STAKERS:
+        case JSON_RPC_REQUEST_METHOD.GET_FILTERED_SC_OUTPUT_EVENT:
+        case JSON_RPC_REQUEST_METHOD.EXECUTE_READ_ONLY_BYTECODE:
+        case JSON_RPC_REQUEST_METHOD.EXECUTE_READ_ONLY_CALL:
+        case JSON_RPC_REQUEST_METHOD.GET_DATASTORE_ENTRIES:
+        case JSON_RPC_REQUEST_METHOD.GET_BLOCKCLIQUE_BLOCK_BY_SLOT:
+        case JSON_RPC_REQUEST_METHOD.GET_GRAPH_INTERVAL: {
+          return new BearbyProvider('Bearby');
+        }
+        case JSON_RPC_REQUEST_METHOD.STOP_NODE:
+        case JSON_RPC_REQUEST_METHOD.NODE_BAN_BY_ID:
+        case JSON_RPC_REQUEST_METHOD.NODE_BAN_BY_IP:
+        case JSON_RPC_REQUEST_METHOD.NODE_UNBAN_BY_ID:
+        case JSON_RPC_REQUEST_METHOD.NODE_UNBAN_BY_IP:
+        case JSON_RPC_REQUEST_METHOD.GET_STAKING_ADDRESSES:
+        case JSON_RPC_REQUEST_METHOD.REMOVE_STAKING_ADDRESSES:
+        case JSON_RPC_REQUEST_METHOD.ADD_STAKING_PRIVATE_KEYS:
+        case JSON_RPC_REQUEST_METHOD.NODE_SIGN_MESSAGE:
+        case JSON_RPC_REQUEST_METHOD.NODE_REMOVE_FROM_WHITELIST: {
+          return new BearbyProvider('Bearby');
+        }
+        default:
+          throw new Error(`Unknown Json rpc method: ${requestMethod}`);
+      }
+    }
+
 
   public async nonPersistentCallSC(
     contractAddress: string,
@@ -278,4 +496,28 @@ export class BearbyAccount implements IAccount {
       info: jsonRpcCallResult[0],
     };
   }
+}
+
+
+const PUBLIC_KEY_PREFIX = 'P';
+
+/**
+ * Retrieves the byte representation of a given public key.
+ *
+ * @param publicKey - The public key to obtain the bytes from.
+ *
+ * @throws If the public key has an incorrect {@link PUBLIC_KEY_PREFIX}.
+ *
+ * @returns A Uint8Array containing the bytes of the public key.
+ */
+export function getBytesPublicKey(publicKey: string): Uint8Array {
+  if (!(publicKey[0] == PUBLIC_KEY_PREFIX)) {
+    throw new Error(
+      `Invalid public key prefix: ${publicKey[0]} should be ${PUBLIC_KEY_PREFIX}`,
+    );
+  }
+  const publicKeyBase58Decoded: Buffer = base58Decode(
+    publicKey.slice(1), // Slice off the prefix
+  );
+  return publicKeyBase58Decoded;
 }
