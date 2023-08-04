@@ -51,7 +51,7 @@ export class BearbyProvider implements IProvider {
   }
 
   public async getNodesUrls(): Promise<string[]> {
-    throw new Error('Method not implemented.');
+    return ['https://buildnet.massa.net/api/v2'];
   }
 
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
