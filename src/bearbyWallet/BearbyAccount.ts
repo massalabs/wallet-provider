@@ -79,7 +79,7 @@ export class BearbyAccount implements IAccount {
 
   public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
-    this._name = name ?? '';
+    this._name = name ?? 'Bearby_account';
     this._providerName = providerName;
   }
 
@@ -122,10 +122,11 @@ export class BearbyAccount implements IAccount {
   public async sign(data: Uint8Array | string): Promise<IAccountSignResponse> {
     const encoder = new TextEncoder();
     if (typeof data === 'string') {
+      const signature = await web3.wallet.signMessage(data)
       return {
-        publicKey: (await web3.wallet.signMessage(data)).publicKey,
+        publicKey: signature.publicKey,
         signature: encoder.encode(
-          (await web3.wallet.signMessage(data)).signature,
+          signature.signature,
         ),
       } as IAccountSignResponse;
     }
@@ -187,10 +188,10 @@ export class BearbyAccount implements IAccount {
       payload: '', // TODO: check how do we have to set it
     });
 
-    // broadcast the transaction
-    const provider = ''; // TODO: GET THE PROVIDER FROM BEARBY
-
-    throw new Error('Method not implemented.');
+    console.log(signedTx);
+    return {
+      operationId: '00',
+    } as ITransactionDetails;
   }
 
   public async callSC(
@@ -235,6 +236,7 @@ export class BearbyAccount implements IAccount {
     const expiryPeriod: number = nodeStatusInfo.next_slot.period + 5;
     // bytes compaction
     const bytesCompact: Buffer = compactBytesForOperation(
+      // deconnade ici
       callData,
       OperationTypeId.CallSC,
       expiryPeriod,
