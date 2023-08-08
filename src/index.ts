@@ -60,6 +60,12 @@ export async function providers(
 
   await connector.startMassaStationDiscovery();
 
+  // Look for Bearby
+  let p: BearbyProvider;
+  if (detectBearby()) {
+    const p = new BearbyProvider('Bearby');
+  }
+
   return new Promise((resolve) => {
     let provider: IProvider[] = [];
 
@@ -74,8 +80,7 @@ export async function providers(
     }
 
     // Look for Bearby
-    if (detectBearby()) {
-      const p = new BearbyProvider('Bearby');
+    if (p) {
       provider.push(p);
     }
 

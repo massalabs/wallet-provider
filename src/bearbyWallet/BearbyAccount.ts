@@ -10,10 +10,9 @@ import {
   IAccountSignResponse,
 } from '../account';
 import { IAccount } from '../account/IAccount';
-import { ArgTypes, CallParam, web3 } from '@hicaru/bearby.js';
+import { CallParam, web3 } from '@hicaru/bearby.js';
 import {
   postRequest,
-  getRequest,
   JsonRpcResponseData,
 } from '../massaStation/RequestHandler';
 import { BalanceResponse } from './BalanceResponse';
@@ -21,9 +20,7 @@ import { NodeStatus } from './NodeStatus';
 import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import { BearbyProvider } from './BearbyProvider';
-import { compactBytesForOperation } from './compactBytesForOperation';
-import { ICallData } from './ICallData';
-import { base58Decode, base58Encode } from './Xbqcrypto';
+import { base58Decode } from './Xbqcrypto';
 
 /**
  * The maximum allowed gas for a read operation
@@ -328,7 +325,7 @@ export class BearbyAccount implements IAccount {
     resp = await this.promisifyJsonRpcCall(resource, params);
 
     // in case of rpc error, rethrow the error.
-    if (resp.error && resp.error) {
+    if (resp.isError || resp.error) {
       throw resp.error;
     }
 

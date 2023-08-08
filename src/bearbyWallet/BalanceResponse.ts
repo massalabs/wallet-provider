@@ -20,11 +20,11 @@ export interface BalanceResponse {
     created_operations: Array<string>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     created_endorsements: Array<any>;
-    cycle_infos: Array<cycle_infos>;
+    cycle_infos: Array<cycleInfos>;
   };
 }
 
-interface cycle_infos {
+interface cycleInfos {
   cycle: number;
   is_final: boolean;
   ok_count: number;
