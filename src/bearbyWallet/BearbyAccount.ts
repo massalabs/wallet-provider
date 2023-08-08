@@ -122,12 +122,10 @@ export class BearbyAccount implements IAccount {
   public async sign(data: Uint8Array | string): Promise<IAccountSignResponse> {
     const encoder = new TextEncoder();
     if (typeof data === 'string') {
-      const signature = await web3.wallet.signMessage(data)
+      const signature = await web3.wallet.signMessage(data);
       return {
         publicKey: signature.publicKey,
-        signature: encoder.encode(
-          signature.signature,
-        ),
+        signature: encoder.encode(signature.signature),
       } as IAccountSignResponse;
     }
     const strData = new TextDecoder().decode(data);
@@ -213,62 +211,86 @@ export class BearbyAccount implements IAccount {
         maxGas,
       );
     }
-    // convert parameter to an array of numbers
-    let argumentArray: Array<number> = [];
+
     if (parameter instanceof Uint8Array) {
-      argumentArray = Array.from(parameter);
-    } else {
-      argumentArray = Array.from(parameter.serialize());
-    }
-
-    const callData = {
-      fee: fee,
-      maxGas: maxGas,
-      coins: amount,
-      targetAddress: contractAddress,
-      functionName: functionName,
-      parameter: argumentArray,
-    } as ICallData;
-
-    // get next period info to set the expiry period
-    const nodeStatusInfo: NodeStatus = await this.getNodeStatus();
-    // 5 is the default value used in massa-web3 for expiry period
-    const expiryPeriod: number = nodeStatusInfo.next_slot.period + 5;
-    // bytes compaction
-    const bytesCompact: Buffer = compactBytesForOperation(
-      // deconnade ici
-      callData,
-      OperationTypeId.CallSC,
-      expiryPeriod,
-    );
-
-    // We need the public key but bearby doesn't allow us to get it directly.
-    // We have to sign a message and get the public key from the signature
-    const pubKey = (await this.sign('nothing')).publicKey;
-    // sign payload
-    const bytesPublicKey: Uint8Array = getBytesPublicKey(pubKey);
-    // get the signature and encode it to base58
-    const signatureUInt8Array = (
-      await this.sign(Buffer.concat([bytesPublicKey, bytesCompact]))
-    ).signature;
-    const signature = base58Encode(signatureUInt8Array);
-    // request data
-    const data = {
-      serialized_content: Array.prototype.slice.call(bytesCompact),
-      creator_public_key: pubKey,
-      signature: signature,
-    };
-
-    // returns operation ids
-    let opIds: Array<string> = [];
-    const jsonRpcRequestMethod = JSON_RPC_REQUEST_METHOD.SEND_OPERATIONS;
-    opIds = await this.sendJsonRPCRequest(jsonRpcRequestMethod, [[data]]);
-    if (opIds.length <= 0) {
       throw new Error(
-        `Call smart contract operation bad response. No results array in json rpc response. Inspect smart contract`,
+        'Protobuf serialization is not supported by bearby wallet. To use it switch to MassaStation',
       );
     }
-    return opIds[0];
+    // setup the params from Args
+    let params: CallParam[] = [];
+    try {
+      params = parameter.getArgsList();
+    } catch (ex) {
+      throw new Error(
+        'Bearby wallet does not support Uint8Array, serializable and serializableObjectArray. To use them switch to MassaStation',
+      );
+    }
+
+    return await web3.contract.call({
+      maxGas: Number(maxGas),
+      coins: Number(amount),
+      fee: Number(fee),
+      targetAddress: contractAddress,
+      functionName: functionName,
+      parameters: params,
+    });
+
+    // // convert parameter to an array of numbers
+    // let argumentArray: Array<number> = [];
+    // if (parameter instanceof Uint8Array) {
+    //   argumentArray = Array.from(parameter);
+    // } else {
+    //   argumentArray = Array.from(parameter.serialize());
+    // }
+
+    // const callData = {
+    //   fee: fee,
+    //   maxGas: maxGas,
+    //   coins: amount,
+    //   targetAddress: contractAddress,
+    //   functionName: functionName,
+    //   parameter: argumentArray,
+    // } as ICallData;
+
+    // // get next period info to set the expiry period
+    // const nodeStatusInfo: NodeStatus = await this.getNodeStatus();
+    // // 5 is the default value used in massa-web3 for expiry period
+    // const expiryPeriod: number = nodeStatusInfo.next_slot.period + 5;
+    // // bytes compaction
+    // const bytesCompact: Buffer = compactBytesForOperation(
+    //   callData,
+    //   OperationTypeId.CallSC,
+    //   expiryPeriod,
+    // );
+
+    // // We need the public key but bearby doesn't allow us to get it directly.
+    // // We have to sign a message and get the public key from the signature
+    // const pubKey = (await this.sign('nothing')).publicKey;
+    // // sign payload
+    // const bytesPublicKey: Uint8Array = getBytesPublicKey(pubKey);
+    // // get the signature and encode it to base58
+    // const signatureUInt8Array = (
+    //   await this.sign(Buffer.concat([bytesPublicKey, bytesCompact]))
+    // ).signature;
+    // const signature = base58Encode(signatureUInt8Array);
+    // // request data
+    // const data = {
+    //   serialized_content: Array.prototype.slice.call(bytesCompact),
+    //   creator_public_key: pubKey,
+    //   signature: signature,
+    // };
+
+    // // returns operation ids
+    // let opIds: Array<string> = [];
+    // const jsonRpcRequestMethod = JSON_RPC_REQUEST_METHOD.SEND_OPERATIONS;
+    // opIds = await this.sendJsonRPCRequest(jsonRpcRequestMethod, [[data]]);
+    // if (opIds.length <= 0) {
+    //   throw new Error(
+    //     `Call smart contract operation bad response. No results array in json rpc response. Inspect smart contract`,
+    //   );
+    // }
+    // return opIds[0];
   }
 
   /**
