@@ -54,9 +54,7 @@ export abstract class ContentScriptProvider {
   public abstract sendTransaction(
     payload: ISendTransactionRequest,
   ): ITransactionDetails;
-  public abstract callSC(
-    payload: IAccountCallSCRequest
-  ): ITransactionDetails;
+  public abstract callSC(payload: IAccountCallSCRequest): ITransactionDetails;
   public abstract getNodesUrls(): string[];
 
   public constructor(providerName: string) {
@@ -309,13 +307,10 @@ export abstract class ContentScriptProvider {
     // ==============================CALL SC==================================
     (
       document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.AccountCallSC,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.AccountCallSC)(payload);
-      },
-    );
+    ).addEventListener(AvailableCommands.AccountCallSC, (evt: CustomEvent) => {
+      const payload: ICustomEventMessageRequest = evt.detail;
+      this.actionToCallback.get(AvailableCommands.AccountCallSC)(payload);
+    });
 
     this.attachCallbackHandler(
       AvailableCommands.AccountCallSC,
