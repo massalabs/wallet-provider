@@ -92,8 +92,17 @@ export class BearbyAccount implements IAccount {
     return this._providerName;
   }
 
+  public async connect() {
+    try {
+      await web3.wallet.connect();
+    } catch (ex) {
+      console.log('Bearby connection: ', ex);
+    }
+  }
+
   // needs testing
   public async balance(): Promise<IAccountBalanceResponse> {
+    await this.connect();
     // Not available on bearby. we have to manually call the api
     const body = {
       jsonrpc: '2.0',
@@ -108,7 +117,6 @@ export class BearbyAccount implements IAccount {
     if (addressInfos.isError || addressInfos.error) {
       throw addressInfos.error.message;
     }
-
     return {
       finalBalance: addressInfos.result.result[0].final_balance,
       candidateBalance: addressInfos.result.result[0].candidate_balance,
@@ -117,6 +125,7 @@ export class BearbyAccount implements IAccount {
 
   // need testing
   public async sign(data: Uint8Array | string): Promise<IAccountSignResponse> {
+    await this.connect();
     const encoder = new TextEncoder();
     if (typeof data === 'string') {
       const signature = await web3.wallet.signMessage(data);
@@ -139,6 +148,7 @@ export class BearbyAccount implements IAccount {
     amount: bigint,
     fee: bigint,
   ): Promise<ITransactionDetails> {
+    await this.connect();
     const signedTx = await web3.wallet.signTransaction({
       type: OperationsType.RollBuy,
       amount: amount.toString(),
@@ -157,6 +167,7 @@ export class BearbyAccount implements IAccount {
     amount: bigint,
     fee: bigint,
   ): Promise<ITransactionDetails> {
+    await this.connect();
     const signedTx = await web3.wallet.signTransaction({
       type: OperationsType.RollSell,
       amount: amount.toString(),
@@ -175,6 +186,7 @@ export class BearbyAccount implements IAccount {
     recipientAddress: string,
     fee: bigint,
   ): Promise<ITransactionDetails> {
+    await this.connect();
     const signedTx = await web3.wallet.signTransaction({
       type: OperationsType.Payment,
       amount: amount.toString(),
@@ -183,7 +195,6 @@ export class BearbyAccount implements IAccount {
       payload: '', // TODO: check how do we have to set it
     });
 
-    console.log(signedTx);
     return {
       operationId: '00',
     } as ITransactionDetails;
@@ -198,6 +209,7 @@ export class BearbyAccount implements IAccount {
     maxGas: bigint,
     nonPersistentExecution = false,
   ) {
+    await this.connect();
     if (nonPersistentExecution) {
       return this.nonPersistentCallSC(
         contractAddress,
@@ -225,8 +237,13 @@ export class BearbyAccount implements IAccount {
       });
     } catch (ex) {
       throw new Error(
+<<<<<<< HEAD
         /* eslint-disable-next-line max-len */
         'Bearby wallet does not support Uint8Array, serializable and serializableObjectArray. To use them switch to MassaStation',
+=======
+        `Bearby wallet does not support Uint8Array, serializable and serializableObjectArray. 
+To use them switch to MassaStation`,
+>>>>>>> 4469cdc (fix bearby provider)
       );
     }
 

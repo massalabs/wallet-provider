@@ -62,8 +62,10 @@ export async function providers(
 
   // Look for Bearby
   let p: BearbyProvider;
-  if (detectBearby()) {
-    p = new BearbyProvider('Bearby');
+  const bearbyDetect = await detectBearby();
+  let bearby: BearbyProvider;
+  if (bearbyDetect) {
+    bearby = new BearbyProvider('Bearby');
   }
 
   return new Promise((resolve) => {
@@ -80,8 +82,8 @@ export async function providers(
     }
 
     // Look for Bearby
-    if (p) {
-      provider.push(p);
+    if (bearby) {
+      provider.push(bearby);
     }
 
     // If no providers are available, wait and try again
