@@ -39,7 +39,7 @@ const baseConfigUmd = {
     // The type of the exported library
     libraryTarget: 'window', // for UMD we use window
     // The name of the library as it should be exposed in the global scope
-    library: 'massa',
+    library: 'massaWallet',
     // The global object in which the library will be assigned to
     globalObject: 'this',
   },
