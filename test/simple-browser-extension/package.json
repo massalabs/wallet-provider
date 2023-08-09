@@ -8,12 +8,11 @@
         "up": "npm update",
         "check": "npm outdated",
         "upgrade": "npm run up && npm run check && npm run build",
-        "clean-dist": "rimraf dist/*",
-        "build-package": "tsc -d -p ./tsconfig.json",
-        "build-esm": "tsc --project tsconfig.esm.json",
-        "build-commonjs": "tsc --project tsconfig.commonjs.json",
-        "build-bundle": "webpack",
-        "build": "npm run fmt && npm-run-all clean-dist build-*",
+        "build-package": "rimraf dist/* && tsc -d -p ./tsconfig.json",
+        "build-bundle": "npm run gen-bundle",
+        "gen-bundle": "browserify dist/index.js -p esmify --standalone injected > bundle.js",
+        "uglify-bundle-optimize": "browserify dist/index.js -p esmify -i node-fetch -i http -i https -o bundle.min.js && browserify dist/index.js -p esmify -i node-fetch -g uglifyify --compress --mangle -o bundle.min.js",
+        "build": "npm run fmt && npm run build-package && npm run build-bundle && cp bundle.js plugin/lib/massa-wallet-provider-content-script.js",
         "update-version-major": "npm version major",
         "update-version-minor": "npm version minor",
         "update-version-patch": "npm version patch",
@@ -53,6 +52,7 @@
         "bundle.min.js"
     ],
     "dependencies": {
+        "esmify": "^2.1.1",
         "bignumber.js": "^9.1.1"
     },
     "devDependencies": {
