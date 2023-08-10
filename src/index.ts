@@ -60,10 +60,9 @@ export async function providers(
 
   await connector.startMassaStationDiscovery();
 
-  // Look for Bearby
-  let p: BearbyProvider;
-  if (detectBearby()) {
-    p = new BearbyProvider('Bearby');
+  let bearby: BearbyProvider | undefined;
+  if (await detectBearby()) {
+    bearby = new BearbyProvider('Bearby');
   }
 
   return new Promise((resolve) => {
@@ -80,8 +79,8 @@ export async function providers(
     }
 
     // Look for Bearby
-    if (p) {
-      provider.push(p);
+    if (bearby) {
+      provider.push(bearby);
     }
 
     // If no providers are available, wait and try again
