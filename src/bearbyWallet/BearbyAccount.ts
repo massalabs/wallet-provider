@@ -220,6 +220,7 @@ export class BearbyAccount implements IAccount {
       params = parameter.getArgsList();
     } catch (ex) {
       throw new Error(
+        /* eslint-disable-next-line max-len */
         'Bearby wallet does not support Uint8Array, serializable and serializableObjectArray. To use them switch to MassaStation',
       );
     }
