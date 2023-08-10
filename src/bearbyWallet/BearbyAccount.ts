@@ -252,14 +252,16 @@ To use them switch to MassaStation`,
 >>>>>>> 5337e3a (clean)
     }
 
-    return await web3.contract.call({
+    const operationId = await web3.contract.call({
       maxGas: Number(maxGas),
       coins: Number(amount),
       fee: Number(fee),
       targetAddress: contractAddress,
       functionName: functionName,
-      parameters: params,
+      parameters: params.slice(1),
     });
+
+    return { operationId };
   }
 
   /**
