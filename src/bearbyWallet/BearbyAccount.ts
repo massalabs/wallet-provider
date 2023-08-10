@@ -235,21 +235,9 @@ export class BearbyAccount implements IAccount {
         } as CallParam;
       });
     } catch (ex) {
-<<<<<<< HEAD
-      throw new Error(
-<<<<<<< HEAD
-        /* eslint-disable-next-line max-len */
-        'Bearby wallet does not support Uint8Array, serializable and serializableObjectArray. To use them switch to MassaStation',
-=======
-        `Bearby wallet does not support Uint8Array, serializable and serializableObjectArray. 
-To use them switch to MassaStation`,
->>>>>>> 4469cdc (fix bearby provider)
-      );
-=======
       throw new Error(`
       Bearby wallet does not support Uint8Array, serializable, and serializableObjectArray. 
       To use them switch to MassaStation`);
->>>>>>> 5337e3a (clean)
     }
 
     const operationId = await web3.contract.call({
