@@ -217,9 +217,15 @@ export class BearbyAccount implements IAccount {
     // setup the params from Args
     let params: CallParam[] = [];
     try {
-      params = parameter.getArgsList();
+      params = parameter.getArgsList().map((arg) => {
+        return {
+          type: arg.type,
+          value: arg.value,
+        } as CallParam;
+      });
     } catch (ex) {
       throw new Error(
+        /* eslint-disable-next-line max-len */
         'Bearby wallet does not support Uint8Array, serializable and serializableObjectArray. To use them switch to MassaStation',
       );
     }
