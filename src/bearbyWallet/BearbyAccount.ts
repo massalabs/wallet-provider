@@ -246,7 +246,7 @@ export class BearbyAccount implements IAccount {
       fee: Number(fee),
       targetAddress: contractAddress,
       functionName: functionName,
-      parameters: params.slice(1),
+      parameters: params,
     });
 
     return { operationId };
