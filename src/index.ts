@@ -63,7 +63,7 @@ export async function providers(
   // Look for Bearby
   let p: BearbyProvider;
   if (detectBearby()) {
-    const p = new BearbyProvider('Bearby');
+    p = new BearbyProvider('Bearby');
   }
 
   return new Promise((resolve) => {
