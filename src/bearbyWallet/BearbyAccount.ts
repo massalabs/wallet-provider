@@ -19,21 +19,11 @@ import { BalanceResponse } from './BalanceResponse';
 import { NodeStatus } from './NodeStatus';
 import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
-import { base58Decode } from './Xbqcrypto';
 
 /**
  * The maximum allowed gas for a read operation
  */
 const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
-
-/**
- * Represents a signature.
- *
- * @see base58Encoded - The base58 encoded signature.
- */
-export interface ISignature {
-  base58Encoded: string;
-}
 
 /**
  * The RPC we are using to query the node
@@ -59,12 +49,10 @@ export enum OperationTypeId {
   CallSC = 4,
 }
 
-export const requestHeaders = {
+const requestHeaders = {
   Accept:
     'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Credentials': true,
-  'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+  'Content-Type': 'application/json',
 } as AxiosRequestHeaders;
 
 export class BearbyAccount implements IAccount {
@@ -109,10 +97,12 @@ export class BearbyAccount implements IAccount {
       params: [[this._address]],
       id: 0,
     };
+
     const addressInfos = await postRequest<BalanceResponse>(
       PUBLIC_NODE_RPC,
       body,
     );
+
     if (addressInfos.isError || addressInfos.error) {
       throw addressInfos.error.message;
     }
@@ -321,7 +311,7 @@ export class BearbyAccount implements IAccount {
     };
 
     try {
-      resp = await axios.post(this._nodeUrl, body, requestHeaders);
+      resp = await axios.post(this._nodeUrl, body, { headers: requestHeaders });
     } catch (ex) {
       return {
         isError: true,
@@ -421,27 +411,4 @@ export class BearbyAccount implements IAccount {
       info: jsonRpcCallResult[0],
     };
   }
-}
-
-const PUBLIC_KEY_PREFIX = 'P';
-
-/**
- * Retrieves the byte representation of a given public key.
- *
- * @param publicKey - The public key to obtain the bytes from.
- *
- * @throws If the public key has an incorrect {@link PUBLIC_KEY_PREFIX}.
- *
- * @returns A Uint8Array containing the bytes of the public key.
- */
-export function getBytesPublicKey(publicKey: string): Uint8Array {
-  if (!(publicKey[0] == PUBLIC_KEY_PREFIX)) {
-    throw new Error(
-      `Invalid public key prefix: ${publicKey[0]} should be ${PUBLIC_KEY_PREFIX}`,
-    );
-  }
-  const publicKeyBase58Decoded: Buffer = base58Decode(
-    publicKey.slice(1), // Slice off the prefix
-  );
-  return publicKeyBase58Decoded;
 }

@@ -12,14 +12,8 @@ import axios, { AxiosResponse, AxiosRequestHeaders } from 'axios';
 const requestHeaders = {
   Accept:
     'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Credentials': true,
-  'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
   'Content-Type': 'application/json',
-  'Access-Control-Allow-Headers':
-    'Accept,authorization,Authorization,Content-Type',
 } as AxiosRequestHeaders;
-
 /**
  * This interface represents a payload returned by making an http call
  */
@@ -39,10 +33,14 @@ export interface JsonRpcResponseData<T> {
  */
 export async function getRequest<T>(
   url: string,
+  timeout: number = null,
 ): Promise<JsonRpcResponseData<T>> {
   let resp: AxiosResponse = null;
   try {
-    resp = await axios.get<unknown, AxiosResponse, object>(url, requestHeaders);
+    resp = await axios.get<unknown, AxiosResponse, object>(url, {
+      headers: requestHeaders,
+      timeout,
+    });
   } catch (ex) {
     return {
       isError: true,
@@ -72,11 +70,9 @@ export async function postRequest<T>(
   body: object,
 ): Promise<JsonRpcResponseData<T>> {
   try {
-    const resp = await axios.post<unknown, AxiosResponse, object>(
-      url,
-      body,
-      requestHeaders,
-    );
+    const resp = await axios.post<unknown, AxiosResponse, object>(url, body, {
+      headers: requestHeaders,
+    });
 
     return {
       isError: false,
@@ -107,10 +103,9 @@ export async function deleteRequest<T>(
 ): Promise<JsonRpcResponseData<T>> {
   let resp: AxiosResponse = null;
   try {
-    resp = await axios.delete<unknown, AxiosResponse, object>(
-      url,
-      requestHeaders,
-    );
+    resp = await axios.delete<unknown, AxiosResponse, object>(url, {
+      headers: requestHeaders,
+    });
   } catch (ex) {
     return {
       isError: true,
@@ -141,11 +136,9 @@ export async function putRequest<T>(
 ): Promise<JsonRpcResponseData<T>> {
   let resp: AxiosResponse = null;
   try {
-    resp = await axios.put<unknown, AxiosResponse, object>(
-      url,
-      body,
-      requestHeaders,
-    );
+    resp = await axios.put<unknown, AxiosResponse, object>(url, body, {
+      headers: requestHeaders,
+    });
   } catch (ex) {
     return {
       isError: true,

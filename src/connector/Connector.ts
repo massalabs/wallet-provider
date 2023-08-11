@@ -146,7 +146,6 @@ class Connector {
     } catch (e) {
       console.log('MassaStation is not detected');
     }
-    // check if bearby is installed
   }
 
   /**
