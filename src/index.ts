@@ -21,6 +21,7 @@ import {
 } from './massaStation/MassaStationProvider';
 import { detectBearby } from './bearbyWallet/BearbyConnect';
 import { BearbyProvider } from './bearbyWallet/BearbyProvider';
+import { wait } from './utils/time';
 
 export enum AvailableCommands {
   ProviderListAccounts = 'LIST_ACCOUNTS',
@@ -54,9 +55,7 @@ export async function providers(
   timeout = 3000,
   pollInterval = 500,
 ): Promise<IProvider[]> {
-  if (timeout <= 0) {
-    return [];
-  }
+  const startTime = Date.now();
 
   await connector.startMassaStationDiscovery();
 
@@ -65,33 +64,34 @@ export async function providers(
     bearby = new BearbyProvider('Bearby');
   }
 
-  return new Promise((resolve) => {
-    let provider: IProvider[] = [];
+  while (Date.now() - startTime < timeout) {
+    const providerInstances: IProvider[] = getProviderInstances();
 
-    for (const providerName of Object.keys(connector.getWalletProviders())) {
+    if (bearby) providerInstances.push(bearby);
+
+    if (!retry || providerInstances.length > 0) {
+      return providerInstances;
+    }
+
+    await wait(pollInterval);
+  }
+
+  return [];
+}
+
+function getProviderInstances() {
+  const availableProviders = Object.keys(connector.getWalletProviders());
+
+  const providerInstances: IProvider[] = availableProviders.map(
+    (providerName) => {
       if (providerName === MASSA_STATION_PROVIDER_NAME) {
-        const p = new MassaStationProvider();
-        provider.push(p);
+        return new MassaStationProvider();
       } else {
-        const p = new Provider(providerName);
-        provider.push(p);
+        return new Provider(providerName);
       }
-    }
-
-    // Look for Bearby
-    if (bearby) {
-      provider.push(bearby);
-    }
-
-    // If no providers are available, wait and try again
-    if (retry && provider.length === 0) {
-      setTimeout(() => {
-        providers(retry, timeout - pollInterval, pollInterval).then(resolve);
-      }, pollInterval);
-    } else {
-      resolve(provider);
-    }
-  });
+    },
+  );
+  return providerInstances;
 }
 
 /**

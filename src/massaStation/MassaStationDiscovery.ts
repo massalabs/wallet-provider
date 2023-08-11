@@ -66,7 +66,7 @@ export class MassaStationDiscovery extends EventEmitter {
   public async startListening(): Promise<void> {
     let resp: JsonRpcResponseData<unknown> = null;
     try {
-      resp = await getRequest(MASSA_STATION_DISCOVERY_URL);
+      resp = await getRequest(MASSA_STATION_DISCOVERY_URL, 2000);
     } catch (ex) {
       console.error(`Error calling ${MASSA_STATION_DISCOVERY_URL}`);
     }
