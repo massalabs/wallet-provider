@@ -212,7 +212,7 @@ export class BearbyAccount implements IAccount {
 
     if (parameter instanceof Uint8Array) {
       throw new Error(
-        'Protobuf serialization is not supported by bearby wallet. To use it switch to MassaStation',
+        'Bearby wallet does not support Uint8Array as parameter. Please use Args instead',
       );
     }
     // setup the params from Args
