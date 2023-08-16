@@ -83,7 +83,7 @@ export class BearbyAccount implements IAccount {
     try {
       await web3.wallet.connect();
     } catch (ex) {
-      console.log('Bearby connection: ', ex);
+      console.log('Bearby connection error: ', ex);
     }
   }
 
@@ -145,10 +145,9 @@ export class BearbyAccount implements IAccount {
       payload: '', // TODO: check how do we have to set it
     });
 
-    // broadcast the transaction
-    const provider = ''; // TODO: GET THE PROVIDER FROM BEARBY (if possible ..)
-
-    throw new Error('Method not implemented.');
+    return {
+      operationId: signedTx,
+    } as ITransactionDetails;
   }
 
   // need testing
@@ -163,11 +162,9 @@ export class BearbyAccount implements IAccount {
       fee: fee.toString(),
       payload: '', // TODO: check how do we have to set it
     });
-
-    // broadcast the transaction
-    const provider = ''; // TODO: GET THE PROVIDER FROM BEARBY
-
-    throw new Error('Method not implemented.');
+    return {
+      operationId: signedTx,
+    } as ITransactionDetails;
   }
 
   public async sendTransaction(
@@ -181,11 +178,11 @@ export class BearbyAccount implements IAccount {
       amount: amount.toString(),
       recipient: recipientAddress,
       fee: fee.toString(),
-      payload: '', // TODO: check how do we have to set it
+      payload: '',
     });
 
     return {
-      operationId: '00',
+      operationId: signedTx,
     } as ITransactionDetails;
   }
 
@@ -197,7 +194,7 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
     maxGas: bigint,
     nonPersistentExecution = false,
-  ) {
+  ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     await this.connect();
     if (nonPersistentExecution) {
       return this.nonPersistentCallSC(
