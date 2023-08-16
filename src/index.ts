@@ -139,3 +139,5 @@ export {
 export { IMassaStationWallet } from './massaStation/MassaStationProvider';
 
 export { MassaStationAccount } from './massaStation/MassaStationAccount';
+
+export { connectBearby, disconnectBearby } from './bearbyWallet/BearbyConnect';
