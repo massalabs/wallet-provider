@@ -32,7 +32,7 @@ export class BearbyProvider implements IProvider {
 
     const account = {
       address: await web3.wallet.account.base58,
-      name: 'Bearby',
+      name: 'BEARBY',
     };
     return [new BearbyAccount(account, this.providerName)];
   }
