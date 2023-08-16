@@ -12,7 +12,7 @@ export interface IAccount {
   name(): string;
   providerName(): string;
   balance(): Promise<IAccountBalanceResponse>;
-  sign(data: Uint8Array | string): Promise<IAccountSignResponse>;
+  sign(data: Buffer | Uint8Array | string): Promise<IAccountSignResponse>;
   buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
   sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
   sendTransaction(

@@ -135,7 +135,15 @@ export class MassaStationAccount implements IAccount {
    * @param data - The message to be signed.
    * @returns An IAccountSignResponse object. It contains the signature of the message.
    */
-  public async sign(data: Uint8Array | string): Promise<IAccountSignResponse> {
+  public async sign(
+    data: Buffer | Uint8Array | string,
+  ): Promise<IAccountSignResponse> {
+    if (data instanceof Buffer) {
+      data = data.toString();
+    }
+    if (data instanceof Uint8Array) {
+      data = new TextDecoder().decode(data);
+    }
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
