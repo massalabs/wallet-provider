@@ -149,7 +149,7 @@ export class MassaStationAccount implements IAccount {
       signOpResponse = await postRequest<IAccountSignResponse>(
         `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/sign`,
         {
-          operation: data,
+          operation: Buffer.from(data).toString('base64'),
           batch: false,
         } as ISignOperation,
       );
