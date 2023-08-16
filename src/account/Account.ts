@@ -89,7 +89,7 @@ export class Account implements IAccount {
    * @param data - The message to be signed.
    * @returns An IAccountSignResponse object. It contains the signature of the message.
    */
-  public async sign(data: Uint8Array): Promise<IAccountSignResponse> {
+  public async sign(data: Buffer | Uint8Array): Promise<IAccountSignResponse> {
     return new Promise<IAccountSignResponse>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
