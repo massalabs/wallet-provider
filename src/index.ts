@@ -61,7 +61,7 @@ export async function providers(
 
   let bearby: BearbyProvider | undefined;
   if (await detectBearby()) {
-    bearby = new BearbyProvider('Bearby');
+    bearby = new BearbyProvider('BEARBY');
   }
 
   while (Date.now() - startTime < timeout) {
