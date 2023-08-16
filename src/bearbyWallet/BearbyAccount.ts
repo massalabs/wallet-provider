@@ -113,14 +113,16 @@ export class BearbyAccount implements IAccount {
   }
 
   // need testing
-  public async sign(data: Buffer | Uint8Array | string): Promise<IAccountSignResponse> {
+  public async sign(
+    data: Buffer | Uint8Array | string,
+  ): Promise<IAccountSignResponse> {
     await this.connect();
     const encoder = new TextEncoder();
     let strData: string;
-    if(data instanceof Uint8Array) {
+    if (data instanceof Uint8Array) {
       strData = new TextDecoder().decode(data);
     }
-    if(data instanceof Buffer) {
+    if (data instanceof Buffer) {
       strData = data.toString();
     }
     const signature = await web3.wallet.signMessage(strData);
