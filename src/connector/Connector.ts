@@ -83,18 +83,20 @@ class Connector {
    *
    */
   public constructor() {
-    this.pendingRequests = new Map<string, CallbackFunction>();
-    this.massaStationListener = new MassaStationDiscovery();
-    this.initMassaStationListener();
-    this.register();
+    if (typeof document !== 'undefined') {
+      this.pendingRequests = new Map<string, CallbackFunction>();
+      this.massaStationListener = new MassaStationDiscovery();
+      this.initMassaStationListener();
+      this.register();
 
-    // start listening to messages from content script
-    document
-      .getElementById(MASSA_WINDOW_OBJECT)
-      .addEventListener(
-        'message',
-        this.handleResponseFromContentScript.bind(this),
-      );
+      // start listening to messages from content script
+      document
+        .getElementById(MASSA_WINDOW_OBJECT)
+        .addEventListener(
+          'message',
+          this.handleResponseFromContentScript.bind(this),
+        );
+    }
   }
 
   /**
@@ -110,23 +112,26 @@ class Connector {
    */
   private register() {
     // global event target to use for all wallet provider
-    if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
-      const inv = document.createElement('p');
-      inv.id = MASSA_WINDOW_OBJECT;
-      inv.setAttribute('style', 'display:none');
-      document.body.appendChild(inv);
-    }
+    // check if document exist
+    if (typeof document !== 'undefined') {
+      if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
+        const inv = document.createElement('p');
+        inv.id = MASSA_WINDOW_OBJECT;
+        inv.setAttribute('style', 'display:none');
+        document.body.appendChild(inv);
+      }
 
-    // add an invisible HTML element and set a listener to it like the following
-    // hook up register handler
-    document
-      .getElementById(MASSA_WINDOW_OBJECT)
-      .addEventListener('register', (evt: CustomEvent) => {
-        const payload: IRegisterEvent = evt.detail;
-        const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${payload.providerName}`;
-        this.registeredProviders[payload.providerName] =
-          providerEventTargetName;
-      });
+      // add an invisible HTML element and set a listener to it like the following
+      // hook up register handler
+      document
+        .getElementById(MASSA_WINDOW_OBJECT)
+        .addEventListener('register', (evt: CustomEvent) => {
+          const payload: IRegisterEvent = evt.detail;
+          const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${payload.providerName}`;
+          this.registeredProviders[payload.providerName] =
+            providerEventTargetName;
+        });
+    }
   }
 
   private initMassaStationListener() {
@@ -183,7 +188,7 @@ class Connector {
     this.pendingRequests.set(requestId, responseCallback);
 
     // dispatch an event to the specific provider event target
-    const specificProviderEventTarget = document.getElementById(
+    const specificProviderEventTarget = document?.getElementById(
       `${this.registeredProviders[providerName]}`,
     ) as EventTarget;
     if (!specificProviderEventTarget) {
