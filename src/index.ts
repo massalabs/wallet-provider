@@ -101,12 +101,14 @@ function getProviderInstances() {
  * @param id - The id of the HTML element that is used to communicate with the provider.
  */
 export function registerProvider(name: string, id = MASSA_WINDOW_OBJECT): void {
-  const registerEvent = new CustomEvent('register', {
-    detail: { providerName: name },
-  });
-  const element = document.getElementById(id);
-  if (element) {
-    element.dispatchEvent(registerEvent);
+  if (typeof document !== 'undefined') {
+    const registerEvent = new CustomEvent('register', {
+      detail: { providerName: name },
+    });
+    const element = document?.getElementById(id);
+    if (element) {
+      element.dispatchEvent(registerEvent);
+    }
   }
 }
 

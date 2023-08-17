@@ -71,290 +71,291 @@ export abstract class ContentScriptProvider {
     this.listAccounts = this.listAccounts.bind(this);
     this.getNodesUrls = this.getNodesUrls.bind(this);
     this.callSC = this.callSC.bind(this);
-
-    // this is the current provider html element
-    const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
-    if (!document.getElementById(providerEventTargetName)) {
-      const inv = document.createElement('p');
-      inv.id = providerEventTargetName;
-      document.body.appendChild(inv);
+    if(typeof document !== 'undefined'){
+      // this is the current provider html element
+      const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
+      if (!document.getElementById(providerEventTargetName)) {
+        const inv = document.createElement('p');
+        inv.id = providerEventTargetName;
+        document.body.appendChild(inv);
+      }
+  
+      const walletProviderEventTarget = document.getElementById(
+        MASSA_WINDOW_OBJECT,
+      ) as EventTarget;
+      if (!walletProviderEventTarget) {
+        throw new Error(`Wallet Provider Event Target html element with id ${MASSA_WINDOW_OBJECT} not created. 
+        Make sure your "massa-wallet-provider" is already initialized`);
+      }
+  
+      // ======================SIGN===============================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(AvailableCommands.AccountSign, (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.AccountSign)(payload);
+      });
+  
+      // attach handlers for various methods
+      this.attachCallbackHandler(
+        AvailableCommands.AccountSign,
+        async (payload: ICustomEventMessageRequest) => {
+          const accountSignPayload = payload.params as IAccountSignRequest;
+          const respMessage = {
+            result: await this.sign(accountSignPayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+  
+      // ===========================BALANCE============================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(AvailableCommands.AccountBalance, (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.AccountBalance)(payload);
+      });
+  
+      this.attachCallbackHandler(
+        AvailableCommands.AccountBalance,
+        async (payload: ICustomEventMessageRequest) => {
+          const accountBalancePayload = payload.params as IAccountBalanceRequest;
+          const respMessage = {
+            result: await this.balance(accountBalancePayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+      // ============================DELETE ACCOUNT============================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(
+        AvailableCommands.ProviderDeleteAccount,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.ProviderDeleteAccount)(
+            payload,
+          );
+        },
+      );
+  
+      this.attachCallbackHandler(
+        AvailableCommands.ProviderDeleteAccount,
+        async (payload: ICustomEventMessageRequest) => {
+          const accountDeletionPayload =
+            payload.params as IAccountDeletionRequest;
+          const respMessage = {
+            result: await this.deleteAccount(accountDeletionPayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+  
+      // =============================IMPORT ACCOUNT===================================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(
+        AvailableCommands.ProviderImportAccount,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.ProviderImportAccount)(
+            payload,
+          );
+        },
+      );
+  
+      this.attachCallbackHandler(
+        AvailableCommands.ProviderImportAccount,
+        async (payload: ICustomEventMessageRequest) => {
+          const accountImportPayload = payload.params as IAccountImportRequest;
+          const respMessage = {
+            result: await this.importAccount(accountImportPayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+      // ==============================LIST ACCOUNTS==================================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(
+        AvailableCommands.ProviderListAccounts,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.ProviderListAccounts)(
+            payload,
+          );
+        },
+      );
+  
+      this.attachCallbackHandler(
+        AvailableCommands.ProviderListAccounts,
+        async (payload: ICustomEventMessageRequest) => {
+          const respMessage = {
+            result: await this.listAccounts(),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+  
+      // ==============================BUY ROLLS==================================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(
+        AvailableCommands.AccountBuyRolls,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.AccountBuyRolls)(payload);
+        },
+      );
+  
+      this.attachCallbackHandler(
+        AvailableCommands.AccountBuyRolls,
+        async (payload: ICustomEventMessageRequest) => {
+          const rollOperationPayload = payload.params as IRollOperations;
+          const respMessage = {
+            result: await this.buyRolls(rollOperationPayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+      // ==============================SELL ROLLS==================================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(
+        AvailableCommands.AccountSellRolls,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.AccountSellRolls)(payload);
+        },
+      );
+  
+      this.attachCallbackHandler(
+        AvailableCommands.AccountSellRolls,
+        async (payload: ICustomEventMessageRequest) => {
+          const rollOperationPayload = payload.params as IRollOperations;
+          const respMessage = {
+            result: await this.sellRolls(rollOperationPayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+  
+      // ==============================SEND TRANSACTION==================================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(
+        AvailableCommands.AccountSendTransaction,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.AccountSendTransaction)(
+            payload,
+          );
+        },
+      );
+  
+      this.attachCallbackHandler(
+        AvailableCommands.AccountSendTransaction,
+        async (payload: ICustomEventMessageRequest) => {
+          const rollOperationPayload = payload.params as ISendTransactionRequest;
+          const respMessage = {
+            result: await this.sendTransaction(rollOperationPayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+  
+      // ==============================CALL SC==================================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(AvailableCommands.AccountCallSC, (evt: CustomEvent) => {
+        const payload: ICustomEventMessageRequest = evt.detail;
+        this.actionToCallback.get(AvailableCommands.AccountCallSC)(payload);
+      });
+  
+      this.attachCallbackHandler(
+        AvailableCommands.AccountCallSC,
+        async (payload: ICustomEventMessageRequest) => {
+          const operationPayload = payload.params as IAccountCallSCRequest;
+          const respMessage = {
+            result: await this.callSC(operationPayload),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
+  
+      // ==============================GET NODES URLS==================================
+      (
+        document.getElementById(providerEventTargetName) as EventTarget
+      ).addEventListener(
+        AvailableCommands.ProviderGetNodesUrls,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.ProviderGetNodesUrls)(
+            payload,
+          );
+        },
+      );
+  
+      this.attachCallbackHandler(
+        AvailableCommands.ProviderGetNodesUrls,
+        async (payload: ICustomEventMessageRequest) => {
+          const respMessage = {
+            result: await this.getNodesUrls(),
+            error: null,
+            requestId: payload.requestId,
+          } as ICustomEventMessageResponse;
+          // answer to the message target
+          walletProviderEventTarget.dispatchEvent(
+            new CustomEvent('message', detailWrapper({ detail: respMessage })),
+          );
+        },
+      );
     }
-
-    const walletProviderEventTarget = document.getElementById(
-      MASSA_WINDOW_OBJECT,
-    ) as EventTarget;
-    if (!walletProviderEventTarget) {
-      throw new Error(`Wallet Provider Event Target html element with id ${MASSA_WINDOW_OBJECT} not created. 
-      Make sure your "massa-wallet-provider" is already initialized`);
-    }
-
-    // ======================SIGN===============================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(AvailableCommands.AccountSign, (evt: CustomEvent) => {
-      const payload: ICustomEventMessageRequest = evt.detail;
-      this.actionToCallback.get(AvailableCommands.AccountSign)(payload);
-    });
-
-    // attach handlers for various methods
-    this.attachCallbackHandler(
-      AvailableCommands.AccountSign,
-      async (payload: ICustomEventMessageRequest) => {
-        const accountSignPayload = payload.params as IAccountSignRequest;
-        const respMessage = {
-          result: await this.sign(accountSignPayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-
-    // ===========================BALANCE============================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(AvailableCommands.AccountBalance, (evt: CustomEvent) => {
-      const payload: ICustomEventMessageRequest = evt.detail;
-      this.actionToCallback.get(AvailableCommands.AccountBalance)(payload);
-    });
-
-    this.attachCallbackHandler(
-      AvailableCommands.AccountBalance,
-      async (payload: ICustomEventMessageRequest) => {
-        const accountBalancePayload = payload.params as IAccountBalanceRequest;
-        const respMessage = {
-          result: await this.balance(accountBalancePayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-    // ============================DELETE ACCOUNT============================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.ProviderDeleteAccount,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.ProviderDeleteAccount)(
-          payload,
-        );
-      },
-    );
-
-    this.attachCallbackHandler(
-      AvailableCommands.ProviderDeleteAccount,
-      async (payload: ICustomEventMessageRequest) => {
-        const accountDeletionPayload =
-          payload.params as IAccountDeletionRequest;
-        const respMessage = {
-          result: await this.deleteAccount(accountDeletionPayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-
-    // =============================IMPORT ACCOUNT===================================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.ProviderImportAccount,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.ProviderImportAccount)(
-          payload,
-        );
-      },
-    );
-
-    this.attachCallbackHandler(
-      AvailableCommands.ProviderImportAccount,
-      async (payload: ICustomEventMessageRequest) => {
-        const accountImportPayload = payload.params as IAccountImportRequest;
-        const respMessage = {
-          result: await this.importAccount(accountImportPayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-    // ==============================LIST ACCOUNTS==================================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.ProviderListAccounts,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.ProviderListAccounts)(
-          payload,
-        );
-      },
-    );
-
-    this.attachCallbackHandler(
-      AvailableCommands.ProviderListAccounts,
-      async (payload: ICustomEventMessageRequest) => {
-        const respMessage = {
-          result: await this.listAccounts(),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-
-    // ==============================BUY ROLLS==================================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.AccountBuyRolls,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.AccountBuyRolls)(payload);
-      },
-    );
-
-    this.attachCallbackHandler(
-      AvailableCommands.AccountBuyRolls,
-      async (payload: ICustomEventMessageRequest) => {
-        const rollOperationPayload = payload.params as IRollOperations;
-        const respMessage = {
-          result: await this.buyRolls(rollOperationPayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-    // ==============================SELL ROLLS==================================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.AccountSellRolls,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.AccountSellRolls)(payload);
-      },
-    );
-
-    this.attachCallbackHandler(
-      AvailableCommands.AccountSellRolls,
-      async (payload: ICustomEventMessageRequest) => {
-        const rollOperationPayload = payload.params as IRollOperations;
-        const respMessage = {
-          result: await this.sellRolls(rollOperationPayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-
-    // ==============================SEND TRANSACTION==================================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.AccountSendTransaction,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.AccountSendTransaction)(
-          payload,
-        );
-      },
-    );
-
-    this.attachCallbackHandler(
-      AvailableCommands.AccountSendTransaction,
-      async (payload: ICustomEventMessageRequest) => {
-        const rollOperationPayload = payload.params as ISendTransactionRequest;
-        const respMessage = {
-          result: await this.sendTransaction(rollOperationPayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-
-    // ==============================CALL SC==================================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(AvailableCommands.AccountCallSC, (evt: CustomEvent) => {
-      const payload: ICustomEventMessageRequest = evt.detail;
-      this.actionToCallback.get(AvailableCommands.AccountCallSC)(payload);
-    });
-
-    this.attachCallbackHandler(
-      AvailableCommands.AccountCallSC,
-      async (payload: ICustomEventMessageRequest) => {
-        const operationPayload = payload.params as IAccountCallSCRequest;
-        const respMessage = {
-          result: await this.callSC(operationPayload),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
-
-    // ==============================GET NODES URLS==================================
-    (
-      document.getElementById(providerEventTargetName) as EventTarget
-    ).addEventListener(
-      AvailableCommands.ProviderGetNodesUrls,
-      (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.ProviderGetNodesUrls)(
-          payload,
-        );
-      },
-    );
-
-    this.attachCallbackHandler(
-      AvailableCommands.ProviderGetNodesUrls,
-      async (payload: ICustomEventMessageRequest) => {
-        const respMessage = {
-          result: await this.getNodesUrls(),
-          error: null,
-          requestId: payload.requestId,
-        } as ICustomEventMessageResponse;
-        // answer to the message target
-        walletProviderEventTarget.dispatchEvent(
-          new CustomEvent('message', detailWrapper({ detail: respMessage })),
-        );
-      },
-    );
   }
   // =======================================================================
   private attachCallbackHandler(
@@ -367,7 +368,10 @@ export abstract class ContentScriptProvider {
   public static async registerAsMassaWalletProvider(
     providerName: string,
   ): Promise<boolean> {
+    if(typeof document !== 'undefined') return new Promise((resolve) => resolve(false));
+
     return withTimeoutRejection<boolean>(
+
       new Promise((resolve) => {
         const registerProvider = () => {
           if (!document.getElementById(MASSA_WINDOW_OBJECT)) {
