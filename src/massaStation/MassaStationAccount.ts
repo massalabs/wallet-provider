@@ -138,12 +138,6 @@ export class MassaStationAccount implements IAccount {
   public async sign(
     data: Buffer | Uint8Array | string,
   ): Promise<IAccountSignResponse> {
-    if (data instanceof Buffer) {
-      data = data.toString();
-    }
-    if (data instanceof Uint8Array) {
-      data = new TextDecoder().decode(data);
-    }
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
