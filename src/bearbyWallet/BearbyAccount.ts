@@ -128,8 +128,8 @@ export class BearbyAccount implements IAccount {
     const signature = await web3.wallet.signMessage(strData);
     return {
       publicKey: signature.publicKey,
-      signature: decode(signature.signature),
-    } as IAccountSignResponse;
+      base58encoded: signature.signature,
+    };
   }
 
   // need testing

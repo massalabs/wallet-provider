@@ -12,5 +12,5 @@ export interface IAccountSignRequest {
  */
 export interface IAccountSignResponse {
   publicKey: string;
-  signature: Uint8Array;
+  base58encoded: string;
 }
