@@ -1,7 +1,6 @@
 import * as unsigned from './unsigned';
 
 /**
- * @module Signed
  *
  * This module provides functions to encode and decode signed
  * integers using Varint, which is a compact binary representation of integers.

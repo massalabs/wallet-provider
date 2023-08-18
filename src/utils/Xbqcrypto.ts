@@ -6,7 +6,6 @@ import { blake3 } from '@noble/hashes/blake3';
  * This module provides several functions for encoding and decoding data in various formats, including
  * `base58`, `varint`, and `blake3 hashes`.
  *
- * @module Xbqcrypto.ts
  */
 
 import { unsignedBigIntUtils } from './encode_decode_int';
