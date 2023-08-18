@@ -138,12 +138,6 @@ export class MassaStationAccount implements IAccount {
   public async sign(
     data: Buffer | Uint8Array | string,
   ): Promise<IAccountSignResponse> {
-    if (data instanceof Buffer) {
-      data = data.toString();
-    }
-    if (data instanceof Uint8Array) {
-      data = new TextDecoder().decode(data);
-    }
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
@@ -160,7 +154,14 @@ export class MassaStationAccount implements IAccount {
     if (signOpResponse.isError || signOpResponse.error) {
       throw signOpResponse.error;
     }
-    return signOpResponse.result;
+    // convert signOpResponse.result.signature to Uint8Array
+    const signature = new Uint8Array(
+      Buffer.from(signOpResponse.result.signature),
+    );
+    return {
+      publicKey: signOpResponse.result.publicKey,
+      signature: signature,
+    };
   }
 
   /**
