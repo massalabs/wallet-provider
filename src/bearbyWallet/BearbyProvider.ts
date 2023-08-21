@@ -26,9 +26,11 @@ export class BearbyProvider implements IProvider {
 
   public async accounts(): Promise<IAccount[]> {
     // check if bearby is unlocked
-    if (!web3.wallet.enabled) {
+    if (!web3.wallet.connected) {
       await web3.wallet.connect();
     }
+
+    console.log('web3.wallet.account.base58', web3.wallet);
 
     const account = {
       address: await web3.wallet.account.base58,
