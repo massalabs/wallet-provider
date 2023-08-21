@@ -18,6 +18,7 @@ import {
 
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { base58Encode } from '../utils/Xbqcrypto';
+import { IAccountSignOutput } from '../account/AccountSign';
 
 /**
  * The maximum allowed gas for a read operation
@@ -138,7 +139,7 @@ export class MassaStationAccount implements IAccount {
    */
   public async sign(
     data: Buffer | Uint8Array | string,
-  ): Promise<IAccountSignResponse> {
+  ): Promise<IAccountSignOutput> {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
@@ -157,11 +158,11 @@ export class MassaStationAccount implements IAccount {
     }
     // convert signOpResponse.result.signature to Uint8Array
     const signature = base58Encode(
-      Buffer.from(signOpResponse.result.base58encoded),
+      Buffer.from(signOpResponse.result.signature),
     );
     return {
       publicKey: signOpResponse.result.publicKey,
-      base58encoded: signature,
+      base58Encoded: signature,
     };
   }
 
