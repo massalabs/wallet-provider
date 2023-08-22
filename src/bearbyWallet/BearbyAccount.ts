@@ -117,7 +117,7 @@ export class BearbyAccount implements IAccount {
     data: Buffer | Uint8Array | string,
   ): Promise<IAccountSignResponse> {
     await this.connect();
-    const encoder = new TextEncoder();
+
     let strData: string;
     if (data instanceof Uint8Array) {
       strData = new TextDecoder().decode(data);
