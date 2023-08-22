@@ -141,6 +141,7 @@ export class MassaStationAccount implements IAccount {
     data: Buffer | Uint8Array | string,
   ): Promise<IAccountSignOutput> {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
+
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
         `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/sign`,
@@ -153,13 +154,15 @@ export class MassaStationAccount implements IAccount {
       console.error(`MassaStation account signing error`);
       throw ex;
     }
+
     if (signOpResponse.isError || signOpResponse.error) {
       throw signOpResponse.error;
     }
-    // convert signOpResponse.result.signature to Uint8Array
+
     const signature = base58Encode(
-      Buffer.from(signOpResponse.result.signature),
+      Buffer.from(signOpResponse.result.signature, 'base64'),
     );
+
     return {
       publicKey: signOpResponse.result.publicKey,
       base58Encoded: signature,
