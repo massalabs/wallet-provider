@@ -19,12 +19,8 @@ import { BalanceResponse } from './BalanceResponse';
 import { NodeStatus } from './NodeStatus';
 import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
-<<<<<<< HEAD
 import { decode } from 'bs58check';
-=======
 import { IAccountSignOutput } from '../account/AccountSign';
-
->>>>>>> 30d2c69 (fix)
 /**
  * The maximum allowed gas for a read operation
  */
