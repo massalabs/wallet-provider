@@ -20,6 +20,7 @@ import { NodeStatus } from './NodeStatus';
 import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import { decode } from 'bs58check';
+import { IAccountSignOutput } from '../account/AccountSign';
 /**
  * The maximum allowed gas for a read operation
  */
@@ -115,7 +116,7 @@ export class BearbyAccount implements IAccount {
   // need testing
   public async sign(
     data: Buffer | Uint8Array | string,
-  ): Promise<IAccountSignResponse> {
+  ): Promise<IAccountSignOutput> {
     await this.connect();
 
     let strData: string;
@@ -128,8 +129,8 @@ export class BearbyAccount implements IAccount {
     const signature = await web3.wallet.signMessage(strData);
     return {
       publicKey: signature.publicKey,
-      signature: decode(signature.signature),
-    } as IAccountSignResponse;
+      base58Encoded: signature.signature,
+    };
   }
 
   // need testing

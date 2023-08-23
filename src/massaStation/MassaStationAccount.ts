@@ -17,6 +17,8 @@ import {
 } from '@massalabs/web3-utils';
 
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
+import { IAccountSignOutput } from '../account/AccountSign';
+import { encode as base58Encode } from 'bs58check';
 
 /**
  * The maximum allowed gas for a read operation
@@ -137,8 +139,9 @@ export class MassaStationAccount implements IAccount {
    */
   public async sign(
     data: Buffer | Uint8Array | string,
-  ): Promise<IAccountSignResponse> {
+  ): Promise<IAccountSignOutput> {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
+
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
         `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/sign`,
@@ -151,16 +154,18 @@ export class MassaStationAccount implements IAccount {
       console.error(`MassaStation account signing error`);
       throw ex;
     }
+
     if (signOpResponse.isError || signOpResponse.error) {
       throw signOpResponse.error;
     }
-    // convert signOpResponse.result.signature to Uint8Array
-    const signature = new Uint8Array(
-      Buffer.from(signOpResponse.result.signature),
+
+    const signature = base58Encode(
+      Buffer.from(signOpResponse.result.signature, 'base64'),
     );
+
     return {
       publicKey: signOpResponse.result.publicKey,
-      signature: signature,
+      base58Encoded: signature,
     };
   }
 

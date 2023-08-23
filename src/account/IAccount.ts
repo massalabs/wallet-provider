@@ -1,6 +1,6 @@
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse } from './AccountBalance';
-import { IAccountSignResponse } from './AccountSign';
+import { IAccountSignOutput } from './AccountSign';
 import { Args } from '@massalabs/web3-utils';
 
 /**
@@ -12,7 +12,7 @@ export interface IAccount {
   name(): string;
   providerName(): string;
   balance(): Promise<IAccountBalanceResponse>;
-  sign(data: Buffer | Uint8Array | string): Promise<IAccountSignResponse>;
+  sign(data: Buffer | Uint8Array | string): Promise<IAccountSignOutput>;
   buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
   sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
   sendTransaction(

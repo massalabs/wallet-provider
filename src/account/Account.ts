@@ -2,7 +2,7 @@ import {
   IAccountBalanceRequest,
   IAccountBalanceResponse,
 } from './AccountBalance';
-import { IAccountSignRequest, IAccountSignResponse } from './AccountSign';
+import { IAccountSignOutput, IAccountSignRequest } from './AccountSign';
 import { connector } from '../connector/Connector';
 import { IAccountDetails } from './IAccountDetails';
 import { AvailableCommands, ITransactionDetails } from '..';
@@ -89,15 +89,15 @@ export class Account implements IAccount {
    * @param data - The message to be signed.
    * @returns An IAccountSignResponse object. It contains the signature of the message.
    */
-  public async sign(data: Buffer | Uint8Array): Promise<IAccountSignResponse> {
-    return new Promise<IAccountSignResponse>((resolve, reject) => {
+  public async sign(data: Buffer | Uint8Array): Promise<IAccountSignOutput> {
+    return new Promise<IAccountSignOutput>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountSign,
         { address: this._address, data } as IAccountSignRequest,
         (result, err) => {
           if (err) return reject(err);
-          return resolve(result as IAccountSignResponse);
+          return resolve(result as IAccountSignOutput);
         },
       );
     });
