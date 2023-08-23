@@ -2,11 +2,7 @@ import {
   IAccountBalanceRequest,
   IAccountBalanceResponse,
 } from './AccountBalance';
-import {
-  IAccountSignOutput,
-  IAccountSignRequest,
-  IAccountSignResponse,
-} from './AccountSign';
+import { IAccountSignOutput, IAccountSignRequest } from './AccountSign';
 import { connector } from '../connector/Connector';
 import { IAccountDetails } from './IAccountDetails';
 import { AvailableCommands, ITransactionDetails } from '..';

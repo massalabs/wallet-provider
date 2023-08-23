@@ -17,8 +17,8 @@ import {
 } from '@massalabs/web3-utils';
 
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
-import { base58Encode } from '../utils/Xbqcrypto';
 import { IAccountSignOutput } from '../account/AccountSign';
+import { encode as base58Encode } from 'bs58check';
 
 /**
  * The maximum allowed gas for a read operation
