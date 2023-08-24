@@ -139,15 +139,10 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     await this.connect();
-    const signedTx = await web3.wallet.signTransaction({
-      type: OperationsType.RollBuy,
-      amount: amount.toString(),
-      fee: fee.toString(),
-      payload: '', // TODO: check how do we have to set it
-    });
+    const operationId = await web3.massa.buyRolls(amount.toString());
 
     return {
-      operationId: signedTx,
+      operationId,
     } as ITransactionDetails;
   }
 
@@ -157,14 +152,10 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     await this.connect();
-    const signedTx = await web3.wallet.signTransaction({
-      type: OperationsType.RollSell,
-      amount: amount.toString(),
-      fee: fee.toString(),
-      payload: '', // TODO: check how do we have to set it
-    });
+    const operationId = await web3.massa.sellRolls(amount.toString());
+
     return {
-      operationId: signedTx,
+      operationId,
     } as ITransactionDetails;
   }
 
@@ -174,16 +165,14 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     await this.connect();
-    const signedTx = await web3.wallet.signTransaction({
-      type: OperationsType.Payment,
-      amount: amount.toString(),
-      recipient: recipientAddress,
-      fee: fee.toString(),
-      payload: '',
-    });
+
+    const operationId = await web3.massa.payment(
+      amount.toString(),
+      recipientAddress,
+    );
 
     return {
-      operationId: signedTx,
+      operationId,
     } as ITransactionDetails;
   }
 
