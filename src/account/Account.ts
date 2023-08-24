@@ -87,7 +87,7 @@ export class Account implements IAccount {
    * This method aims to sign a message.
    *
    * @param data - The message to be signed.
-   * @returns An IAccountSignResponse object. It contains the signature of the message.
+   * @returns An IAccountSignOutput object. It contains the signature of the message.
    */
   public async sign(data: Buffer | Uint8Array): Promise<IAccountSignOutput> {
     return new Promise<IAccountSignOutput>((resolve, reject) => {
