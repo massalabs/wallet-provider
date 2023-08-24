@@ -248,6 +248,7 @@ export class MassaStationAccount implements IAccount {
       amount: amount.toString(),
       recipientAddress: recipientAddress,
     };
+
     try {
       sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
     } catch (ex) {

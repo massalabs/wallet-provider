@@ -174,16 +174,14 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
   ): Promise<ITransactionDetails> {
     await this.connect();
-    const signedTx = await web3.wallet.signTransaction({
-      type: OperationsType.Payment,
-      amount: amount.toString(),
-      recipient: recipientAddress,
-      fee: fee.toString(),
-      payload: '',
-    });
+
+    const operationId = await web3.massa.payment(
+      amount.toString(),
+      recipientAddress,
+    );
 
     return {
-      operationId: signedTx,
+      operationId,
     } as ITransactionDetails;
   }
 
