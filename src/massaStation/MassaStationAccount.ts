@@ -317,6 +317,7 @@ export class MassaStationAccount implements IAccount {
       at: contractAddress,
       args: args,
       coins: Number(amount),
+      async: true,
     };
     try {
       CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
