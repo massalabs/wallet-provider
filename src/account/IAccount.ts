@@ -1,7 +1,8 @@
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse } from './AccountBalance';
 import { IAccountSignOutput } from './AccountSign';
-import { Args } from '@massalabs/web3-utils';
+import { Args, IContractReadOperationResponse } from '@massalabs/web3-utils';
+import { IContractData } from './IContractData';
 
 /**
  * This interface represents an Account object.
@@ -28,5 +29,6 @@ export interface IAccount {
     fee: bigint,
     maxGas: bigint,
     nonPersistentExecution?: boolean,
-  );
+  ): Promise<ITransactionDetails | IContractReadOperationResponse>;
+  deploySC(contractData: IContractData): Promise<ITransactionDetails>;
 }

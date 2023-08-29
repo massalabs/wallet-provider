@@ -21,6 +21,7 @@ import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import { decode } from 'bs58check';
 import { IAccountSignOutput } from '../account/AccountSign';
+import { IContractData } from '../account/IContractData';
 /**
  * The maximum allowed gas for a read operation
  */
@@ -397,5 +398,13 @@ export class BearbyAccount implements IAccount {
       returnValue: new Uint8Array(jsonRpcCallResult[0].result[0].result.Ok),
       info: jsonRpcCallResult[0],
     };
+  }
+
+  public async deploySC(
+    contractData: IContractData,
+  ): Promise<ITransactionDetails> {
+    throw new Error(
+      'Method not implemented by bearby wallet. Please use Massa Station',
+    );
   }
 }

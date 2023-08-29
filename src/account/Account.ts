@@ -11,6 +11,7 @@ import { IAccountRollsRequest } from './IAccountRolls';
 import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
 import { IAccountCallSCRequest } from './IAccountCallSCRequest';
 import { Args, IContractReadOperationResponse } from '@massalabs/web3-utils';
+import { IContractData } from './IContractData';
 
 /**
  * This module contains the Account class. It is responsible for representing an account in the wallet.
@@ -236,6 +237,22 @@ export class Account implements IAccount {
               ? (result as IContractReadOperationResponse)
               : (result as ITransactionDetails),
           );
+        },
+      );
+    });
+  }
+
+  public async deploySC(
+    contractData: IContractData,
+  ): Promise<ITransactionDetails> {
+    return new Promise<ITransactionDetails>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this._providerName,
+        AvailableCommands.AccountDeploySC,
+        contractData,
+        (result, err) => {
+          if (err) return reject(err);
+          return resolve(result as ITransactionDetails);
         },
       );
     });

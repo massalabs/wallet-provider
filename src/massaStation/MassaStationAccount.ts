@@ -19,6 +19,7 @@ import {
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { IAccountSignOutput } from '../account/AccountSign';
 import { encode as base58Encode } from 'bs58check';
+import { IContractData } from '../account/IContractData';
 
 /**
  * The maximum allowed gas for a read operation
@@ -423,5 +424,39 @@ export class MassaStationAccount implements IAccount {
       returnValue: new Uint8Array(jsonRpcCallResult[0].result[0].result.Ok),
       info: jsonRpcCallResult[0],
     };
+  }
+
+  public async deploySC(
+    contractData: IContractData,
+  ): Promise<ITransactionDetails> {
+    let sendTxOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
+    const url = `${MASSA_STATION_URL}cmd/executeFunction`;
+    let dataStore = '';
+    if (contractData.datastore) {
+      dataStore = JSON.stringify(Array.from(contractData.datastore.entries()));
+    }
+    const body = {
+      walletNickname: this._name,
+      smartContract: contractData.contractDataBinary,
+      gasPrice: Number(contractData.gasPrice),
+      gasLimit: Number(contractData.maxGas),
+      coins: Number(contractData.maxCoins),
+      expiry: contractData.expiry,
+      fee: Number(contractData.fee),
+      datastore: dataStore,
+    };
+
+    try {
+      sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
+    } catch (ex) {
+      console.error(
+        `MassaStation account: error while sending transaction: ${ex}`,
+      );
+      throw ex;
+    }
+    if (sendTxOpResponse.isError || sendTxOpResponse.error) {
+      throw sendTxOpResponse.error;
+    }
+    return sendTxOpResponse.result;
   }
 }

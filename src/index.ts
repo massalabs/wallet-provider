@@ -35,6 +35,7 @@ export enum AvailableCommands {
   AccountBuyRolls = 'ACCOUNT_BUY_ROLLS',
   AccountSendTransaction = 'ACCOUNT_SEND_TRANSACTION',
   AccountCallSC = 'ACCOUNT_CALL_SC',
+  AccountDeploySC = 'ACCOUNT_DEPLOY_SC',
 }
 
 export interface ITransactionDetails {
