@@ -433,7 +433,15 @@ export class MassaStationAccount implements IAccount {
     const url = `${MASSA_STATION_URL}cmd/executeFunction`;
     let dataStore = '';
     if (contractData.datastore) {
-      dataStore = JSON.stringify(Array.from(contractData.datastore.entries()));
+      dataStore = base58Encode(
+        Buffer.from(
+          JSON.stringify(
+            Array.from(
+              contractData.datastore.entries()
+            )
+          )
+        )
+      );
     }
     const body = {
       walletNickname: this._name,
