@@ -2,7 +2,6 @@ name: CI tests
 on: [push]
 jobs:
   unit-tests:
-    if: false
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.32.0-focal
