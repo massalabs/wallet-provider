@@ -42,20 +42,20 @@ class MassaSpaceWalletImpl {
       return ['http://localhost:1234', 'https://massa-nodes.net'];
     } else if (request.action === 'buyRolls') {
       return {
-        operationId: "ABC"
-       }
+        operationId: 'ABC',
+      };
     } else if (request.action === 'sellRolls') {
       return {
-        operationId: "XYZ"
-        }
+        operationId: 'XYZ',
+      };
     } else if (request.action === 'sendTransaction') {
       return {
-        operationId: "MNP"
-        }
+        operationId: 'MNP',
+      };
     } else if (request.action === 'callSC') {
       return {
-        operationId: "RST"
-        }
+        operationId: 'RST',
+      };
     } else {
       return undefined;
     }

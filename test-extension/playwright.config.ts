@@ -44,7 +44,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run test:serve-dapp',
+    command: 'npm run test-extension:serve-dapp',
     port: 9009,
   },
 });

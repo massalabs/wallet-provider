@@ -49,7 +49,7 @@ const WALLET_PROVIDER_NAME = 'SPACE_X';
     }
     async generateNewAccount(payload) {
       return {
-        name: "new-account",
+        name: 'new-account',
         address: '0x1234',
       };
     }

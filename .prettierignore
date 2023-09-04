@@ -9,5 +9,5 @@ dist
 *.md
 *.html
 *.css
-test/simple-browser-extension
+test-extension/simple-browser-extension
 

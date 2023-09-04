@@ -1143,7 +1143,10 @@ not convert using browserify */
             exports.encrypt = function (publicKeyTo, msg, opts) {
               opts = opts || {};
               // Tmp variables to save context from flat promises;
-              var iv; var ephemPublicKey; var ciphertext; var macKey;
+              var iv;
+              var ephemPublicKey;
+              var ciphertext;
+              var macKey;
               return new Promise(function (resolve) {
                 var ephemPrivateKey = opts.ephemPrivateKey || randomBytes(32);
                 // There is a very unlikely possibility that it is not a valid key
@@ -5404,7 +5407,8 @@ not convert using browserify */
               this.words[i] = 0;
             }
 
-            var j; var w;
+            var j;
+            var w;
             var off = 0;
             if (endian === 'be') {
               for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
@@ -5822,7 +5826,8 @@ not convert using browserify */
             var littleEndian = endian === 'le';
             var res = new ArrayType(reqLength);
 
-            var b; var i;
+            var b;
+            var i;
             var q = this.clone();
             if (!littleEndian) {
               // Assume big-endian
@@ -6158,7 +6163,8 @@ not convert using browserify */
             }
 
             // a.length > b.length
-            var a; var b;
+            var a;
+            var b;
             if (this.length > num.length) {
               a = this;
               b = num;
@@ -6242,7 +6248,8 @@ not convert using browserify */
             }
 
             // a > b
-            var a; var b;
+            var a;
+            var b;
             if (cmp > 0) {
               a = this;
               b = num;
@@ -7678,7 +7685,9 @@ not convert using browserify */
               };
             }
 
-            var div; var mod; var res;
+            var div;
+            var mod;
+            var res;
             if (this.negative !== 0 && num.negative === 0) {
               res = this.neg().divmod(num, mode);
 
@@ -11654,11 +11663,11 @@ not convert using browserify */
             var _require$codes = require('../errors').codes;
             var ERR_INVALID_ARG_TYPE = _require$codes.ERR_INVALID_ARG_TYPE;
             var ERR_STREAM_PUSH_AFTER_EOF =
-                _require$codes.ERR_STREAM_PUSH_AFTER_EOF;
+              _require$codes.ERR_STREAM_PUSH_AFTER_EOF;
             var ERR_METHOD_NOT_IMPLEMENTED =
-                _require$codes.ERR_METHOD_NOT_IMPLEMENTED;
+              _require$codes.ERR_METHOD_NOT_IMPLEMENTED;
             var ERR_STREAM_UNSHIFT_AFTER_END_EVENT =
-                _require$codes.ERR_STREAM_UNSHIFT_AFTER_END_EVENT; // Lazy loaded to improve the startup performance.
+              _require$codes.ERR_STREAM_UNSHIFT_AFTER_END_EVENT; // Lazy loaded to improve the startup performance.
 
             var StringDecoder;
             var createReadableStreamAsyncIterator;
@@ -13019,12 +13028,12 @@ not convert using browserify */
 
         var _require$codes = require('../errors').codes;
         var ERR_METHOD_NOT_IMPLEMENTED =
-            _require$codes.ERR_METHOD_NOT_IMPLEMENTED;
+          _require$codes.ERR_METHOD_NOT_IMPLEMENTED;
         var ERR_MULTIPLE_CALLBACK = _require$codes.ERR_MULTIPLE_CALLBACK;
         var ERR_TRANSFORM_ALREADY_TRANSFORMING =
-            _require$codes.ERR_TRANSFORM_ALREADY_TRANSFORMING;
+          _require$codes.ERR_TRANSFORM_ALREADY_TRANSFORMING;
         var ERR_TRANSFORM_WITH_LENGTH_0 =
-            _require$codes.ERR_TRANSFORM_WITH_LENGTH_0;
+          _require$codes.ERR_TRANSFORM_WITH_LENGTH_0;
 
         var Duplex = require('./_stream_duplex');
 
@@ -13296,13 +13305,13 @@ not convert using browserify */
             var _require$codes = require('../errors').codes;
             var ERR_INVALID_ARG_TYPE = _require$codes.ERR_INVALID_ARG_TYPE;
             var ERR_METHOD_NOT_IMPLEMENTED =
-                _require$codes.ERR_METHOD_NOT_IMPLEMENTED;
+              _require$codes.ERR_METHOD_NOT_IMPLEMENTED;
             var ERR_MULTIPLE_CALLBACK = _require$codes.ERR_MULTIPLE_CALLBACK;
             var ERR_STREAM_CANNOT_PIPE = _require$codes.ERR_STREAM_CANNOT_PIPE;
             var ERR_STREAM_DESTROYED = _require$codes.ERR_STREAM_DESTROYED;
             var ERR_STREAM_NULL_VALUES = _require$codes.ERR_STREAM_NULL_VALUES;
             var ERR_STREAM_WRITE_AFTER_END =
-                _require$codes.ERR_STREAM_WRITE_AFTER_END;
+              _require$codes.ERR_STREAM_WRITE_AFTER_END;
             var ERR_UNKNOWN_ENCODING = _require$codes.ERR_UNKNOWN_ENCODING;
 
             var errorOrDestroy = destroyImpl.errorOrDestroy;
@@ -19619,7 +19628,8 @@ not convert using browserify */
               this.words[i] = 0;
             }
 
-            var j; var w;
+            var j;
+            var w;
             var off = 0;
             if (endian === 'be') {
               for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
@@ -20472,7 +20482,8 @@ not convert using browserify */
             }
 
             // a.length > b.length
-            var a; var b;
+            var a;
+            var b;
             if (this.length > num.length) {
               a = this;
               b = num;
@@ -20556,7 +20567,8 @@ not convert using browserify */
             }
 
             // a > b
-            var a; var b;
+            var a;
+            var b;
             if (cmp > 0) {
               a = this;
               b = num;
@@ -21997,7 +22009,9 @@ not convert using browserify */
               };
             }
 
-            var div; var mod; var res;
+            var div;
+            var mod;
+            var res;
             if (this.negative !== 0 && num.negative === 0) {
               res = this.neg().divmod(num, mode);
 
@@ -23229,7 +23243,10 @@ not convert using browserify */
           var s1 = M[1] ^ keySchedule[1];
           var s2 = M[2] ^ keySchedule[2];
           var s3 = M[3] ^ keySchedule[3];
-          var t0; var t1; var t2; var t3;
+          var t0;
+          var t1;
+          var t2;
+          var t3;
           var ksRow = 4;
 
           for (var round = 1; round < nRounds; round++) {
@@ -24032,7 +24049,9 @@ not convert using browserify */
         GHASH.prototype._multiply = function () {
           var Vi = toArray(this.h);
           var Zi = [0, 0, 0, 0];
-          var j; var xi; var lsbVi;
+          var j;
+          var xi;
+          var lsbVi;
           var i = -1;
           while (++i < 128) {
             xi = (this.state[~~(i / 8)] & (1 << (7 - (i % 8)))) !== 0;
@@ -24192,7 +24211,8 @@ not convert using browserify */
           var i = -1;
           var len = 8;
           var out = 0;
-          var bit; var value;
+          var bit;
+          var value;
           while (++i < len) {
             pad = self._cipher.encryptBlock(self._prev);
             bit = byteParam & (1 << (7 - i)) ? 0x80 : 0;
@@ -24634,7 +24654,8 @@ not convert using browserify */
         function createCipher(suite, password) {
           suite = suite.toLowerCase();
 
-          var keyLen; var ivLen;
+          var keyLen;
+          var ivLen;
           if (aesModes[suite]) {
             keyLen = aesModes[suite].key;
             ivLen = aesModes[suite].iv;
@@ -24657,7 +24678,8 @@ not convert using browserify */
         function createDecipher(suite, password) {
           suite = suite.toLowerCase();
 
-          var keyLen; var ivLen;
+          var keyLen;
+          var ivLen;
           if (aesModes[suite]) {
             keyLen = aesModes[suite].key;
             ivLen = aesModes[suite].iv;
@@ -26933,7 +26955,10 @@ not convert using browserify */
                     : 1;
 
                 if (i + bytesPerSequence <= end) {
-                  var secondByte; var thirdByte; var fourthByte; var tempCodePoint;
+                  var secondByte;
+                  var thirdByte;
+                  var fourthByte;
+                  var tempCodePoint;
 
                   switch (bytesPerSequence) {
                     case 1:
@@ -28014,7 +28039,9 @@ not convert using browserify */
              * @param units
              */
             function utf16leToBytes(str, units) {
-              var c; var hi; var lo;
+              var c;
+              var hi;
+              var lo;
               var byteArray = [];
               for (var i = 0; i < str.length; ++i) {
                 if ((units -= 2) < 0) break;
@@ -29641,7 +29668,8 @@ not convert using browserify */
           }
           gen = new BN(gen);
 
-          var num; var n2;
+          var num;
+          var n2;
 
           while (true) {
             num = new BN(randomBytes(Math.ceil(bits / 8)));
@@ -30263,7 +30291,11 @@ not convert using browserify */
           type,
           listener,
         ) {
-          var list; var events; var position; var i; var originalListener;
+          var list;
+          var events;
+          var position;
+          var i;
+          var originalListener;
 
           checkListener(listener);
 
@@ -30312,7 +30344,9 @@ not convert using browserify */
         EventEmitter.prototype.removeAllListeners = function removeAllListeners(
           type,
         ) {
-          var listeners; var events; var i;
+          var listeners;
+          var events;
+          var i;
 
           events = this._events;
           if (events === undefined) return this;
@@ -30853,7 +30887,8 @@ not convert using browserify */
       function (require, module, exports) {
         /* ! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
         exports.read = function (buffer, offset, isLE, mLen, nBytes) {
-          var e; var m;
+          var e;
+          var m;
           var eLen = nBytes * 8 - mLen - 1;
           var eMax = (1 << eLen) - 1;
           var eBias = eMax >> 1;
@@ -30894,7 +30929,9 @@ not convert using browserify */
         };
 
         exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
-          var e; var m; var c;
+          var e;
+          var m;
+          var c;
           var eLen = nBytes * 8 - mLen - 1;
           var eMax = (1 << eLen) - 1;
           var eBias = eMax >> 1;
@@ -31429,7 +31466,8 @@ not convert using browserify */
 
           var type = stripped.tag;
           var data = stripped.data;
-          var subtype; var ndata;
+          var subtype;
+          var ndata;
           switch (type) {
             case 'CERTIFICATE':
               ndata = asn1.certificate.decode(data, 'der').tbsCertificate

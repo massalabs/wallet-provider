@@ -75,6 +75,6 @@ docs
 .env
 
 # Playwright tests results
-test/playwright-tests/playwright-report
+test-extension/playwright-tests/playwright-report
 
-test/runner.js
+test-extension/runner.js
