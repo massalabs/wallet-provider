@@ -12,4 +12,7 @@ module.exports = {
     '^@massalabs/wallet-provider$': '<rootDir>/dist/index.js',
   },
   roots: ['./unit-tests'],
+  testEnvironmentOptions: {
+    url: 'https://station.massa',
+  },
 };
