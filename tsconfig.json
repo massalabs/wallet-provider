@@ -25,9 +25,7 @@
         "strictNullChecks": false,
         "downlevelIteration": true,
         "outDir": "dist",
-        "types": [
-            "node"
-        ],
+        "types": [ "node", "jest" ],
         "typeRoots": [
             "node_modules/@types",
             "./src/types"
