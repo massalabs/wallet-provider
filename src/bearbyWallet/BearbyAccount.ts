@@ -199,22 +199,25 @@ export class BearbyAccount implements IAccount {
 
     if (parameter instanceof Uint8Array) {
       throw new Error(
-        'Bearby wallet does not support Uint8Array as parameter. Please use Args instead',
+        `Bearby wallet does not support Uint8Array as a parameter. 
+        Please use Args instead.`,
       );
     }
-    // setup the params from Args
+
     let params: CallParam[] = [];
     try {
       params = parameter.getArgsList().map((arg) => {
-        return {
-          type: arg.type,
-          value: arg.value,
-        } as CallParam;
+        // Convert bigint values to strings to ensure compatibility with bearbyJs
+        if (typeof arg.value === 'bigint') {
+          arg.value = arg.value.toString();
+        }
+        return arg as CallParam;
       });
     } catch (ex) {
-      throw new Error(`
-      Bearby wallet does not support Uint8Array, serializable, and serializableObjectArray. 
-      To use them switch to MassaStation`);
+      throw new Error(
+        `Bearby wallet encountered an error while processing the parameter. 
+         To use Uint8Array, serializable, and serializableObjectArray, switch to MassaStation.`,
+      );
     }
 
     const operationId = await web3.contract.call({
