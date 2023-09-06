@@ -71,7 +71,7 @@ export abstract class ContentScriptProvider {
     this.listAccounts = this.listAccounts.bind(this);
     this.getNodesUrls = this.getNodesUrls.bind(this);
     this.callSC = this.callSC.bind(this);
-    if(typeof document !== 'undefined'){
+    if (typeof document !== 'undefined') {
       // this is the current provider html element
       const providerEventTargetName = `${MASSA_WINDOW_OBJECT}_${this.providerName}`;
       if (!document.getElementById(providerEventTargetName)) {
@@ -79,7 +79,7 @@ export abstract class ContentScriptProvider {
         inv.id = providerEventTargetName;
         document.body.appendChild(inv);
       }
-  
+
       const walletProviderEventTarget = document.getElementById(
         MASSA_WINDOW_OBJECT,
       ) as EventTarget;
@@ -87,7 +87,7 @@ export abstract class ContentScriptProvider {
         throw new Error(`Wallet Provider Event Target html element with id ${MASSA_WINDOW_OBJECT} not created. 
         Make sure your "massa-wallet-provider" is already initialized`);
       }
-  
+
       // ======================SIGN===============================
       (
         document.getElementById(providerEventTargetName) as EventTarget
@@ -95,7 +95,7 @@ export abstract class ContentScriptProvider {
         const payload: ICustomEventMessageRequest = evt.detail;
         this.actionToCallback.get(AvailableCommands.AccountSign)(payload);
       });
-  
+
       // attach handlers for various methods
       this.attachCallbackHandler(
         AvailableCommands.AccountSign,
@@ -112,19 +112,23 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       // ===========================BALANCE============================
       (
         document.getElementById(providerEventTargetName) as EventTarget
-      ).addEventListener(AvailableCommands.AccountBalance, (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.AccountBalance)(payload);
-      });
-  
+      ).addEventListener(
+        AvailableCommands.AccountBalance,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.AccountBalance)(payload);
+        },
+      );
+
       this.attachCallbackHandler(
         AvailableCommands.AccountBalance,
         async (payload: ICustomEventMessageRequest) => {
-          const accountBalancePayload = payload.params as IAccountBalanceRequest;
+          const accountBalancePayload =
+            payload.params as IAccountBalanceRequest;
           const respMessage = {
             result: await this.balance(accountBalancePayload),
             error: null,
@@ -148,7 +152,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       this.attachCallbackHandler(
         AvailableCommands.ProviderDeleteAccount,
         async (payload: ICustomEventMessageRequest) => {
@@ -165,7 +169,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       // =============================IMPORT ACCOUNT===================================
       (
         document.getElementById(providerEventTargetName) as EventTarget
@@ -178,7 +182,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       this.attachCallbackHandler(
         AvailableCommands.ProviderImportAccount,
         async (payload: ICustomEventMessageRequest) => {
@@ -206,7 +210,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       this.attachCallbackHandler(
         AvailableCommands.ProviderListAccounts,
         async (payload: ICustomEventMessageRequest) => {
@@ -221,7 +225,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       // ==============================BUY ROLLS==================================
       (
         document.getElementById(providerEventTargetName) as EventTarget
@@ -232,7 +236,7 @@ export abstract class ContentScriptProvider {
           this.actionToCallback.get(AvailableCommands.AccountBuyRolls)(payload);
         },
       );
-  
+
       this.attachCallbackHandler(
         AvailableCommands.AccountBuyRolls,
         async (payload: ICustomEventMessageRequest) => {
@@ -255,10 +259,12 @@ export abstract class ContentScriptProvider {
         AvailableCommands.AccountSellRolls,
         (evt: CustomEvent) => {
           const payload: ICustomEventMessageRequest = evt.detail;
-          this.actionToCallback.get(AvailableCommands.AccountSellRolls)(payload);
+          this.actionToCallback.get(AvailableCommands.AccountSellRolls)(
+            payload,
+          );
         },
       );
-  
+
       this.attachCallbackHandler(
         AvailableCommands.AccountSellRolls,
         async (payload: ICustomEventMessageRequest) => {
@@ -274,7 +280,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       // ==============================SEND TRANSACTION==================================
       (
         document.getElementById(providerEventTargetName) as EventTarget
@@ -287,11 +293,12 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       this.attachCallbackHandler(
         AvailableCommands.AccountSendTransaction,
         async (payload: ICustomEventMessageRequest) => {
-          const rollOperationPayload = payload.params as ISendTransactionRequest;
+          const rollOperationPayload =
+            payload.params as ISendTransactionRequest;
           const respMessage = {
             result: await this.sendTransaction(rollOperationPayload),
             error: null,
@@ -303,15 +310,18 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       // ==============================CALL SC==================================
       (
         document.getElementById(providerEventTargetName) as EventTarget
-      ).addEventListener(AvailableCommands.AccountCallSC, (evt: CustomEvent) => {
-        const payload: ICustomEventMessageRequest = evt.detail;
-        this.actionToCallback.get(AvailableCommands.AccountCallSC)(payload);
-      });
-  
+      ).addEventListener(
+        AvailableCommands.AccountCallSC,
+        (evt: CustomEvent) => {
+          const payload: ICustomEventMessageRequest = evt.detail;
+          this.actionToCallback.get(AvailableCommands.AccountCallSC)(payload);
+        },
+      );
+
       this.attachCallbackHandler(
         AvailableCommands.AccountCallSC,
         async (payload: ICustomEventMessageRequest) => {
@@ -327,7 +337,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       // ==============================GET NODES URLS==================================
       (
         document.getElementById(providerEventTargetName) as EventTarget
@@ -340,7 +350,7 @@ export abstract class ContentScriptProvider {
           );
         },
       );
-  
+
       this.attachCallbackHandler(
         AvailableCommands.ProviderGetNodesUrls,
         async (payload: ICustomEventMessageRequest) => {
@@ -368,10 +378,10 @@ export abstract class ContentScriptProvider {
   public static async registerAsMassaWalletProvider(
     providerName: string,
   ): Promise<boolean> {
-    if(typeof document !== 'undefined') return new Promise((resolve) => resolve(false));
+    if (typeof document !== 'undefined')
+      return new Promise((resolve) => resolve(false));
 
     return withTimeoutRejection<boolean>(
-
       new Promise((resolve) => {
         const registerProvider = () => {
           if (!document.getElementById(MASSA_WINDOW_OBJECT)) {

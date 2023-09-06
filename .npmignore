@@ -1,5 +1,5 @@
 src/
-test/
+test-extension/
 tsconfig.json
 tslint.json
 .npmrc
