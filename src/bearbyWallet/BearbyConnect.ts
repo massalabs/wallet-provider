@@ -17,6 +17,6 @@ export async function connectBearby(): Promise<void> {
 }
 
 export async function disconnectBearby(): Promise<void> {
-  await web3.wallet.diconnect(); // diconnect is a typo in the library
+  await web3.wallet.disconnect();
   console.log('Bearby disconnected');
 }
