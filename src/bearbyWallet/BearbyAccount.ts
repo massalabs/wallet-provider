@@ -1,4 +1,5 @@
 import {
+  ArgTypes,
   Args,
   IContractReadOperationData,
   IContractReadOperationResponse,
@@ -21,6 +22,7 @@ import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import { decode } from 'bs58check';
 import { IAccountSignOutput } from '../account/AccountSign';
+import { isArrayOfNumbers } from '../utils/typeCheck';
 /**
  * The maximum allowed gas for a read operation
  */
@@ -179,7 +181,7 @@ export class BearbyAccount implements IAccount {
   public async callSC(
     contractAddress: string,
     functionName: string,
-    parameter: Uint8Array | Args,
+    parameter: Args | Uint8Array,
     amount: bigint,
     fee: bigint,
     maxGas: bigint,
@@ -197,36 +199,15 @@ export class BearbyAccount implements IAccount {
       );
     }
 
-    if (parameter instanceof Uint8Array) {
-      throw new Error(
-        `Bearby wallet does not support Uint8Array as a parameter. 
-        Please use Args instead.`,
-      );
-    }
-
-    let params: CallParam[] = [];
-    try {
-      params = parameter.getArgsList().map((arg) => {
-        // Convert bigint values to strings to ensure compatibility with bearbyJs
-        if (typeof arg.value === 'bigint') {
-          arg.value = arg.value.toString();
-        }
-        return arg as CallParam;
-      });
-    } catch (ex) {
-      throw new Error(
-        `Bearby wallet encountered an error while processing the parameter. 
-         To use Uint8Array, serializable, and serializableObjectArray, switch to MassaStation.`,
-      );
-    }
-
     const operationId = await web3.contract.call({
       maxGas: Number(maxGas),
       coins: Number(amount),
       fee: Number(fee),
       targetAddress: contractAddress,
       functionName: functionName,
-      parameters: params,
+      unsafeParameters: isArrayOfNumbers(parameter)
+        ? (parameter as Uint8Array)
+        : ((parameter as Args).serialize() as unknown as Uint8Array),
     });
 
     return { operationId };
