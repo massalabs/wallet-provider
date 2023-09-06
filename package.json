@@ -54,7 +54,7 @@
         "bundle.min.js"
     ],
     "dependencies": {
-        "@hicaru/bearby.js": "^0.4.7",
+        "@hicaru/bearby.js": "^0.4.9",
         "@massalabs/web3-utils": "^1.4.1",
         "axios": "^0.26.1",
         "bignumber.js": "^9.1.1",
