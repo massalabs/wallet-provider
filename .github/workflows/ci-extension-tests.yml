@@ -1,4 +1,4 @@
-name: CI tests
+name: CI Extension tests
 on: [push]
 jobs:
   unit-tests:
