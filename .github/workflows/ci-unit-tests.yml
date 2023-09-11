@@ -21,7 +21,7 @@ jobs:
 
       - name: Download MassaStation
         run: |
-          curl -L https://github.com/massalabs/station/releases/download/v0.3.2/massastation_linux_amd64 -o /usr/local/bin/massastation
+          curl -L https://github.com/massalabs/station/releases/download/v0.3.4/massastation_linux_amd64 -o /usr/local/bin/massastation
           sudo chmod +x /usr/local/bin/massastation
           sudo setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/massastation
 
@@ -53,7 +53,7 @@ jobs:
         run: |
           curl -X POST "http://station.massa/plugin-manager/?source=https://github.com/massalabs/station-massa-wallet/releases/download/$WALLET_PLUGIN_VERSION/wallet-plugin_linux-amd64.zip"
         env:
-          WALLET_PLUGIN_VERSION: v0.2.4
+          WALLET_PLUGIN_VERSION: v0.2.5
 
       - name: Test using dummy extension
         run: NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm run unit-test-package
