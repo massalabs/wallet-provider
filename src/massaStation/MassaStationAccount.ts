@@ -19,6 +19,7 @@ import {
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { IAccountSignOutput } from '../account/AccountSign';
 import { encode as base58Encode } from 'bs58check';
+import { ExecuteFunctionBody } from './types';
 
 /**
  * The maximum allowed gas for a read operation
@@ -311,11 +312,13 @@ export class MassaStationAccount implements IAccount {
     }
     let CallSCOpResponse: JsonRpcResponseData<ITransactionDetails> = null;
     const url = `${MASSA_STATION_URL}cmd/executeFunction`;
-    const body = {
+    const body: ExecuteFunctionBody = {
       nickname: this._name,
       name: functionName,
       at: contractAddress,
       args: args,
+      fee: amount.toString(),
+      maxGas: maxGas.toString(),
       coins: Number(amount),
       async: true,
     };
