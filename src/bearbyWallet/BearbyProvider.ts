@@ -54,6 +54,12 @@ export class BearbyProvider implements IProvider {
     return ['https://buildnet.massa.net/api/v2'];
   }
 
+  public async getNetwork(): Promise<string> {
+    const network = await web3.wallet.network;
+
+    return network.net;
+  }
+
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
     throw new Error('Method not implemented.');
   }

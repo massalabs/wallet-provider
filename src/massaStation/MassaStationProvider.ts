@@ -212,6 +212,8 @@ export class MassaStationProvider implements IProvider {
   /**
    * This method sends an http call to the MassaStation server to obtain node urls.
    *
+   * @throws an error if the call fails.
+   *
    * @returns a Promise that resolves to a list of node urls.
    */
   public async getNodesUrls(): Promise<string[]> {
@@ -226,6 +228,31 @@ export class MassaStationProvider implements IProvider {
       // transform nodesResponse.result to a json and then get the "url" property
       const nodes = nodesResponse.result as { url: string };
       return Array(nodes.url);
+    } catch (ex) {
+      console.error(`MassaStation nodes retrieval error`, ex);
+      throw ex;
+    }
+  }
+
+  /**
+   * This method sends an http call to the MassaStation server to obtain network.
+   *
+   * @throws an error if the call fails.
+   *
+   * @returns a Promise that resolves to a network.
+   */
+  public async getNetwork(): Promise<string> {
+    let nodesResponse: JsonRpcResponseData<unknown> = null;
+    try {
+      nodesResponse = await getRequest<unknown>(
+        `${MASSA_STATION_URL}massa/node`,
+      );
+      if (nodesResponse.isError || nodesResponse.error) {
+        throw nodesResponse.error.message;
+      }
+      const nodes = nodesResponse.result as { network: string };
+
+      return nodes.network;
     } catch (ex) {
       console.error(`MassaStation nodes retrieval error`, ex);
       throw ex;

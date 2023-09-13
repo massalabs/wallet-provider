@@ -1,7 +1,6 @@
 import { web3 } from '@hicaru/bearby.js';
 
 export async function detectBearby(): Promise<boolean> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (globalThis.window && (globalThis.window as any)['bearby']) {
     return true;
   }

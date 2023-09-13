@@ -9,21 +9,18 @@
         "check": "npm outdated",
         "upgrade": "npm run up && npm run check && npm run build",
         "clean-dist": "rimraf dist/*",
-
         "build-package": "tsc -d -p ./tsconfig.json",
         "build-esm": "tsc --project tsconfig.esm.json",
         "build-commonjs": "tsc --project tsconfig.commonjs.json",
         "build-bundle": "webpack",
         "build": "npm run fmt && npm-run-all clean-dist build-*",
-        
         "test-extension:serve-dapp": "cp ./bundle.js ./test-extension/dapp/bundle.js && http-server test-extension/dapp --cors --port 9009",
         "test-extension": "cd ./test-extension && npx playwright test",
-
         "unit-test-package": "jest --config ./jest.config.package.js",
         "unit-test-commonjs": "jest --config ./jest.config.commonjs.js",
         "unit-test-esm": "jest --config ./jest.config.esm.js",
         "unit-test": "npm-run-all unit-test-*",
-        
+        "unit-test-local": "NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm-run-all unit-test-*",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "prettier": "prettier --check .",
