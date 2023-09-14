@@ -235,7 +235,7 @@ export class MassaStationProvider implements IProvider {
   }
 
   /**
-   * This method sends an http call to the MassaStation server to obtain network.
+   * Returns the name of the network MassaStation is connected to.
    *
    * @throws an error if the call fails.
    *
