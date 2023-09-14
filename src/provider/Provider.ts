@@ -146,9 +146,8 @@ export class Provider implements IProvider {
     });
   }
 
-  // Get network
   /**
-   * This method sends a message to the content script to get the used network name.
+   * Returns the name of the network the provider is connected to.
    *
    * @returns a Promise that resolves to the network name (string).
    */
