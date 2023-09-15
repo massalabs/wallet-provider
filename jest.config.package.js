@@ -10,6 +10,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@massalabs/wallet-provider$': '<rootDir>/dist/index.js',
+    '^helpers/(.*)$': '<rootDir>/helper/$1',
   },
   roots: ['./unit-tests'],
   testEnvironmentOptions: {

@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message helloWorldHelper {
+  string message = 1;
+}

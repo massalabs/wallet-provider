@@ -46,6 +46,7 @@
         "baseUrl": ".",
         "paths": {
           "@massalabs/wallet-provider": ["./dist/index.js"],
+          "helpers/*": ["helper/*"],
         }
     },
     "lib": [
