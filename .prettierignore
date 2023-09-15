@@ -10,4 +10,5 @@ dist
 *.html
 *.css
 test-extension/simple-browser-extension
+helpers
 
