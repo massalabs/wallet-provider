@@ -147,6 +147,30 @@ export class Provider implements IProvider {
   }
 
   /**
+   * Returns the name of the network the provider is connected to.
+   *
+   * @returns a Promise that resolves to the network name (string).
+   */
+  public async getNetwork(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this.providerName,
+        AvailableCommands.ProviderGetNetwork,
+        {},
+        (result, err) => {
+          if (err) return reject(err);
+          else if (typeof result !== 'string') {
+            return reject(
+              new Error(`Expected a string but got ${typeof result} instead`),
+            );
+          }
+          return resolve(result);
+        },
+      );
+    });
+  }
+
+  /**
    * This method generates a new account by a given name and adds it to the wallet.
    *
    * @param name - The account name

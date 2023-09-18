@@ -13,6 +13,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt update
           npm ci
           sudo apt install xvfb libnss3-tools libwebkit2gtk-4.0-dev
 

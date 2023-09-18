@@ -11,7 +11,7 @@ import {
   IAccountSignResponse,
 } from '../account';
 import { IAccount } from '../account/IAccount';
-import { CallParam, web3 } from '@hicaru/bearby.js';
+import { web3 } from '@hicaru/bearby.js';
 import {
   postRequest,
   JsonRpcResponseData,

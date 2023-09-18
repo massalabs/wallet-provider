@@ -29,7 +29,6 @@ import {
 } from '../massaStation/MassaStationDiscovery';
 import { MASSA_STATION_PROVIDER_NAME } from '../massaStation/MassaStationProvider';
 import { IAccount } from '../account/IAccount';
-import { web3 } from '@hicaru/bearby.js';
 
 /**
  * A constant string that is used to identify the HTML element that is used for
