@@ -29,6 +29,7 @@ import {
 } from '../massaStation/MassaStationDiscovery';
 import { MASSA_STATION_PROVIDER_NAME } from '../massaStation/MassaStationProvider';
 import { IAccount } from '../account/IAccount';
+import { PluginInfo } from '../massaStation/types';
 
 /**
  * A constant string that is used to identify the HTML element that is used for
@@ -65,9 +66,11 @@ export type AllowedResponses =
  *
  */
 class Connector {
-  private registeredProviders: { [key: string]: string } = {};
+  private registeredProviders: Record<string, string> = {};
   private pendingRequests: Map<string, CallbackFunction>;
   private massaStationListener: MassaStationDiscovery;
+
+  private providersInfo: Record<string, PluginInfo> = {};
 
   /**
    * Connector constructor
@@ -134,11 +137,16 @@ class Connector {
   }
 
   private initMassaStationListener() {
-    this.massaStationListener.on(ON_MASSA_STATION_DISCOVERED, () => {
-      this.registeredProviders[
-        MASSA_STATION_PROVIDER_NAME
-      ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
-    });
+    this.massaStationListener.on(
+      ON_MASSA_STATION_DISCOVERED,
+      (walletModule: PluginInfo) => {
+        this.registeredProviders[
+          MASSA_STATION_PROVIDER_NAME
+        ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
+
+        this.providersInfo[MASSA_STATION_PROVIDER_NAME] = walletModule;
+      },
+    );
     this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
       delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
     });
@@ -148,7 +156,7 @@ class Connector {
     try {
       await this.massaStationListener.startListening();
     } catch (e) {
-      console.log('MassaStation is not detected');
+      console.log('get MassaStation provider error: ', e);
     }
   }
 
@@ -211,8 +219,16 @@ class Connector {
    * @returns The registered provider associated with its unique key.
    *
    */
-  public getWalletProviders(): { [key: string]: string } {
+  public getWalletProviders(): Record<string, string> {
     return this.registeredProviders;
+  }
+
+  /**
+   * This method returns the provider wallet info.
+   *
+   */
+  public getProviderInfo(providerName: string): PluginInfo | undefined {
+    return this.providersInfo[providerName];
   }
 
   /**

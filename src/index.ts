@@ -86,7 +86,9 @@ function getProviderInstances() {
   const providerInstances: IProvider[] = availableProviders.map(
     (providerName) => {
       if (providerName === MASSA_STATION_PROVIDER_NAME) {
-        return new MassaStationProvider();
+        return new MassaStationProvider(
+          connector.getProviderInfo(providerName),
+        );
       } else {
         return new Provider(providerName);
       }
