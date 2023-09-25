@@ -5,6 +5,6 @@ export type ExecuteFunctionBody = {
   args?: string;
   fee?: string;
   maxGas?: string;
-  coins?: number; // number type keeped for backward compatibility
+  coins?: number; // number types kept for backward compatibility.
   async?: boolean;
 };
