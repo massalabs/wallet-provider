@@ -10,12 +10,14 @@
  */
 
 import { EventEmitter } from 'events';
-import { JsonRpcResponseData, getRequest } from './RequestHandler';
+import { getRequest } from './RequestHandler';
+import { PluginManagerBody } from './types';
 
 /**
  * Url used for the MassaStation discovery and pinging the MassaStation server's index.html
  */
-export const MASSA_STATION_DISCOVERY_URL = 'https://station.massa/web/index';
+export const MASSA_STATION_DISCOVERY_URL =
+  'https://station.massa/plugin-manager';
 
 /**
  * A message emitted on successful MassaStation discovery
@@ -27,6 +29,8 @@ export const ON_MASSA_STATION_DISCOVERED = 'ON_MASSA_STATION_DISCOVERED';
  */
 export const ON_MASSA_STATION_DISCONNECTED = 'ON_MASSA_STATION_DISCONNECTED';
 
+const MS_WALLET_PLUGIN_NAME = 'Massa Wallet';
+const MS_WALLET_PLUGIN_AUTHOR = 'Massa Labs';
 /**
  * This file defines a TypeScript class named MassaStation.
  * The class is being used to recursively ping MassaStation's server
@@ -64,19 +68,22 @@ export class MassaStationDiscovery extends EventEmitter {
    * @returns void
    */
   public async startListening(): Promise<void> {
-    let resp: JsonRpcResponseData<unknown> = null;
-    try {
-      resp = await getRequest(MASSA_STATION_DISCOVERY_URL, 2000);
-    } catch (ex) {
-      console.error(`Error calling ${MASSA_STATION_DISCOVERY_URL}`);
-    }
+    const resp = await getRequest<PluginManagerBody>(
+      MASSA_STATION_DISCOVERY_URL,
+      2000,
+    );
 
-    if (!resp.isError && !resp.error) {
-      this.isDiscovered = true;
-      this.emit(ON_MASSA_STATION_DISCOVERED);
-    }
-
-    if ((resp.isError || resp.error) && this.isDiscovered) {
+    if (!resp.isError) {
+      const walletModule = resp.result.find(
+        (module) =>
+          module.name === MS_WALLET_PLUGIN_NAME &&
+          module.author === MS_WALLET_PLUGIN_AUTHOR,
+      );
+      if (walletModule) {
+        this.isDiscovered = true;
+        this.emit(ON_MASSA_STATION_DISCOVERED, walletModule);
+      }
+    } else if (this.isDiscovered) {
       this.isDiscovered = false;
       this.emit(ON_MASSA_STATION_DISCONNECTED);
     }
