@@ -1,10 +1,7 @@
 import { web3 } from '@hicaru/bearby.js';
 
 export async function detectBearby(): Promise<boolean> {
-  if (globalThis.window && (globalThis.window as any)['bearby']) {
-    return true;
-  }
-  return false;
+  return !!globalThis?.window?.bearby;
 }
 
 export async function connectBearby(): Promise<void> {
