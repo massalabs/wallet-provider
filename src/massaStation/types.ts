@@ -8,3 +8,14 @@ export type ExecuteFunctionBody = {
   coins?: number; // number types kept for backward compatibility.
   async?: boolean;
 };
+
+export type PluginInfo = {
+  author: string;
+  description: string;
+  home: string;
+  name: string;
+  status: string;
+  version: string;
+};
+
+export type PluginManagerBody = PluginInfo[];

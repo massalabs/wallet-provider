@@ -18,6 +18,7 @@ import {
 import { MassaStationAccount } from './MassaStationAccount';
 import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
+import { PluginInfo } from './types';
 
 /**
  * MassaStation url
@@ -59,7 +60,7 @@ export interface IMassaStationWallet {
  * This class is used as a proxy to the MassaStation server for exchanging message over https calls.
  */
 export class MassaStationProvider implements IProvider {
-  private providerName: string;
+  private providerName = MASSA_STATION_PROVIDER_NAME;
 
   /**
    * Provider constructor
@@ -67,9 +68,7 @@ export class MassaStationProvider implements IProvider {
    * @param providerName - The name of the provider.
    * @returns An instance of the Provider class.
    */
-  public constructor() {
-    this.providerName = MASSA_STATION_PROVIDER_NAME;
-  }
+  public constructor(private infos: PluginInfo) {}
 
   /**
    * This method returns the name of the provider.
