@@ -28,12 +28,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
 
-      - name: bundle
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-              bundle.js
-
   deploy-typedoc:
       runs-on: ubuntu-latest
       steps:
