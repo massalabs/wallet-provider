@@ -1,7 +1,7 @@
 /**
  * Represents the payload for a signing operation request sent to the content script.
- * @property address - Account's unique address.
- * @property data - Data to be signed, as a Uint8Array.
+ * address - Account's unique address.
+ * data - Data to be signed, as a Uint8Array.
  */
 export interface IAccountSignRequest {
   address: string;
@@ -10,8 +10,8 @@ export interface IAccountSignRequest {
 
 /**
  * Represents response from the content script after a signing operation.
- * @property publicKey - Public key of the account.
- * @property signature - Signed message data.
+ * publicKey - Public key of the account.
+ * signature - Signed message data.
  */
 export interface IAccountSignResponse {
   publicKey: string;
@@ -20,8 +20,8 @@ export interface IAccountSignResponse {
 
 /**
  * Represents the output produced by the sign() method.
- * @property publicKey - Public key of the account.
- * @property base58Encoded - Base58 encoded representation of the signed data.
+ * publicKey - Public key of the account.
+ * base58Encoded - Base58 encoded representation of the signed data.
  */
 export interface IAccountSignOutput {
   publicKey: string;
