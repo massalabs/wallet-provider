@@ -1,12 +1,17 @@
 /**
- * This interface represents the request object of the AccountBalance command.
+ * Represents the request for an AccountBalance command.
+ *
+ * @property address - The account address.
  */
 export interface IAccountBalanceRequest {
   address: string;
 }
 
 /**
- * This interface represents the response object of the AccountBalance command sent by the content script.
+ * Represents the response from an AccountBalance command.
+ *
+ * @property finalBalance - The account's final confirmed balance.
+ * @property candidateBalance - The account's pending balance.
  */
 export interface IAccountBalanceResponse {
   finalBalance: string;
