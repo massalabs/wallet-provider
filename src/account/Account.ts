@@ -1,15 +1,9 @@
-import {
-  IAccountBalanceRequest,
-  IAccountBalanceResponse,
-} from './AccountBalance';
-import { IAccountSignOutput, IAccountSignRequest } from './AccountSign';
+import { IAccountBalanceResponse } from './AccountBalance';
+import { IAccountSignOutput } from './AccountSign';
 import { connector } from '../connector/Connector';
 import { IAccountDetails } from './IAccountDetails';
 import { AvailableCommands, ITransactionDetails } from '..';
 import { IAccount } from './IAccount';
-import { IAccountRollsRequest } from './IAccountRolls';
-import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
-import { IAccountCallSCRequest } from './IAccountCallSCRequest';
 import { Args, IContractReadOperationResponse } from '@massalabs/web3-utils';
 
 /**
