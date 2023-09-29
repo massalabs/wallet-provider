@@ -1,19 +1,17 @@
 /**
- * Represents the request for an AccountBalance command.
- *
- * address - The account address.
+ * Request for an AccountBalance command.
  */
 export interface IAccountBalanceRequest {
+  /** Account address */
   address: string;
 }
 
 /**
- * Represents the response from an AccountBalance command.
- *
- * finalBalance - The account's final confirmed balance.
- * candidateBalance - The account's pending balance.
+ * Response from an AccountBalance command.
  */
 export interface IAccountBalanceResponse {
+  /** Final confirmed balance of the account */
   finalBalance: string;
+  /** Pending balance of the account */
   candidateBalance: string;
 }
