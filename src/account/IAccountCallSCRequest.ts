@@ -1,18 +1,18 @@
 import { Args } from '@massalabs/web3-utils';
 
 /**
- * This interface represents the request object to send to the content script to
- * interact with a deployed smart contract.
+ * Interface for requests to interact with deployed smart contracts via content script.
  *
  * @remarks
- * - If your smart contract function does not require any parameters, you can pass an empty array.
+ * Pass an empty array if the smart contract function doesn't require parameters.
  *
- * @see nickname - The nickname of the account to use.
- * @see name - The name of the function to be called.
- * @see at - The address of the smart contract.
- * @see args - The parameters as an Args object to be passed to the function.
- * @see coins - The amount of MASSA coins to be sent to the block creator.
- * @see dryRun - The parameters for the dry run.
+ * nickname - Account nickname to use.
+ * name - Name of the function to call.
+ * at - Address of the deployed smart contract.
+ * args - Parameters to pass to the function, represented as an `Args` object.
+ * coins - Amount of MASSA coins sent to the block creator.
+ * fee - Transaction fee.
+ * nonPersistentExecution - Flag for non-persistent execution.
  */
 export interface IAccountCallSCRequest {
   nickname: string;
