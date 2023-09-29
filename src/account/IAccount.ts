@@ -4,62 +4,33 @@ import { IAccountSignOutput } from './AccountSign';
 import { Args, IContractReadOperationResponse } from '@massalabs/web3-utils';
 
 /**
- * `IAccount` outlines the structure expected for an account.
+ * Defines the expected structure for an account.
  */
 export interface IAccount {
-  /**
-   * Retrieves the account's address.
-   *
-   * @returns Account address as a string.
-   */
+  /** Retrieves the account's address. */
   address(): string;
 
-  /**
-   * Retrieves the account's name.
-   *
-   * @returns Account name as a string.
-   */
+  /** Retrieves the account's name. */
   name(): string;
 
-  /**
-   * Retrieves the name of the provider associated with the account.
-   *
-   * @returns Provider name as a string.
-   */
+  /** Retrieves the provider's name associated with the account. */
   providerName(): string;
 
-  /**
-   * Initiates a request to retrieve the account's balance.
-   *
-   * @returns Promise resolving to an `IAccountBalanceResponse`.
-   */
+  /** Initiates a balance retrieval request for the account. */
   balance(): Promise<IAccountBalanceResponse>;
 
   /**
    * Signs data.
-   *
-   * @param data - Data to be signed, can be of type Buffer, Uint8Array, or string.
-   * @returns Promise resolving to an `IAccountSignOutput`.
+   * @param data - Data to be signed (Buffer, Uint8Array, or string).
    */
   sign(data: Buffer | Uint8Array | string): Promise<IAccountSignOutput>;
 
   /**
    * Purchases rolls.
-   *
-   * @param amount - Amount of rolls to purchase.
-   * @param fee - Transaction fee.
-   * @returns A promise resolving to an `ITransactionDetails` object.
+   * @param amount - Amount of rolls.
+   * @param fee - Fee.
    */
   buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
-
-  /**
-   * Sells rolls.
-   *
-   * @param amount - Amount of rolls to sell.
-   * @param fee - Transaction fee.
-   * @returns A promise resolving to an `ITransactionDetails` object.
-   */
-  sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
 
   /**
    * Sends a transaction.
