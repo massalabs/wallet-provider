@@ -1,23 +1,14 @@
-import {
-  IAccountBalanceRequest,
-  IAccountBalanceResponse,
-} from './AccountBalance';
-import { IAccountSignOutput, IAccountSignRequest } from './AccountSign';
+import { IAccountBalanceResponse } from './AccountBalance';
+import { IAccountSignOutput } from './AccountSign';
 import { connector } from '../connector/Connector';
 import { IAccountDetails } from './IAccountDetails';
 import { AvailableCommands, ITransactionDetails } from '..';
 import { IAccount } from './IAccount';
-import { IAccountRollsRequest } from './IAccountRolls';
-import { IAccountSendTransactionRequest } from './IAccountSendTransaction';
-import { IAccountCallSCRequest } from './IAccountCallSCRequest';
 import { Args, IContractReadOperationResponse } from '@massalabs/web3-utils';
 
 /**
- * This module contains the Account class. It is responsible for representing an account in the wallet.
- *
- * @remarks
- * This class provides methods to interact with the account's {@link balance} and to {@link sign} messages.
- *
+ * The Account class represents a wallet account. It provides methods for interacting
+ * with the account's balance and for signing messages.
  */
 export class Account implements IAccount {
   private _providerName: string;
@@ -25,18 +16,17 @@ export class Account implements IAccount {
   private _name: string;
 
   /**
-   * This constructor takes an object of type IAccountDetails and a providerName string as its arguments.
+   * Initializes a new instance of the Account class.
    *
-   * @param address - The address of the account.
-   * @param name - The name of the account.
-   * @param providerName - The name of the provider.
-   * @returns An instance of the Account class.
+   * @param address - Account address.
+   * @param name - Account name.
+   * @param providerName - Blockchain provider name.
    *
    * @remarks
-   * - The Account constructor takes an object of type IAccountDetails and a providerName string as its arguments.
-   * - The IAccountDetails object contains the account's address and name.
+   * - Utilizes  IAccountDetails for account information and a providerName string for blockchain interaction.
    * - The providerName string identifies the provider that is used to interact with the blockchain.
    */
+
   public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
     this._name = name ?? '';
@@ -65,16 +55,16 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to retrieve the account's balance.
+   * Retrieves the account balance.
    *
-   * @returns A promise that resolves to an object of type IAccountBalanceResponse. It contains the account's balance.
+   * @returns A promise that resolves to an object of type  IAccountBalanceResponse.
    */
   public async balance(): Promise<IAccountBalanceResponse> {
     return new Promise<IAccountBalanceResponse>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountBalance,
-        { address: this._address } as IAccountBalanceRequest,
+        { address: this._address },
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as IAccountBalanceResponse);
@@ -84,17 +74,17 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to sign a message.
+   * Signs a provided message.
    *
-   * @param data - The message to be signed.
-   * @returns An IAccountSignOutput object. It contains the signature of the message.
+   * @param data - Message to sign.
+   * @returns An  IAccountSignOutput object which contains the signature and the public key.
    */
   public async sign(data: Buffer | Uint8Array): Promise<IAccountSignOutput> {
     return new Promise<IAccountSignOutput>((resolve, reject) => {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountSign,
-        { address: this._address, data } as IAccountSignRequest,
+        { address: this._address, data },
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as IAccountSignOutput);
@@ -104,11 +94,11 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to buy rolls on behalf of the sender.
+   * Purchases rolls for the sender.
    *
-   * @param amount - The amount of rolls to be purchased
-   * @param fee - The fee to be paid for the transaction execution by the node..
-   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   * @param amount - Number of rolls to purchase.
+   * @param fee - Transaction execution fee (in smallest unit).
+   * @returns A promise resolving to an  ITransactionDetails containing the network operation ID.
    */
   public async buyRolls(
     amount: bigint,
@@ -121,7 +111,7 @@ export class Account implements IAccount {
         {
           amount: amount.toString(),
           fee: fee.toString(),
-        } as IAccountRollsRequest,
+        },
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);
@@ -131,11 +121,11 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to sell rolls on behalf of the sender.
+   * Sells rolls on behalf of the sender.
    *
-   * @param amount - The amount of rolls to be sold.
-   * @param fee - The fee to be paid for the transaction execution by the node..
-   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   * @param amount - Number of rolls to sell.
+   * @param fee - Transaction execution fee  (in smallest unit).
+   * @returns A promise resolving to an  ITransactionDetails containing the network operation ID.
    */
   public async sellRolls(
     amount: bigint,
@@ -148,7 +138,7 @@ export class Account implements IAccount {
         {
           amount: amount.toString(),
           fee: fee.toString(),
-        } as IAccountRollsRequest,
+        },
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);
@@ -158,11 +148,13 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to transfer MAS on behalf of the sender to a recipient.
+   * Transfers MAS from the sender to a recipient.
    *
-   * @param amount - The amount of MAS (in the smallest unit) to be transferred.
-   * @param fee - The fee to be paid for the transaction execution (in the smallest unit).
-   * @returns An ITransactionDetails object. It contains the operationId on the network.
+   * @param amount - Amount of MAS to transfer (in smallest unit).
+   * @param recipientAddress - Recipient's address.
+   * @param fee - Transaction execution fee (in smallest unit).
+   *
+   * @returns A promise resolving to an  ITransactionDetails containing the network operation ID.
    */
   public async sendTransaction(
     amount: bigint,
@@ -177,7 +169,7 @@ export class Account implements IAccount {
           amount: amount.toString(),
           recipientAddress,
           fee: fee.toString(),
-        } as IAccountSendTransactionRequest,
+        },
         (result, err) => {
           if (err) return reject(err);
           return resolve(result as ITransactionDetails);
@@ -187,24 +179,21 @@ export class Account implements IAccount {
   }
 
   /**
-   * This method aims to interact with a smart contract deployed on the MASSA blockchain.
+   * Interacts with a smart contract on the MASSA blockchain.
    *
    * @remarks
-   * If dryRun.dryRun is true, the method will dry run the smart contract call and return an
-   * IContractReadOperationResponse object which contains all the information about the dry run
-   * (state changes, gas used, etc.)
+   * If dryRun is true, performs a dry run and returns an  IContractReadOperationResponse with dry run details.
    *
-   * @param contractAddress - The address of the smart contract.
-   * @param functionName - The name of the function to be called.
-   * @param parameter - The parameters as an Args object to be passed to the function.
-   * @param amount - The amount of MASSA coins to be sent to the contract (in the smallest unit).
-   * @param fee - The fee to be paid for the transaction execution (in the smallest unit).
-   * @param maxGas - The maximum amount of gas to be used for the transaction execution.
-   * @param nonPersistentExecution - The dryRun object to be passed to the function.
+   * @param contractAddress - Smart contract address.
+   * @param functionName - Function name to call.
+   * @param parameter - Function parameters.
+   * @param amount - Amount of MASSA coins to send (in smallest unit).
+   * @param fee - Transaction execution fee (in smallest unit).
+   * @param maxGas - Maximum gas for transaction execution.
+   * @param nonPersistentExecution - Whether to perform a dry run.
    *
-   * @returns if 'nonPersistentExecution' is true, it returns an IContractReadOperationResponse object.
-   * Otherwise, it returns an ITransactionDetails object which contains the operationId on the network.
-   *
+   * @returns A promise resolving to either:
+   *  IContractReadOperationResponse (for dry runs) or ITransactionDetails (for actual transactions).
    */
   public async callSC(
     contractAddress: string,
@@ -228,7 +217,7 @@ export class Account implements IAccount {
           fee: fee,
           maxGas: maxGas,
           nonPersistentExecution: nonPersistentExecution,
-        } as IAccountCallSCRequest,
+        },
         (result, err) => {
           if (err) return reject(err);
           return resolve(
