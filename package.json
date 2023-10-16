@@ -25,6 +25,7 @@
         "lint:fix": "eslint . --fix",
         "prettier": "prettier --check .",
         "prettier:fix": "prettier --write .",
+        "prettier:fix-code-snippets": "prettier --write ./code-snippets/ --plugin=prettier-plugin-organize-imports",
         "fmt": "npm run prettier:fix && npm run lint:fix",
         "fmt:check": "npm run prettier && npm run lint",
         "doc": "typedoc src/index.ts --name massa-wallet-provider --out docs/documentation/html --tsconfig tsconfig.json"
@@ -88,8 +89,9 @@
         "jest-environment-jsdom": "^29.6.4",
         "mocha": "^10.2.0",
         "node-ts": "^5.1.2",
-        "prettier": "^2.8.4",
+        "prettier": "^3.0.3",
         "prettier-eslint": "^15.0.1",
+        "prettier-plugin-organize-imports": "^3.2.3",
         "prettier-standard": "^16.4.1",
         "ts-jest": "^29.1.1",
         "ts-loader": "^9.4.4",
