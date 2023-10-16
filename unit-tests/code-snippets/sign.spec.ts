@@ -1,21 +1,9 @@
 import { providers } from '@massalabs/wallet-provider';
+import { deleteAccount } from '../utils/provider-utils';
 
 describe('Sign a message', () => {
   afterAll(async () => {
-    const availableProviders = await providers();
-    const massaStationProvider = availableProviders.find(
-      (p) => p.name() === 'MASSASTATION',
-    );
-
-    // stop the test if the provider is not available
-    if (!massaStationProvider)
-      throw new Error('Massa Station provider not found');
-
-    const accounts = await massaStationProvider.accounts();
-    const account = accounts.find((a) => a.name() === 'signing-account');
-
-    // delete the account
-    await massaStationProvider.deleteAccount(account.address());
+    await deleteAccount('signing-account');
   });
 
   it('should generate a new account and sign data with it', async () => {
@@ -40,7 +28,6 @@ describe('Sign a message', () => {
 
     const resp = await newAccount.sign(dataToSign);
 
-    // Except no error
     expect(resp).not.toBeNull();
     expect(resp.publicKey).not.toBeNull();
     expect(resp.base58Encoded).not.toBeNull();

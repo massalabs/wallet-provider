@@ -1,21 +1,9 @@
 import { providers } from '@massalabs/wallet-provider';
+import { deleteAccount } from '../utils/provider-utils';
 
 describe('Generate new account', () => {
   afterAll(async () => {
-    const availableProviders = await providers();
-    const massaStationProvider = availableProviders.find(
-      (p) => p.name() === 'MASSASTATION',
-    );
-
-    // stop the test if the provider is not available
-    if (!massaStationProvider)
-      throw new Error('Massa Station provider not found');
-
-    const accounts = await massaStationProvider.accounts();
-    const account = accounts.find((a) => a.name() === 'my-massa-wallet');
-
-    // delete the account
-    await massaStationProvider.deleteAccount(account.address());
+    await deleteAccount('my-massa-wallet');
   });
 
   it('should generate a new account with name and address', async () => {

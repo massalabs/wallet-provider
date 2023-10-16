@@ -1,17 +1,10 @@
-import { providers } from '@massalabs/wallet-provider';
+import { getMassaStationProvider } from '../utils/provider-utils';
 
 describe('Generate new account', () => {
   const accountName = 'already-exists-test-account';
 
   afterAll(async () => {
-    const availableProviders = await providers();
-    const massaStationProvider = availableProviders.find(
-      (p) => p.name() === 'MASSASTATION',
-    );
-
-    // stop the test if the provider is not available
-    if (!massaStationProvider)
-      throw new Error('Massa Station provider not found');
+    const massaStationProvider = await getMassaStationProvider();
 
     const accounts = await massaStationProvider.accounts();
     const account = accounts.find((a) => a.name() === accountName);
@@ -21,14 +14,7 @@ describe('Generate new account', () => {
   });
 
   it('should generate a new account, then fail to generate one with the same name', async () => {
-    const availableProviders = await providers();
-    const massaStationProvider = availableProviders.find(
-      (p) => p.name() === 'MASSASTATION',
-    );
-
-    // stop the test if the provider is not available
-    if (!massaStationProvider)
-      throw new Error('Massa Station provider not found');
+    const massaStationProvider = await getMassaStationProvider();
 
     // generate a new account
     const newAccount = await massaStationProvider.generateNewAccount(
