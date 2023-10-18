@@ -17,9 +17,8 @@ describe('Generate new account', () => {
       throw new Error('Massa Station provider not found');
 
     // generate a new account
-    const newAccount = await massaStationProvider.generateNewAccount(
-      'my-massa-wallet',
-    );
+    const newAccount =
+      await massaStationProvider.generateNewAccount('my-massa-wallet');
 
     expect(newAccount).toHaveProperty('name');
     expect(newAccount).toHaveProperty('address');

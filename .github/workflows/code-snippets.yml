@@ -2,7 +2,6 @@ name: Generate code snippets
 
 on:
   push:
-    branches: [ main ]
 
 jobs:
   generate-code-snippets:

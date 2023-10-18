@@ -17,9 +17,8 @@ describe('Generate new account', () => {
     const massaStationProvider = await getMassaStationProvider();
 
     // generate a new account
-    const newAccount = await massaStationProvider.generateNewAccount(
-      accountName,
-    );
+    const newAccount =
+      await massaStationProvider.generateNewAccount(accountName);
 
     expect(newAccount).toHaveProperty('name');
     expect(newAccount).toHaveProperty('address');
