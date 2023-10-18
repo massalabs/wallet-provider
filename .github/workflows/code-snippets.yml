@@ -2,6 +2,7 @@ name: Generate code snippets
 
 on:
   push:
+    branches: [ main ]
 
 jobs:
   generate-code-snippets:
@@ -39,7 +40,6 @@ jobs:
     - name: Commit Changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        token: 
         commit_message: "Generate code snippets"
         file_pattern: "code-snippets/*"
         # Commit code using massabot account that can bypass push and MR restriction
