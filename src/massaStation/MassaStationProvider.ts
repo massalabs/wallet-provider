@@ -52,6 +52,12 @@ export interface IMassaStationWallet {
     publicKey: string;
     salt: string;
   };
+  status: MassaStationAccountStatus;
+}
+
+enum MassaStationAccountStatus {
+  OK = 'ok',
+  CORRUPTED = 'corrupted',
 }
 
 /**
@@ -102,15 +108,19 @@ export class MassaStationProvider implements IProvider {
     ) {
       throw massaStationAccountsResponse.error.message;
     }
-    return massaStationAccountsResponse.result.map((massaStationAccount) => {
-      return new MassaStationAccount(
-        {
-          address: massaStationAccount.address,
-          name: massaStationAccount.nickname,
-        },
-        this.providerName,
-      );
-    });
+    return massaStationAccountsResponse.result
+      .filter((massaStationAccount) => {
+        return massaStationAccount.status === MassaStationAccountStatus.OK;
+      })
+      .map((massaStationAccount) => {
+        return new MassaStationAccount(
+          {
+            address: massaStationAccount.address,
+            name: massaStationAccount.nickname,
+          },
+          this.providerName,
+        );
+      });
   }
 
   /**
