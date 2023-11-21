@@ -33,6 +33,13 @@ export interface IAccount {
   buyRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
 
   /**
+   * Sells rolls.
+   * @param amount - Amount of rolls.
+   * @param fee - Fee.
+   */
+  sellRolls(amount: bigint, fee: bigint): Promise<ITransactionDetails>;
+
+  /**
    * Sends a transaction.
    *
    * @param amount - Amount to send.
