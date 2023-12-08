@@ -16,7 +16,6 @@ import { NodeStatus } from './NodeStatus';
 import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import { IAccountSignOutput } from '../account/AccountSign';
-import { isArrayOfNumbers } from '../utils/typeCheck';
 /**
  * The maximum allowed gas for a read operation
  */
@@ -193,15 +192,20 @@ export class BearbyAccount implements IAccount {
       );
     }
 
+    let unsafeParameters = Uint8Array.from([]);
+    if (parameter instanceof Args) {
+      unsafeParameters = Uint8Array.from(parameter.serialize());
+    } else {
+      unsafeParameters = parameter;
+    }
+
     const operationId = await web3.contract.call({
       maxGas: Number(maxGas),
       coins: Number(amount),
       fee: Number(fee),
       targetAddress: contractAddress,
       functionName: functionName,
-      unsafeParameters: isArrayOfNumbers(parameter)
-        ? (parameter as Uint8Array)
-        : ((parameter as Args).serialize() as unknown as Uint8Array),
+      unsafeParameters,
     });
 
     return { operationId };
