@@ -318,6 +318,8 @@ export class MassaStationAccount implements IAccount {
       at: contractAddress,
       args: args,
       coins: Number(amount),
+      fee: fee.toString(),
+      maxGas: maxGas.toString(),
       async: true,
     };
     try {
