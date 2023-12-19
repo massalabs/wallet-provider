@@ -18,7 +18,7 @@ import {
 } from '@massalabs/web3-utils';
 
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
-import { IAccountSignOutput } from '../account/AccountSign';
+import { IAccountSignOutput, ISignMessage } from '../account/AccountSign';
 import { encode as base58Encode } from 'bs58check';
 import { ExecuteFunctionBody } from './types';
 
@@ -59,7 +59,8 @@ interface IAddressesBalances {
  * the MassaStation wallet.
  *
  * @remarks
- * This class provides methods to interact with MassaStation account's {@link balance} and to {@link sign} messages.
+ * This class provides methods to interact with MassaStation account's {@link balance},
+ * {@link sign} operations and sign {@link signMessage}.
  *
  */
 export class MassaStationAccount implements IAccount {
@@ -134,9 +135,9 @@ export class MassaStationAccount implements IAccount {
   }
 
   /**
-   * This method aims to sign a message.
+   * This method aims to sign an operation.
    *
-   * @param data - The message to be signed.
+   * @param data - The operation data to be signed.
    * @returns An IAccountSignResponse object. It contains the signature of the message.
    */
   public async sign(
@@ -154,6 +155,39 @@ export class MassaStationAccount implements IAccount {
       );
     } catch (ex) {
       console.error(`MassaStation account signing error`);
+      throw ex;
+    }
+
+    if (signOpResponse.isError || signOpResponse.error) {
+      throw signOpResponse.error;
+    }
+
+    const signature = base58Encode(
+      Buffer.from(signOpResponse.result.signature, 'base64'),
+    );
+
+    return {
+      publicKey: signOpResponse.result.publicKey,
+      base58Encoded: signature,
+    };
+  }
+
+  /**
+   * This method aims to sign a message.
+   *
+   * @param data - The message data to be signed.
+   * @returns An IAccountSignResponse object. It contains the signature of the message.
+   */
+  public async signMessage(data: ISignMessage): Promise<IAccountSignOutput> {
+    let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
+
+    try {
+      signOpResponse = await postRequest<IAccountSignResponse>(
+        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/signMessage`,
+        data,
+      );
+    } catch (ex) {
+      console.error('MassaStation account message signing error');
       throw ex;
     }
 

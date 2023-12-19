@@ -32,6 +32,7 @@ export enum AvailableCommands {
   ProviderGetNetwork = 'GET_NETWORK',
   AccountBalance = 'ACCOUNT_BALANCE',
   AccountSign = 'ACCOUNT_SIGN',
+  AccountSignMessage = 'ACCOUNT_SIGN_MESSAGE',
   ProviderGenerateNewAccount = 'GENERATE_NEW_ACCOUNT',
   AccountSellRolls = 'ACCOUNT_SELL_ROLLS',
   AccountBuyRolls = 'ACCOUNT_BUY_ROLLS',
