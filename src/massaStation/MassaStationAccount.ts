@@ -14,6 +14,7 @@ import {
   Args,
   IContractReadOperationData,
   IContractReadOperationResponse,
+  MAX_GAS_CALL,
 } from '@massalabs/web3-utils';
 
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
@@ -288,9 +289,9 @@ export class MassaStationAccount implements IAccount {
     contractAddress: string,
     functionName: string,
     parameter: Uint8Array | Args,
-    amount: bigint,
-    fee: bigint,
-    maxGas: bigint,
+    coins: bigint,
+    fee?: bigint,
+    maxGas?: bigint,
     nonPersistentExecution = false,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     if (nonPersistentExecution) {
@@ -298,8 +299,6 @@ export class MassaStationAccount implements IAccount {
         contractAddress,
         functionName,
         parameter,
-        amount,
-        fee,
         maxGas,
       );
     }
@@ -317,9 +316,10 @@ export class MassaStationAccount implements IAccount {
       name: functionName,
       at: contractAddress,
       args: args,
-      coins: Number(amount),
-      fee: fee.toString(),
-      maxGas: maxGas.toString(),
+      coins: Number(coins),
+      fee: fee ? fee.toString() : '0',
+      // If maxGas is not provided, estimation will be done by MS
+      maxGas: maxGas ? maxGas.toString() : '',
       async: true,
     };
     try {
@@ -360,9 +360,7 @@ export class MassaStationAccount implements IAccount {
     contractAddress: string,
     functionName: string,
     parameter: Uint8Array | Args,
-    amount: bigint,
-    fee: bigint,
-    maxGas: bigint,
+    maxGas?: bigint,
   ): Promise<IContractReadOperationResponse> {
     const node = await this.getNodeUrlFromMassaStation();
     // Gas amount check
@@ -384,7 +382,7 @@ export class MassaStationAccount implements IAccount {
     }
     // setup the request body
     const data = {
-      max_gas: Number(maxGas),
+      max_gas: maxGas ? Number(maxGas) : MAX_GAS_CALL,
       target_address: contractAddress,
       target_function: functionName,
       parameter: argumentArray,
