@@ -315,7 +315,7 @@ export class MassaStationAccount implements IAccount {
       nickname: this._name,
       name: functionName,
       at: contractAddress,
-      args: args,
+      args,
       coins: Number(coins),
       fee: fee ? fee.toString() : '0',
       // If maxGas is not provided, estimation will be done by MS
