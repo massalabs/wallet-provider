@@ -1,5 +1,5 @@
 import { IAccountBalanceResponse } from './AccountBalance';
-import { IAccountSignOutput, ISignMessage } from './AccountSign';
+import { IAccountSignOutput } from './AccountSign';
 import { connector } from '../connector/Connector';
 import { IAccountDetails } from './IAccountDetails';
 import { AvailableCommands, ITransactionDetails } from '..';
@@ -74,7 +74,7 @@ export class Account implements IAccount {
   }
 
   /**
-   * Signs a provided operation.
+   * Signs a provided message.
    *
    * @param data - Message to sign.
    * @returns An  IAccountSignOutput object which contains the signature and the public key.
@@ -84,26 +84,6 @@ export class Account implements IAccount {
       connector.sendMessageToContentScript(
         this._providerName,
         AvailableCommands.AccountSign,
-        { address: this._address, data },
-        (result, err) => {
-          if (err) return reject(err);
-          return resolve(result as IAccountSignOutput);
-        },
-      );
-    });
-  }
-
-  /**
-   * Signs a provided message.
-   *
-   * @param data - Data of the message to sign.
-   * @returns An  IAccountSignOutput object which contains the signature and the public key.
-   */
-  public async signMessage(data: ISignMessage): Promise<IAccountSignOutput> {
-    return new Promise<IAccountSignOutput>((resolve, reject) => {
-      connector.sendMessageToContentScript(
-        this._providerName,
-        AvailableCommands.AccountSignMessage,
         { address: this._address, data },
         (result, err) => {
           if (err) return reject(err);

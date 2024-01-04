@@ -1,6 +1,6 @@
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse } from './AccountBalance';
-import { IAccountSignOutput, ISignMessage } from './AccountSign';
+import { IAccountSignOutput } from './AccountSign';
 import { Args, IContractReadOperationResponse } from '@massalabs/web3-utils';
 
 /**
@@ -24,12 +24,6 @@ export interface IAccount {
    * @param data - Data to be signed (Buffer, Uint8Array, or string).
    */
   sign(data: Buffer | Uint8Array | string): Promise<IAccountSignOutput>;
-
-  /**
-   * Signs a message.
-   * @param data - Data of the message to be signed.
-   */
-  signMessage(data: ISignMessage): Promise<IAccountSignOutput>;
 
   /**
    * Purchases rolls.

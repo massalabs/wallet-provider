@@ -15,7 +15,7 @@ import { BalanceResponse } from './BalanceResponse';
 import { NodeStatus } from './NodeStatus';
 import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
 import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
-import { IAccountSignOutput, ISignMessage } from '../account/AccountSign';
+import { IAccountSignOutput } from '../account/AccountSign';
 /**
  * The maximum allowed gas for a read operation
  */
@@ -126,10 +126,6 @@ export class BearbyAccount implements IAccount {
       publicKey: signature.publicKey,
       base58Encoded: signature.signature,
     };
-  }
-
-  public async signMessage(data: ISignMessage): Promise<IAccountSignOutput> {
-    return this.sign(data.message);
   }
 
   // need testing
