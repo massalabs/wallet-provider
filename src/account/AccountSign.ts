@@ -24,6 +24,15 @@ export interface IAccountSignResponse {
 export interface IAccountSignOutput {
   /** Public key of the account */
   publicKey: string;
-  /** Base58 encoded representation of the signed data */
+  /** Base58 encoded representation of the signature */
   base58Encoded: string;
+}
+
+/**
+ * Payload for a sign message request.
+ */
+export interface ISignMessage {
+  description: string;
+  message: string;
+  DisplayData: boolean;
 }

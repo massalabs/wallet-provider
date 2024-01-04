@@ -18,7 +18,7 @@ import {
 } from '@massalabs/web3-utils';
 
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
-import { IAccountSignOutput } from '../account/AccountSign';
+import { IAccountSignOutput, ISignMessage } from '../account/AccountSign';
 import { encode as base58Encode } from 'bs58check';
 import { ExecuteFunctionBody } from './types';
 
@@ -134,9 +134,9 @@ export class MassaStationAccount implements IAccount {
   }
 
   /**
-   * This method aims to sign a message.
+   * This method aims to sign an operation.
    *
-   * @param data - The message to be signed.
+   * @param data - The operation data to be signed.
    * @returns An IAccountSignResponse object. It contains the signature of the message.
    */
   public async sign(
@@ -144,13 +144,19 @@ export class MassaStationAccount implements IAccount {
   ): Promise<IAccountSignOutput> {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
 
+    // TODO: Massa Station has 2 endpoints sign (to sign operation) and signMessage (to sign a message).
+    // To fix the current implementation we provide a dumb description and set DisplayData to true but it
+    // must this feature must be implemented in the future.
+    const signData: ISignMessage = {
+      description: '',
+      message: data.toString(),
+      DisplayData: true,
+    };
+
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
-        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/sign`,
-        {
-          operation: Buffer.from(data).toString('base64'),
-          batch: false,
-        } as ISignOperation,
+        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/signMessage`,
+        signData,
       );
     } catch (ex) {
       console.error(`MassaStation account signing error`);
