@@ -118,7 +118,7 @@ export function registerProvider(name: string, id = MASSA_WINDOW_OBJECT): void {
 
 export async function getProviderByName(
   providerName: string,
-): Promise<IProvider> {
+): Promise<IProvider | undefined> {
   const providersList = await providers();
   return providersList.find((p) => p.name() === providerName);
 }
