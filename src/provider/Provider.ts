@@ -190,4 +190,13 @@ export class Provider implements IProvider {
       );
     });
   }
+
+  public listenAccountChanges(
+    callback: (address: string) => void,
+  ): { unsubscribe: () => void } | undefined {
+    console.error(
+      'The listen Account Change functionality is not yet implemented for the current provider.',
+    );
+    return undefined;
+  }
 }

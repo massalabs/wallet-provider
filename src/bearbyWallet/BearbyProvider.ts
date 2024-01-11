@@ -63,4 +63,31 @@ export class BearbyProvider implements IProvider {
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
     throw new Error('Method not implemented.');
   }
+
+  /**
+   * Subscribes to account changes.
+   *
+   * @param callback - Callback to be called when the account changes.
+   *
+   * @returns A promise that resolves to a function that can be called to unsubscribe.
+   *
+   * @remarks
+   * Don't forget to unsubscribe to avoid memory leaks.
+   *
+   * @example
+   * ```typescript
+   * // Subscribe
+   * const observer = await provider.listenAccountChanges((base58) => {
+   *  console.log(base58);
+   * });
+   *
+   * // Unsubscribe
+   * observer.unsubscribe();
+   * ```
+   */
+  public listenAccountChanges(callback: (base58: string) => void): {
+    unsubscribe: () => void;
+  } {
+    return web3.wallet.account.subscribe((base58) => callback(base58));
+  }
 }

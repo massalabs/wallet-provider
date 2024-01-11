@@ -17,4 +17,9 @@ export interface IProvider {
   getNodesUrls(): Promise<string[]>;
   getNetwork(): Promise<string>;
   generateNewAccount(name: string): Promise<IAccountDetails>;
+  listenAccountChanges(callback: (base58: string) => void):
+    | {
+        unsubscribe: () => void;
+      }
+    | undefined;
 }
