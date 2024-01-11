@@ -116,12 +116,11 @@ export function registerProvider(name: string, id = MASSA_WINDOW_OBJECT): void {
   }
 }
 
-export async function getProviderByName(providerName: string) {
-  // Get the list of providers
+export async function getProviderByName(
+  providerName: string,
+): Promise<IProvider> {
   const providersList = await providers();
-  // Find the selected provider
-  const selectedProvider = providersList.find((p) => p.name() === providerName);
-  return selectedProvider;
+  return providersList.find((p) => p.name() === providerName);
 }
 
 export { AllowedRequests, AllowedResponses } from './connector';
