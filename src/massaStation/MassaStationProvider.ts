@@ -297,4 +297,13 @@ export class MassaStationProvider implements IProvider {
       throw ex;
     }
   }
+
+  public listenAccountChanges(
+    callback: (address: string) => void,
+  ): { unsubscribe: () => void } | undefined {
+    console.log(
+      'The listen Account Change functionality is not yet implemented for the current provider.',
+    );
+    return undefined;
+  }
 }
