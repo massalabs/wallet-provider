@@ -199,4 +199,13 @@ export class Provider implements IProvider {
     );
     return undefined;
   }
+
+  public listenNetworkChanges(
+    callback: (network: string) => void,
+  ): { unsubscribe: () => void } | undefined {
+    console.error(
+      'The listen Network Change functionality is not yet implemented for the current provider.',
+    );
+    return undefined;
+  }
 }

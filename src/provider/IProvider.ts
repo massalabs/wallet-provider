@@ -22,4 +22,10 @@ export interface IProvider {
         unsubscribe: () => void;
       }
     | undefined;
+
+  listenNetworkChanges(callback: (network: string) => void):
+    | {
+        unsubscribe: () => void;
+      }
+    | undefined;
 }
