@@ -343,13 +343,14 @@ export class MassaStationProvider implements IProvider {
     }, 500);
 
     return {
-      unsubscribe: () =>
+      unsubscribe: () => {
+        clearInterval(intervalId);
         this.massaStationEventsListener.removeListener(
           MASSA_STATION_NETWORK_CHANGED,
-          () => {
-            clearInterval(intervalId);
-          },
-        ),
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          () => {},
+        );
+      },
     };
   }
 }
