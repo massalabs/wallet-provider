@@ -90,4 +90,31 @@ export class BearbyProvider implements IProvider {
   } {
     return web3.wallet.account.subscribe((base58) => callback(base58));
   }
+
+  /**
+   * Subscribes to network changes.
+   *
+   * @param callback - Callback to be called when the network changes.
+   *
+   * @returns A promise that resolves to a function that can be called to unsubscribe.
+   *
+   * @remarks
+   * Don't forget to unsubscribe to avoid memory leaks.
+   *
+   * @example
+   * ```typescript
+   * // Subscribe
+   * const observer = await provider.listenNetworkChanges((network) => {
+   *  console.log(network);
+   * });
+   *
+   * // Unsubscribe
+   * observer.unsubscribe();
+   * ```
+   */
+  public listenNetworkChanges(callback: (network: string) => void): {
+    unsubscribe: () => void;
+  } {
+    return web3.wallet.network.subscribe((network) => callback(network));
+  }
 }
