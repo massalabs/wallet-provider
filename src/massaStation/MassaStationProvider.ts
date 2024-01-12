@@ -7,7 +7,7 @@ import {
   EAccountImportResponse,
   IAccountImportRequest,
 } from '../provider/AccountImport';
-import { IProvider } from '../provider/IProvider';
+import { INetwork, IProvider } from '../provider/IProvider';
 import {
   JsonRpcResponseData,
   deleteRequest,
@@ -18,7 +18,8 @@ import {
 import { MassaStationAccount } from './MassaStationAccount';
 import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
-import { PluginInfo } from './types';
+import { PluginInfo, getNetworkInfoBody } from './types';
+import EventEmitter from 'events';
 
 /**
  * MassaStation url
@@ -39,6 +40,11 @@ export const MASSA_STATION_IMPORT_ACCOUNTS_URL = `${MASSA_STATION_ACCOUNTS_URL}/
  * MassaStation's wallet provider name
  */
 export const MASSA_STATION_PROVIDER_NAME = 'MASSASTATION';
+
+/**
+ * Events emitted by MassaStation
+ */
+const MASSA_STATION_NETWORK_CHANGED = 'MASSA_STATION_NETWORK_CHANGED';
 
 /**
  * This interface represents the payload returned by making a call to MassaStation's accounts url.
@@ -67,6 +73,9 @@ enum MassaStationAccountStatus {
  */
 export class MassaStationProvider implements IProvider {
   private providerName = MASSA_STATION_PROVIDER_NAME;
+
+  private massaStationEventsListener = new EventEmitter();
+  private currentNetwork: INetwork;
 
   /**
    * Provider constructor
@@ -251,13 +260,20 @@ export class MassaStationProvider implements IProvider {
    * @returns a Promise that resolves to a network.
    */
   public async getNetwork(): Promise<string> {
-    let nodesResponse: JsonRpcResponseData<unknown> = null;
     try {
-      nodesResponse = await getRequest<unknown>(
+      const nodesResponse = await getRequest<getNetworkInfoBody>(
         `${MASSA_STATION_URL}massa/node`,
       );
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
+      }
+
+      if (this.currentNetwork?.name !== nodesResponse.result.network) {
+        this.currentNetwork = {
+          name: nodesResponse.result.network,
+          url: nodesResponse.result.url,
+          chainId: BigInt(nodesResponse.result.chainId),
+        };
       }
       const nodes = nodesResponse.result as { network: string };
 
@@ -310,9 +326,30 @@ export class MassaStationProvider implements IProvider {
   public listenNetworkChanges(
     callback: (network: string) => void,
   ): { unsubscribe: () => void } | undefined {
-    console.log(
-      'The listen Network Change functionality is not yet implemented for the current provider.',
+    this.massaStationEventsListener.on(MASSA_STATION_NETWORK_CHANGED, (evt) =>
+      callback(evt),
     );
-    return undefined;
+
+    // check periodically if network changed
+    const intervalId = setInterval(async () => {
+      const currentNetwork = this.currentNetwork?.name;
+      const network = await this.getNetwork();
+      if (currentNetwork !== network) {
+        this.massaStationEventsListener.emit(
+          MASSA_STATION_NETWORK_CHANGED,
+          network,
+        );
+      }
+    }, 500);
+
+    return {
+      unsubscribe: () =>
+        this.massaStationEventsListener.removeListener(
+          MASSA_STATION_NETWORK_CHANGED,
+          () => {
+            clearInterval(intervalId);
+          },
+        ),
+    };
   }
 }

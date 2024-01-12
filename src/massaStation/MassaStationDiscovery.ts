@@ -43,8 +43,6 @@ export class MassaStationDiscovery extends EventEmitter {
   /**
    * MassaStation constructor
    *
-   * @param pollIntervalMillis - Polling interval defined in milliseconds
-   *
    * @remarks
    * - It creates a timeout using the given `pollIntervalMillis` argument on every trigger of which
    *  the MassaStation pinging is triggered and if a successful response is fetched,

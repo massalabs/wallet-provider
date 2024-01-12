@@ -3,6 +3,14 @@ import { IAccountImportResponse } from './AccountImport';
 import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
 
+export type INetworkName = 'mainnet' | 'buildnet' | 'labnet';
+
+export type INetwork = {
+  name: INetworkName;
+  url: string;
+  chainId: bigint;
+};
+
 /**
  * This interface represents a general provider definition with its methods
  */
