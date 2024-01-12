@@ -1,3 +1,5 @@
+import { INetworkName } from '../provider/IProvider';
+
 export type ExecuteFunctionBody = {
   nickname: string;
   name: string;
@@ -19,3 +21,9 @@ export type PluginInfo = {
 };
 
 export type PluginManagerBody = PluginInfo[];
+
+export type getNetworkInfoBody = {
+  chainId: number | string;
+  network: INetworkName;
+  url: string;
+};
