@@ -317,10 +317,9 @@ export class MassaStationProvider implements IProvider {
   public listenAccountChanges(
     callback: (address: string) => void,
   ): { unsubscribe: () => void } | undefined {
-    console.log(
-      'The listen Account Change functionality is not yet implemented for the current provider.',
+    throw new Error(
+      'listenAccountChanges is not yet implemented for the current provider.',
     );
-    return undefined;
   }
 
   public listenNetworkChanges(
@@ -352,5 +351,29 @@ export class MassaStationProvider implements IProvider {
         );
       },
     };
+  }
+
+  public async connect(): Promise<boolean> {
+    throw new Error(
+      'connect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public async disconnect(): Promise<boolean> {
+    throw new Error(
+      'disconnect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public async connected(): Promise<boolean> {
+    throw new Error(
+      'connected functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public async enabled(): Promise<boolean> {
+    throw new Error(
+      'enabled functionality is not yet implemented for the current provider.',
+    );
   }
 }

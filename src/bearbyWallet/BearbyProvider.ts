@@ -117,4 +117,44 @@ export class BearbyProvider implements IProvider {
   } {
     return web3.wallet.network.subscribe((network) => callback(network));
   }
+
+  /**
+   * Connects to the wallet.
+   *
+   * @remarks
+   * This method will attempt to establish a connection with the wallet.
+   * If the connection fails, it will log the error message.
+   */
+  public async connect() {
+    return web3.wallet.connect();
+  }
+
+  /**
+   * Disconnects from the wallet.
+   *
+   * @remarks
+   * This method will attempt to disconnect from the wallet.
+   * If the disconnection fails, it will log the error message.
+   */
+  public async disconnect() {
+    return web3.wallet.disconnect();
+  }
+
+  /**
+   * Checks if the wallet is connected.
+   *
+   * @returns A promise that resolves to a boolean indicating whether the wallet is connected.
+   */
+  public async connected(): Promise<boolean> {
+    return web3.wallet.connected;
+  }
+
+  /**
+   * Checks if the wallet is enabled.
+   *
+   * @returns A promise that resolves to a boolean indicating whether the wallet is enabled.
+   */
+  public async enabled(): Promise<boolean> {
+    return web3.wallet.enabled;
+  }
 }
