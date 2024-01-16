@@ -143,18 +143,18 @@ export class BearbyProvider implements IProvider {
   /**
    * Checks if the wallet is connected.
    *
-   * @returns A promise that resolves to a boolean indicating whether the wallet is connected.
+   * @returns a boolean indicating whether the wallet is connected.
    */
-  public async connected(): Promise<boolean> {
+  public connected(): boolean {
     return web3.wallet.connected;
   }
 
   /**
    * Checks if the wallet is enabled.
    *
-   * @returns A promise that resolves to a boolean indicating whether the wallet is enabled.
+   * @returns a boolean indicating whether the wallet is enabled.
    */
-  public async enabled(): Promise<boolean> {
+  public enabled(): boolean {
     return web3.wallet.enabled;
   }
 }

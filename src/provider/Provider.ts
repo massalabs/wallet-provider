@@ -219,13 +219,13 @@ export class Provider implements IProvider {
     );
   }
 
-  public async connected(): Promise<boolean> {
+  public connected(): boolean {
     throw new Error(
       'connected functionality is not yet implemented for the current provider.',
     );
   }
 
-  public async enabled(): Promise<boolean> {
+  public enabled(): boolean {
     throw new Error(
       'enabled functionality is not yet implemented for the current provider.',
     );

@@ -27,8 +27,8 @@ export interface IProvider {
   generateNewAccount(name: string): Promise<IAccountDetails>;
   connect(): Promise<boolean>;
   disconnect(): Promise<boolean>;
-  connected(): Promise<boolean>;
-  enabled(): Promise<boolean>;
+  connected(): boolean;
+  enabled(): boolean;
   listenAccountChanges(callback: (base58: string) => void):
     | {
         unsubscribe: () => void;
