@@ -194,18 +194,40 @@ export class Provider implements IProvider {
   public listenAccountChanges(
     callback: (address: string) => void,
   ): { unsubscribe: () => void } | undefined {
-    console.error(
-      'The listen Account Change functionality is not yet implemented for the current provider.',
+    throw new Error(
+      'listenAccountChanges is not yet implemented for the current provider.',
     );
-    return undefined;
   }
 
   public listenNetworkChanges(
     callback: (network: string) => void,
   ): { unsubscribe: () => void } | undefined {
-    console.error(
-      'The listen Network Change functionality is not yet implemented for the current provider.',
+    throw new Error(
+      'listenNetworkChanges is not yet implemented for the current provider.',
     );
-    return undefined;
+  }
+
+  public async connect(): Promise<boolean> {
+    throw new Error(
+      'connect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public async disconnect(): Promise<boolean> {
+    throw new Error(
+      'disconnect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public connected(): boolean {
+    throw new Error(
+      'connected functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public enabled(): boolean {
+    throw new Error(
+      'enabled functionality is not yet implemented for the current provider.',
+    );
   }
 }

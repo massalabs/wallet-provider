@@ -75,6 +75,7 @@ export class BearbyAccount implements IAccount {
     return this._providerName;
   }
 
+  // TODO: Should be removed from account interface as it more a provider method
   public async connect() {
     try {
       await web3.wallet.connect();

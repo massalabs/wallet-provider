@@ -25,6 +25,10 @@ export interface IProvider {
   getNodesUrls(): Promise<string[]>;
   getNetwork(): Promise<string>;
   generateNewAccount(name: string): Promise<IAccountDetails>;
+  connect(): Promise<boolean>;
+  disconnect(): Promise<boolean>;
+  connected(): boolean;
+  enabled(): boolean;
   listenAccountChanges(callback: (base58: string) => void):
     | {
         unsubscribe: () => void;
