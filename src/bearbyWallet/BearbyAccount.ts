@@ -193,11 +193,11 @@ export class BearbyAccount implements IAccount {
       );
     }
 
-    let unsafeParameters = Uint8Array.from([]);
-    if (parameter instanceof Args) {
-      unsafeParameters = Uint8Array.from(parameter.serialize());
-    } else {
+    let unsafeParameters: Uint8Array;
+    if (parameter instanceof Uint8Array) {
       unsafeParameters = parameter;
+    } else {
+      unsafeParameters = Uint8Array.from(parameter.serialize());
     }
 
     const operationId = await web3.contract.call({
