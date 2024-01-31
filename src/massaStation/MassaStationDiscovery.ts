@@ -88,25 +88,33 @@ export class MassaStationDiscovery extends EventEmitter {
   }
 }
 
-
 export async function isMassaStationInstalled(): Promise<boolean> {
-
   try {
-    // TODO - why we need timeout here?
-    const response = await getRequest<PluginManagerBody>(MASSA_STATION_DISCOVERY_URL, TIMEOUT);
+    // TODO: why we need timeout here?
+    const response = await getRequest<PluginManagerBody>(
+      MASSA_STATION_DISCOVERY_URL,
+      TIMEOUT,
+    );
 
     if (!response || !Array.isArray(response.result)) {
-      console.error('Invalid response structure from MASSA Station Discovery URL');
+      console.error(
+        'Invalid response structure from MASSA Station Discovery URL',
+      );
       return false;
     }
 
-    const walletModule = response.result.find(module =>
-      module.name === MS_WALLET_PLUGIN_NAME && module.author === MS_WALLET_PLUGIN_AUTHOR
+    const walletModule = response.result.find(
+      (module) =>
+        module.name === MS_WALLET_PLUGIN_NAME &&
+        module.author === MS_WALLET_PLUGIN_AUTHOR,
     );
 
     return !!walletModule;
   } catch (error) {
-    console.error('Error fetching data from MASSA Station Discovery URL:', error);
+    console.error(
+      'Error fetching data from MASSA Station Discovery URL:',
+      error,
+    );
     return false;
   }
 }

@@ -42,15 +42,15 @@ export class BearbyProvider implements IProvider {
   }
 
   public async getNodesUrls(): Promise<string[]> {
-    const chain_id = await this.getChainId();
+    const chainId = await this.getChainId();
     // TODO: Check why we need to put in an array
-    return [getRpcByChainId(chain_id)];
+    return [getRpcByChainId(chainId)];
   }
 
   public async getChainId(): Promise<bigint> {
-    // TODO - remove any when bearby.js is updated https://github.com/bearby-wallet/bearby-web3/issues/10
-    const info = await web3.massa.getNodesStatus() as any;
-    return BigInt(info.result.chain_id);
+    // TODO: remove any when bearby.js is updated https://github.com/bearby-wallet/bearby-web3/issues/10
+    const info = (await web3.massa.getNodesStatus()) as any;
+    return BigInt(info.result.chainId);
   }
 
   public async getNetwork(): Promise<string> {
@@ -116,42 +116,18 @@ export class BearbyProvider implements IProvider {
     return web3.wallet.network.subscribe((network) => callback(network));
   }
 
-  /**
-   * Connects to the wallet.
-   *
-   * @remarks
-   * This method will attempt to establish a connection with the wallet.
-   * If the connection fails, it will log the error message.
-   */
   public async connect() {
     return web3.wallet.connect();
   }
 
-  /**
-   * Disconnects from the wallet.
-   *
-   * @remarks
-   * This method will attempt to disconnect from the wallet.
-   * If the disconnection fails, it will log the error message.
-   */
   public async disconnect() {
     return web3.wallet.disconnect();
   }
 
-  /**
-   * Checks if the wallet is connected.
-   *
-   * @returns a boolean indicating whether the wallet is connected.
-   */
   public connected(): boolean {
     return web3.wallet.connected;
   }
 
-  /**
-   * Checks if the wallet is enabled.
-   *
-   * @returns a boolean indicating whether the wallet is enabled.
-   */
   public enabled(): boolean {
     return web3.wallet.enabled;
   }

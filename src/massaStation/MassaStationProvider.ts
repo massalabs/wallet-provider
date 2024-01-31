@@ -77,7 +77,6 @@ export class MassaStationProvider implements IProvider {
   private massaStationEventsListener = new EventEmitter();
   private currentNetwork: INetwork;
 
-
   /**
    * This method returns the name of the provider.
    * @returns The name of the provider.
@@ -363,7 +362,7 @@ export class MassaStationProvider implements IProvider {
         this.massaStationEventsListener.removeListener(
           MASSA_STATION_NETWORK_CHANGED,
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          () => { },
+          () => {},
         );
       },
     };

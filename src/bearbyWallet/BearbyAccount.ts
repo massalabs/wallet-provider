@@ -81,7 +81,7 @@ export class BearbyAccount implements IAccount {
 
   // needs testing
   public async balance(): Promise<IAccountBalanceResponse> {
-    // TODO - check if we need to connect every time
+    // TODO: check if we need to connect every time
     await this.connect();
     // Not available on bearby. we have to manually call the api
     const body = {
@@ -301,7 +301,6 @@ export class BearbyAccount implements IAccount {
     } as JsonRpcResponseData<T>;
   }
 
-
   public async nonPersistentCallSC(
     contractAddress: string,
     functionName: string,
@@ -310,7 +309,6 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
     maxGas: bigint,
   ): Promise<IContractReadOperationResponse> {
-
     // Gas amount check
     if (maxGas > MAX_GAS_CALL) {
       throw new Error(
