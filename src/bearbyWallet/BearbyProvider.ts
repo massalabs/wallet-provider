@@ -11,14 +11,6 @@ import { getRpcByChainId } from './helpers';
 export class BearbyProvider implements IProvider {
   private providerName = 'BEARBY';
 
-  /**
-   * Provider constructor
-   *
-   * @param providerName - The name of the provider.
-   * @returns An instance of the Provider class.
-   */
-  public constructor() { }
-
   public name(): string {
     return this.providerName;
   }

@@ -2,6 +2,7 @@ import {
   Args,
   IContractReadOperationData,
   IContractReadOperationResponse,
+  MAX_GAS_CALL,
 } from '@massalabs/web3-utils';
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse, IAccountDetails } from '../account';
@@ -19,12 +20,6 @@ import { IAccountSignOutput } from '../account/AccountSign';
 /**
  * The maximum allowed gas for a read operation
  */
-const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
-
-/**
- * The RPC we are using to query the node
- */
-export const PUBLIC_NODE_RPC = 'https://buildnet.massa.net/api/v2';
 
 export enum OperationsType {
   Payment,
@@ -55,7 +50,7 @@ export class BearbyAccount implements IAccount {
   private _providerName: string;
   private _address: string;
   private _name: string;
-  private _nodeUrl = PUBLIC_NODE_RPC;
+  private _nodeUrl: string;
 
   public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
@@ -86,6 +81,7 @@ export class BearbyAccount implements IAccount {
 
   // needs testing
   public async balance(): Promise<IAccountBalanceResponse> {
+    // TODO - check if we need to connect every time
     await this.connect();
     // Not available on bearby. we have to manually call the api
     const body = {
@@ -96,7 +92,7 @@ export class BearbyAccount implements IAccount {
     };
 
     const addressInfos = await postRequest<BalanceResponse>(
-      PUBLIC_NODE_RPC,
+      this._nodeUrl,
       body,
     );
 
@@ -129,7 +125,6 @@ export class BearbyAccount implements IAccount {
     };
   }
 
-  // need testing
   public async buyRolls(
     amount: bigint,
     fee: bigint,
@@ -142,7 +137,6 @@ export class BearbyAccount implements IAccount {
     } as ITransactionDetails;
   }
 
-  // need testing
   public async sellRolls(
     amount: bigint,
     fee: bigint,
@@ -307,6 +301,7 @@ export class BearbyAccount implements IAccount {
     } as JsonRpcResponseData<T>;
   }
 
+
   public async nonPersistentCallSC(
     contractAddress: string,
     functionName: string,
@@ -315,14 +310,13 @@ export class BearbyAccount implements IAccount {
     fee: bigint,
     maxGas: bigint,
   ): Promise<IContractReadOperationResponse> {
-    // not clean but bearby doesn't allow us to get its node urls
-    const node = PUBLIC_NODE_RPC;
+
     // Gas amount check
-    if (maxGas > MAX_READ_BLOCK_GAS) {
+    if (maxGas > MAX_GAS_CALL) {
       throw new Error(
         `
         The gas submitted ${maxGas.toString()} exceeds the max. allowed block gas of 
-        ${MAX_READ_BLOCK_GAS.toString()}
+        ${MAX_GAS_CALL.toString()}
         `,
       );
     }
@@ -356,7 +350,7 @@ export class BearbyAccount implements IAccount {
     let jsonRpcCallResult: Array<IContractReadOperationData> = [];
     try {
       let resp = await postRequest<Array<IContractReadOperationData>>(
-        node,
+        this._nodeUrl,
         body,
       );
       if (resp.isError || resp.error) {
