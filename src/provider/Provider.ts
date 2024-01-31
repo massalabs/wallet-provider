@@ -171,6 +171,31 @@ export class Provider implements IProvider {
   }
 
   /**
+   * Returns the chain id of the network the provider is connected to.
+   *
+   * @returns a Promise that resolves to the chain id (bigint).
+   */
+  public async getChainId(): Promise<bigint> {
+    return new Promise<bigint>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this.providerName,
+        AvailableCommands.ProviderGetChainId,
+        {},
+        (result, err) => {
+          if (err) return reject(err);
+          else if (typeof result !== 'number') {
+            return reject(
+              new Error(`Expected a number but got ${typeof result} instead`),
+            );
+          } else {
+            return resolve(BigInt(result));
+          }
+        },
+      );
+    });
+  }
+
+  /**
    * This method generates a new account by a given name and adds it to the wallet.
    *
    * @param name - The account name

@@ -77,13 +77,6 @@ export class MassaStationProvider implements IProvider {
   private massaStationEventsListener = new EventEmitter();
   private currentNetwork: INetwork;
 
-  /**
-   * Provider constructor
-   *
-   * @param providerName - The name of the provider.
-   * @returns An instance of the Provider class.
-   */
-  public constructor(private infos: PluginInfo) {}
 
   /**
    * This method returns the name of the provider.
@@ -285,6 +278,29 @@ export class MassaStationProvider implements IProvider {
   }
 
   /**
+   * Returns the chain id of the network MassaStation is connected to.
+   *
+   * @throws an error if the call fails.
+   *
+   * @returns a Promise that resolves to a chain id.
+   */
+  public async getChainId(): Promise<bigint> {
+    try {
+      const nodesResponse = await getRequest<getNetworkInfoBody>(
+        `${MASSA_STATION_URL}massa/node`,
+      );
+      if (nodesResponse.isError || nodesResponse.error) {
+        throw nodesResponse.error.message;
+      }
+      const nodes = nodesResponse.result as { chainId: number };
+      return BigInt(nodes.chainId);
+    } catch (ex) {
+      console.error(`MassaStation nodes retrieval error`, ex);
+      throw ex;
+    }
+  }
+
+  /**
    * This method sends an http call to the MassaStation server to create a new random account.
    *
    * @returns a Promise that resolves to the details of the newly generated account.
@@ -347,7 +363,7 @@ export class MassaStationProvider implements IProvider {
         this.massaStationEventsListener.removeListener(
           MASSA_STATION_NETWORK_CHANGED,
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          () => {},
+          () => { },
         );
       },
     };
