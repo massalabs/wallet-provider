@@ -6,7 +6,8 @@ import {
   IProvider,
 } from '../provider';
 import { BearbyAccount } from './BearbyAccount';
-import { getRpcByChainId } from './helpers';
+import { CHAIN_ID_RPC_URL_MAP } from '@massalabs/web3-utils';
+
 
 export class BearbyProvider implements IProvider {
   private providerName = 'BEARBY';
@@ -51,7 +52,7 @@ export class BearbyProvider implements IProvider {
   public async getNodesUrls(): Promise<string[]> {
     const chainId = await this.getChainId();
     // TODO: Check why we need to put in an array
-    return [getRpcByChainId(chainId)];
+    return [CHAIN_ID_RPC_URL_MAP[chainId.toString()]];
   }
 
   public async getChainId(): Promise<bigint> {
