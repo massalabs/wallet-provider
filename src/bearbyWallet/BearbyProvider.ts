@@ -25,7 +25,14 @@ export class BearbyProvider implements IProvider {
       address: await web3.wallet.account.base58,
       name: 'BEARBY',
     };
-    return [new BearbyAccount(account, this.providerName)];
+
+    return [
+      new BearbyAccount(
+        account,
+        this.providerName,
+        (await this.getNodesUrls())[0],
+      ),
+    ];
   }
 
   public async importAccount(
@@ -50,7 +57,7 @@ export class BearbyProvider implements IProvider {
   public async getChainId(): Promise<bigint> {
     // TODO: remove any when bearby.js is updated https://github.com/bearby-wallet/bearby-web3/issues/10
     const info = (await web3.massa.getNodesStatus()) as any;
-    return BigInt(info.result.chainId);
+    return BigInt(info.result.chain_id);
   }
 
   public async getNetwork(): Promise<string> {

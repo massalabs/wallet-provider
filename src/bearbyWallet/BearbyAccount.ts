@@ -52,10 +52,15 @@ export class BearbyAccount implements IAccount {
   private _name: string;
   private _nodeUrl: string;
 
-  public constructor({ address, name }: IAccountDetails, providerName: string) {
+  public constructor(
+    { address, name }: IAccountDetails,
+    providerName: string,
+    nodeUrl: string,
+  ) {
     this._address = address;
     this._name = name ?? 'Bearby_account';
     this._providerName = providerName;
+    this._nodeUrl = nodeUrl;
   }
 
   public address(): string {
