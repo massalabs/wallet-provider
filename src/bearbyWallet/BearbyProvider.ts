@@ -8,7 +8,6 @@ import {
 import { BearbyAccount } from './BearbyAccount';
 import { CHAIN_ID_RPC_URL_MAP } from '@massalabs/web3-utils';
 
-
 export class BearbyProvider implements IProvider {
   private providerName = 'BEARBY';
 

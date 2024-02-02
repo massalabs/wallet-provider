@@ -63,6 +63,6 @@ export { IMassaStationWallet } from './massaStation/MassaStationProvider';
 
 export { MassaStationAccount } from './massaStation/MassaStationAccount';
 
-export { providers } from './providers';
+export { providers, ProvidersListener } from './providers';
 
 export { connectBearby, disconnectBearby } from './bearbyWallet/BearbyConnect';

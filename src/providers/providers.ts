@@ -9,7 +9,6 @@ export async function providers(): Promise<IProvider[]> {
   for (const provider of providerList) {
     try {
       if (await provider.checkInstalled()) {
-        provider.isInstalled = true;
         providerInstances.push(provider.createInstance());
       }
     } catch (error) {
