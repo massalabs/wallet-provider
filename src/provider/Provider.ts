@@ -216,17 +216,13 @@ export class Provider implements IProvider {
     });
   }
 
-  public listenAccountChanges(
-    callback: (address: string) => void,
-  ): { unsubscribe: () => void } | undefined {
+  public listenAccountChanges(): { unsubscribe: () => void } | undefined {
     throw new Error(
       'listenAccountChanges is not yet implemented for the current provider.',
     );
   }
 
-  public listenNetworkChanges(
-    callback: (network: string) => void,
-  ): { unsubscribe: () => void } | undefined {
+  public listenNetworkChanges(): { unsubscribe: () => void } | undefined {
     throw new Error(
       'listenNetworkChanges is not yet implemented for the current provider.',
     );

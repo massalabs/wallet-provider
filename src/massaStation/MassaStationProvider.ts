@@ -18,7 +18,7 @@ import {
 import { MassaStationAccount } from './MassaStationAccount';
 import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
-import { PluginInfo, getNetworkInfoBody } from './types';
+import { getNetworkInfoBody } from './types';
 import EventEmitter from 'events';
 
 /**
@@ -329,9 +329,7 @@ export class MassaStationProvider implements IProvider {
     }
   }
 
-  public listenAccountChanges(
-    callback: (address: string) => void,
-  ): { unsubscribe: () => void } | undefined {
+  public listenAccountChanges(): { unsubscribe: () => void } | undefined {
     throw new Error(
       'listenAccountChanges is not yet implemented for the current provider.',
     );

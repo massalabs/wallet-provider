@@ -28,16 +28,6 @@ import { ExecuteFunctionBody } from './types';
 const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
 
 /**
- * This interface represents the payload returned by making a call to MassaStation's sign
- * operation `/signOperation` url.
- */
-interface ISignOperation {
-  operation: string;
-  batch?: boolean;
-  correlationId?: string;
-}
-
-/**
  * This interface represents the the individual wallet's final and pending balances returned by MassaStation
  */
 interface IBalance {

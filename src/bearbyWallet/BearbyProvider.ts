@@ -33,16 +33,11 @@ export class BearbyProvider implements IProvider {
     return [new BearbyAccount(account, this.providerName)];
   }
 
-  public async importAccount(
-    publicKey: string,
-    privateKey: string,
-  ): Promise<IAccountImportResponse> {
+  public async importAccount(): Promise<IAccountImportResponse> {
     throw new Error('Method not implemented.');
   }
 
-  public async deleteAccount(
-    address: string,
-  ): Promise<IAccountDeletionResponse> {
+  public async deleteAccount(): Promise<IAccountDeletionResponse> {
     throw new Error('Method not implemented.');
   }
 
@@ -70,7 +65,7 @@ export class BearbyProvider implements IProvider {
     return web3.massa.getNodesStatus();
   }
 
-  public async generateNewAccount(name: string): Promise<IAccountDetails> {
+  public async generateNewAccount(): Promise<IAccountDetails> {
     throw new Error('Method not implemented.');
   }
 

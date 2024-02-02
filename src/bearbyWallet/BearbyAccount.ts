@@ -8,11 +8,7 @@ import {
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse, IAccountDetails } from '../account';
 import { IAccount } from '../account/IAccount';
-import {
-  JsonRPCResponse,
-  JsonRPCResponseNodeStatus,
-  web3,
-} from '@hicaru/bearby.js';
+import { web3 } from '@hicaru/bearby.js';
 import { postRequest } from '../massaStation/RequestHandler';
 import { BalanceResponse } from './BalanceResponse';
 import { IAccountSignOutput } from '../account/AccountSign';
@@ -116,10 +112,7 @@ export class BearbyAccount implements IAccount {
     };
   }
 
-  public async buyRolls(
-    amount: bigint,
-    fee: bigint,
-  ): Promise<ITransactionDetails> {
+  public async buyRolls(amount: bigint): Promise<ITransactionDetails> {
     await this.connect();
     const operationId = await web3.massa.buyRolls(amount.toString());
 
@@ -128,10 +121,7 @@ export class BearbyAccount implements IAccount {
     } as ITransactionDetails;
   }
 
-  public async sellRolls(
-    amount: bigint,
-    fee: bigint,
-  ): Promise<ITransactionDetails> {
+  public async sellRolls(amount: bigint): Promise<ITransactionDetails> {
     await this.connect();
     const operationId = await web3.massa.sellRolls(amount.toString());
 
@@ -143,7 +133,6 @@ export class BearbyAccount implements IAccount {
   public async sendTransaction(
     amount: bigint,
     recipientAddress: string,
-    fee: bigint,
   ): Promise<ITransactionDetails> {
     await this.connect();
 
