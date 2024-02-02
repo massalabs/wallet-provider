@@ -30,6 +30,7 @@ export enum AvailableCommands {
   ProviderImportAccount = 'IMPORT_ACCOUNT',
   ProviderGetNodesUrls = 'GET_NODES_URLS',
   ProviderGetNetwork = 'GET_NETWORK',
+  ProviderGetChainId = 'GET_CHAIN_ID',
   AccountBalance = 'ACCOUNT_BALANCE',
   AccountSign = 'ACCOUNT_SIGN',
   ProviderGenerateNewAccount = 'GENERATE_NEW_ACCOUNT',

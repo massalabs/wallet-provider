@@ -6,19 +6,10 @@ import {
   IProvider,
 } from '../provider';
 import { BearbyAccount } from './BearbyAccount';
+import { CHAIN_ID_RPC_URL_MAP } from '@massalabs/web3-utils';
 
 export class BearbyProvider implements IProvider {
-  private providerName: string;
-
-  /**
-   * Provider constructor
-   *
-   * @param providerName - The name of the provider.
-   * @returns An instance of the Provider class.
-   */
-  public constructor(providerName: string) {
-    this.providerName = providerName;
-  }
+  private providerName = 'BEARBY';
 
   public name(): string {
     return this.providerName;
@@ -34,6 +25,7 @@ export class BearbyProvider implements IProvider {
       address: await web3.wallet.account.base58,
       name: 'BEARBY',
     };
+
     return [new BearbyAccount(account, this.providerName)];
   }
 
@@ -51,12 +43,19 @@ export class BearbyProvider implements IProvider {
   }
 
   public async getNodesUrls(): Promise<string[]> {
-    return ['https://buildnet.massa.net/api/v2'];
+    const chainId = await this.getChainId();
+    // TODO: Check why we need to put in an array
+    return [CHAIN_ID_RPC_URL_MAP[chainId.toString()]];
+  }
+
+  public async getChainId(): Promise<bigint> {
+    // TODO: remove any when bearby.js is updated https://github.com/bearby-wallet/bearby-web3/issues/10
+    const info = (await web3.massa.getNodesStatus()) as any;
+    return BigInt(info.result.chain_id);
   }
 
   public async getNetwork(): Promise<string> {
     const network = await web3.wallet.network;
-
     return network.net;
   }
 
