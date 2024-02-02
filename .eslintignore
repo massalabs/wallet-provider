@@ -6,3 +6,5 @@ docs
 dist
 test-extension/simple-browser-extension
 test-extension/dapp-vite
+unit-tests/code-snippets
+test-extension

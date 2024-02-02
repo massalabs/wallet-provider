@@ -22,12 +22,6 @@ import {
   IAccountSignRequest,
   IAccountSignResponse,
 } from '..';
-import {
-  ON_MASSA_STATION_DISCOVERED,
-  ON_MASSA_STATION_DISCONNECTED,
-  MassaStationDiscovery,
-} from '../massaStation/MassaStationDiscovery';
-import { MASSA_STATION_PROVIDER_NAME } from '../massaStation/MassaStationProvider';
 import { IAccount } from '../account/IAccount';
 import { PluginInfo } from '../massaStation/types';
 
@@ -68,7 +62,6 @@ export type AllowedResponses =
 class Connector {
   private registeredProviders: Record<string, string> = {};
   private pendingRequests: Map<string, CallbackFunction>;
-  private massaStationListener: MassaStationDiscovery;
 
   private providersInfo: Record<string, PluginInfo> = {};
 
@@ -87,8 +80,6 @@ class Connector {
   public constructor() {
     if (typeof document !== 'undefined') {
       this.pendingRequests = new Map<string, CallbackFunction>();
-      this.massaStationListener = new MassaStationDiscovery();
-      this.initMassaStationListener();
       this.register();
 
       // start listening to messages from content script
@@ -133,30 +124,6 @@ class Connector {
           this.registeredProviders[payload.providerName] =
             providerEventTargetName;
         });
-    }
-  }
-
-  private initMassaStationListener() {
-    this.massaStationListener.on(
-      ON_MASSA_STATION_DISCOVERED,
-      (walletModule: PluginInfo) => {
-        this.registeredProviders[
-          MASSA_STATION_PROVIDER_NAME
-        ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
-
-        this.providersInfo[MASSA_STATION_PROVIDER_NAME] = walletModule;
-      },
-    );
-    this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
-      delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
-    });
-  }
-
-  public async startMassaStationDiscovery() {
-    try {
-      await this.massaStationListener.startListening();
-    } catch (e) {
-      console.log('get MassaStation provider error: ', e);
     }
   }
 

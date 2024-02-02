@@ -102,7 +102,7 @@ export class Interval {
  * @returns void
  */
 export const wait = async (timeMilli: number): Promise<void> => {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     const timeout = new Timeout(timeMilli, () => {
       timeout.clear();
       return resolve();

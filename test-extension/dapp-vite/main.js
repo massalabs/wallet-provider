@@ -1,10 +1,6 @@
 import { providers } from '@massalabs/wallet-provider';
 import { Args } from '@massalabs/web3-utils';
 (async () => {
-  console.log(await providers());
-
-  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-
   console.log('[DAPP_HTML] Hello from Dapp! ');
 
   let providerList = await providers();
