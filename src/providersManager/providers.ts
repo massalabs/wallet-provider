@@ -23,8 +23,8 @@ export async function providers(): Promise<IProvider[]> {
 
 // Custom providers are community provided providers that are not part of the official list.
 // But they must implement the wallet provider massa standard.
-function addCustomProvider(connector: any): any[] {
-  const providerInstances: any[] = [];
+function addCustomProvider(connector: any): IProvider[] {
+  const providerInstances: IProvider[] = [];
   const availableProviders = Object.keys(connector.getWalletProviders());
   availableProviders.forEach((providerName) => {
     providerInstances.push(new Provider(providerName));
