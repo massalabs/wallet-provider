@@ -1,5 +1,6 @@
 import {
   Args,
+  CHAIN_ID_RPC_URL_MAP,
   IContractReadOperationData,
   IContractReadOperationResponse,
   MAX_GAS_CALL,
@@ -8,14 +9,8 @@ import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse, IAccountDetails } from '../account';
 import { IAccount } from '../account/IAccount';
 import { web3 } from '@hicaru/bearby.js';
-import {
-  postRequest,
-  JsonRpcResponseData,
-} from '../massaStation/RequestHandler';
+import { postRequest } from '../massaStation/RequestHandler';
 import { BalanceResponse } from './BalanceResponse';
-import { NodeStatus } from './NodeStatus';
-import { JSON_RPC_REQUEST_METHOD } from './jsonRpcMethods';
-import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import { IAccountSignOutput } from '../account/AccountSign';
 /**
  * The maximum allowed gas for a read operation
@@ -40,27 +35,15 @@ export enum OperationTypeId {
   CallSC = 4,
 }
 
-const requestHeaders = {
-  Accept:
-    'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Content-Type': 'application/json',
-} as AxiosRequestHeaders;
-
 export class BearbyAccount implements IAccount {
   private _providerName: string;
   private _address: string;
   private _name: string;
-  private _nodeUrl: string;
 
-  public constructor(
-    { address, name }: IAccountDetails,
-    providerName: string,
-    nodeUrl: string,
-  ) {
+  public constructor({ address, name }: IAccountDetails, providerName: string) {
     this._address = address;
     this._name = name ?? 'Bearby_account';
     this._providerName = providerName;
-    this._nodeUrl = nodeUrl;
   }
 
   public address(): string {
@@ -84,7 +67,6 @@ export class BearbyAccount implements IAccount {
     }
   }
 
-  // needs testing
   public async balance(): Promise<IAccountBalanceResponse> {
     // TODO: check if we need to connect every time
     await this.connect();
@@ -96,14 +78,15 @@ export class BearbyAccount implements IAccount {
       id: 0,
     };
 
-    const addressInfos = await postRequest<BalanceResponse>(
-      this._nodeUrl,
-      body,
-    );
+    // get node url: This is a temporary solution. We should get the balance from the provider
+    const nodeUrl = await getNodesUrl();
+
+    const addressInfos = await postRequest<BalanceResponse>(nodeUrl, body);
 
     if (addressInfos.isError || addressInfos.error) {
       throw addressInfos.error.message;
     }
+
     return {
       finalBalance: addressInfos.result.result[0].final_balance,
       candidateBalance: addressInfos.result.result[0].candidate_balance,
@@ -166,9 +149,7 @@ export class BearbyAccount implements IAccount {
       recipientAddress,
     );
 
-    return {
-      operationId,
-    } as ITransactionDetails;
+    return { operationId };
   }
 
   public async callSC(
@@ -209,101 +190,6 @@ export class BearbyAccount implements IAccount {
     });
 
     return { operationId };
-  }
-
-  /**
-   * Retrieves the node's status.
-   *
-   * @remarks
-   * The returned information includes:
-   * - Whether the node is reachable
-   * - The number of connected peers
-   * - The node's version
-   * - The node's configuration parameters
-   *
-   * @returns A promise that resolves to the node's status information.
-   */
-  public async getNodeStatus(): Promise<NodeStatus> {
-    const jsonRpcRequestMethod = JSON_RPC_REQUEST_METHOD.GET_STATUS;
-    return await this.sendJsonRPCRequest<NodeStatus>(jsonRpcRequestMethod, []);
-  }
-
-  /**
-   * Sends a post JSON rpc request to the node.
-   *
-   * @param resource - The rpc method to call.
-   * @param params - The parameters to pass to the rpc method.
-   *
-   * @throws An error if the rpc method returns an error.
-   *
-   * @returns A promise that resolves as the result of the rpc method.
-   */
-  protected async sendJsonRPCRequest<T>(
-    resource: JSON_RPC_REQUEST_METHOD,
-    params: object,
-  ): Promise<T> {
-    let resp: JsonRpcResponseData<T> = null;
-    resp = await this.promisifyJsonRpcCall(resource, params);
-
-    // in case of rpc error, rethrow the error.
-    if (resp.isError || resp.error) {
-      throw resp.error;
-    }
-
-    return resp.result;
-  }
-
-  /**
-   * Converts a json rpc call to a promise that resolves as a JsonRpcResponseData
-   *
-   * @privateRemarks
-   * If there is an error while sending the request, the function catches the error, the isError
-   * property is set to true, the result property set to null, and the error property set to a
-   * new Error object with a message indicating that there was an error.
-   *
-   * @param resource - The rpc method to call.
-   * @param params - The parameters to pass to the rpc method.
-   *
-   * @returns A promise that resolves as a JsonRpcResponseData.
-   */
-  private async promisifyJsonRpcCall<T>(
-    resource: JSON_RPC_REQUEST_METHOD,
-    params: object,
-  ): Promise<JsonRpcResponseData<T>> {
-    let resp: AxiosResponse<JsonRpcResponseData<T>> = null;
-
-    const body = {
-      jsonrpc: '2.0',
-      method: resource,
-      params: params,
-      id: 0,
-    };
-
-    try {
-      resp = await axios.post(this._nodeUrl, body, { headers: requestHeaders });
-    } catch (ex) {
-      return {
-        isError: true,
-        result: null,
-        error: new Error('JSON.parse error: ' + String(ex)),
-      } as JsonRpcResponseData<T>;
-    }
-
-    const responseData: JsonRpcResponseData<T> = resp.data;
-
-    if (responseData.error) {
-      return {
-        isError: true,
-        result: null,
-        error: new Error(responseData.error.message),
-      } as JsonRpcResponseData<T>;
-    }
-
-    return {
-      isError: false,
-      result: responseData.result as T,
-      error: null,
-    } as JsonRpcResponseData<T>;
   }
 
   public async nonPersistentCallSC(
@@ -351,9 +237,10 @@ export class BearbyAccount implements IAccount {
     ];
     // returns operation ids
     let jsonRpcCallResult: Array<IContractReadOperationData> = [];
+    const nodeUrl = await getNodesUrl();
     try {
       let resp = await postRequest<Array<IContractReadOperationData>>(
-        this._nodeUrl,
+        nodeUrl,
         body,
       );
       if (resp.isError || resp.error) {
@@ -378,4 +265,10 @@ export class BearbyAccount implements IAccount {
       info: jsonRpcCallResult[0],
     };
   }
+}
+
+// TODO: Should be removed from account when bearby.js is updated
+async function getNodesUrl(): Promise<string> {
+  const info = (await web3.massa.getNodesStatus()) as any;
+  return CHAIN_ID_RPC_URL_MAP[info.result.chain_id];
 }
