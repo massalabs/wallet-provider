@@ -6,7 +6,7 @@ export class ProvidersListener {
   private intervalId: NodeJS.Timeout | null;
   private currentProviders: IProvider[] = [];
 
-  constructor(intervalDelay: number = 1000) {
+  constructor(intervalDelay = 1000) {
     this.intervalDelay = intervalDelay;
   }
 

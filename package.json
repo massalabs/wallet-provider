@@ -53,7 +53,6 @@
     ],
     "dependencies": {
         "@hicaru/bearby.js": "^0.5.5",
-        "@massalabs/massa-web3": "^3.0.2",
         "@massalabs/web3-utils": "^1.4.8",
         "axios": "^0.26.1",
         "bignumber.js": "^9.1.1",
@@ -67,7 +66,6 @@
     "devDependencies": {
         "@babel/preset-env": "^7.22.14",
         "@massalabs/eslint-config": "^0.0.9",
-        "@massalabs/prettier-config-as": "^0.0.2",
         "@playwright/test": "^1.32.3",
         "@types/bn.js": "^5.1.1",
         "@types/chai": "^4.3.4",

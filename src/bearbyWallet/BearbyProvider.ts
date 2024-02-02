@@ -1,4 +1,8 @@
-import { web3 } from '@hicaru/bearby.js';
+import {
+  JsonRPCResponse,
+  JsonRPCResponseNodeStatus,
+  web3,
+} from '@hicaru/bearby.js';
 import { IAccount, IAccountDetails } from '../account';
 import {
   IAccountDeletionResponse,
@@ -57,6 +61,13 @@ export class BearbyProvider implements IProvider {
   public async getNetwork(): Promise<string> {
     const network = await web3.wallet.network;
     return network.net;
+  }
+
+  // TODO: Harmonize the response with other providers
+  public async getNodeStatus(): Promise<
+    JsonRPCResponse<JsonRPCResponseNodeStatus>
+  > {
+    return web3.massa.getNodesStatus();
   }
 
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
