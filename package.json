@@ -54,7 +54,7 @@
     "dependencies": {
         "@hicaru/bearby.js": "^0.5.5",
         "@massalabs/massa-web3": "^3.0.2",
-        "@massalabs/web3-utils": "^1.4.7",
+        "@massalabs/web3-utils": "^1.4.8",
         "axios": "^0.26.1",
         "bignumber.js": "^9.1.1",
         "bs58check": "^3.0.1",
