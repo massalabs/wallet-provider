@@ -35,6 +35,7 @@ export async function isMassaWalletPluginInstalled(): Promise<boolean> {
     (module) =>
       module.name === MS_WALLET_PLUGIN_NAME &&
       module.author === MS_WALLET_PLUGIN_AUTHOR,
+  module.status === 'UP',
   );
 }
 
