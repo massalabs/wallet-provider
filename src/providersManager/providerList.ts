@@ -1,6 +1,6 @@
 import { web3 } from '@hicaru/bearby.js';
 import { BearbyProvider } from '../bearbyWallet/BearbyProvider';
-import { isMassaStationInstalled } from '../massaStation/MassaStationDiscovery';
+import { isMassaStationAndWalletPluginInstalled } from '../massaStation/MassaStationDiscovery';
 import { MassaStationProvider } from '../massaStation/MassaStationProvider';
 import { IProvider } from '../provider/IProvider';
 
@@ -20,7 +20,7 @@ export const providerList: ProviderList[] = [
   },
   {
     name: 'MASSA_STATION',
-    checkInstalled: isMassaStationInstalled,
+    checkInstalled: isMassaStationAndWalletPluginInstalled,
     createInstance: () => new MassaStationProvider(),
     isInstalled: false,
   },

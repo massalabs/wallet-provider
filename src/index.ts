@@ -66,3 +66,8 @@ export { MassaStationAccount } from './massaStation/MassaStationAccount';
 export { providers, ProvidersListener } from './providersManager';
 
 export { connectBearby, disconnectBearby } from './bearbyWallet/BearbyConnect';
+
+export {
+  isMassaStationInstalled,
+  isMassaWalletPluginInstalled,
+} from './massaStation/MassaStationDiscovery';

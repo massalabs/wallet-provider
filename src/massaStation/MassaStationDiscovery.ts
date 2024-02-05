@@ -18,13 +18,29 @@ export async function isMassaStationInstalled(): Promise<boolean> {
     TIMEOUT,
   );
 
+  return !response.isError;
+}
+
+export async function isMassaWalletPluginInstalled(): Promise<boolean> {
+  const response = await getRequest<PluginManagerBody>(
+    MASSA_STATION_DISCOVERY_URL,
+    TIMEOUT,
+  );
+
   if (response.isError) {
     return false;
   }
 
-  const isMassaStation = (module) =>
-    module.name === MS_WALLET_PLUGIN_NAME &&
-    module.author === MS_WALLET_PLUGIN_AUTHOR;
+  return !!response.result.find(
+    (module) =>
+      module.name === MS_WALLET_PLUGIN_NAME &&
+      module.author === MS_WALLET_PLUGIN_AUTHOR,
+  );
+}
 
-  return !!response.result.find(isMassaStation);
+export async function isMassaStationAndWalletPluginInstalled(): Promise<boolean> {
+  const isMassaStation = await isMassaStationInstalled();
+  const isMassaWalletPlugin = await isMassaWalletPluginInstalled();
+
+  return isMassaStation && isMassaWalletPlugin;
 }
