@@ -1,47 +1,55 @@
-import { getRequest } from './RequestHandler';
-import { PluginManagerBody } from './types';
+import { JsonRpcResponseData, getRequest } from './RequestHandler';
+import { PluginInfo } from './types';
 
-/**
- * Url used for the MassaStation discovery and pinging the MassaStation server's index.html
- */
-export const MASSA_STATION_DISCOVERY_URL =
-  'https://station.massa/plugin-manager';
-
-const MS_WALLET_PLUGIN_NAME = 'Massa Wallet';
-const MS_WALLET_PLUGIN_AUTHOR = 'Massa Labs';
-// timeout
+// Constants for URLs and plugin information
+const MASSA_STATION_URL = 'https://station.massa/plugin-manager';
+const PLUGIN_NAME = 'Massa Wallet';
+const PLUGIN_AUTHOR = 'Massa Labs';
 const TIMEOUT = 2000;
 
-export async function isMassaStationInstalled(): Promise<boolean> {
-  const response = await getRequest<PluginManagerBody>(
-    MASSA_STATION_DISCOVERY_URL,
-    TIMEOUT,
-  );
+async function fetchPluginData(): Promise<JsonRpcResponseData<PluginInfo[]>> {
+  return getRequest<PluginInfo[]>(MASSA_STATION_URL, TIMEOUT);
+}
 
+function findWalletPlugin(plugins: PluginInfo[]): PluginInfo | undefined {
+  return plugins.find(
+    (plugin) => plugin.name === PLUGIN_NAME && plugin.author === PLUGIN_AUTHOR,
+  );
+}
+
+export async function isMassaStationAvailable(): Promise<boolean> {
+  const response = await fetchPluginData();
   return !response.isError;
 }
 
-export async function isMassaWalletPluginInstalled(): Promise<boolean> {
-  const response = await getRequest<PluginManagerBody>(
-    MASSA_STATION_DISCOVERY_URL,
-    TIMEOUT,
-  );
+export async function isMassaWalletInstalled(): Promise<boolean> {
+  const response = await fetchPluginData();
+  if (response.isError) return false;
+  return Boolean(findWalletPlugin(response.result));
+}
 
-  if (response.isError) {
-    return false;
-  }
+export async function isMassaWalletEnabled(): Promise<boolean> {
+  const response = await fetchPluginData();
 
-  return !!response.result.find(
-    (module) =>
-      module.name === MS_WALLET_PLUGIN_NAME &&
-      module.author === MS_WALLET_PLUGIN_AUTHOR,
-  module.status === 'UP',
-  );
+  if (response.isError) return false;
+
+  const walletPlugin = findWalletPlugin(response.result);
+  return walletPlugin && walletPlugin.status === 'UP';
 }
 
 export async function isMassaStationAndWalletPluginInstalled(): Promise<boolean> {
-  const isMassaStation = await isMassaStationInstalled();
-  const isMassaWalletPlugin = await isMassaWalletPluginInstalled();
+  const response = await fetchPluginData();
+  if (response.isError) {
+    console.warn('Massa Station plugin data fetch error.');
+    return false;
+  }
 
-  return isMassaStation && isMassaWalletPlugin;
+  const walletPlugin = findWalletPlugin(response.result);
+
+  if (!walletPlugin) {
+    console.warn('Massa Wallet plugin is not installed.');
+    return false;
+  }
+
+  return true;
 }
