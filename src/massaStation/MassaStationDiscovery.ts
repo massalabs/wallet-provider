@@ -34,7 +34,7 @@ export async function isMassaWalletEnabled(): Promise<boolean> {
   if (response.isError) return false;
 
   const walletPlugin = findWalletPlugin(response.result);
-  return walletPlugin && walletPlugin.status === 'UP';
+  return walletPlugin && walletPlugin.status === 'Up';
 }
 
 export async function isMassaStationAndWalletPluginInstalled(): Promise<boolean> {
