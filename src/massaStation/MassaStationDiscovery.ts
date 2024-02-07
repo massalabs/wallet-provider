@@ -22,12 +22,6 @@ export async function isMassaStationAvailable(): Promise<boolean> {
   return !response.isError;
 }
 
-export async function isMassaWalletInstalled(): Promise<boolean> {
-  const response = await fetchPluginData();
-  if (response.isError) return false;
-  return Boolean(findWalletPlugin(response.result));
-}
-
 export async function isMassaWalletEnabled(): Promise<boolean> {
   const response = await fetchPluginData();
 
@@ -35,21 +29,4 @@ export async function isMassaWalletEnabled(): Promise<boolean> {
 
   const walletPlugin = findWalletPlugin(response.result);
   return walletPlugin && walletPlugin.status === 'Up';
-}
-
-export async function isMassaStationAndWalletPluginInstalled(): Promise<boolean> {
-  const response = await fetchPluginData();
-  if (response.isError) {
-    console.warn('Massa Station plugin data fetch error.');
-    return false;
-  }
-
-  const walletPlugin = findWalletPlugin(response.result);
-
-  if (!walletPlugin) {
-    console.warn('Massa Wallet plugin is not installed.');
-    return false;
-  }
-
-  return true;
 }

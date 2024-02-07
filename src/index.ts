@@ -69,6 +69,5 @@ export { connectBearby, disconnectBearby } from './bearbyWallet/BearbyConnect';
 
 export {
   isMassaStationAvailable,
-  isMassaWalletInstalled,
   isMassaWalletEnabled,
 } from './massaStation/MassaStationDiscovery';
