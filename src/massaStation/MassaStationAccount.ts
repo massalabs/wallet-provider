@@ -23,11 +23,6 @@ import { encode as base58Encode } from 'bs58check';
 import { ExecuteFunctionBody } from './types';
 
 /**
- * The maximum allowed gas for a read operation
- */
-const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
-
-/**
  * This interface represents the the individual wallet's final and pending balances returned by MassaStation
  */
 interface IBalance {
@@ -360,11 +355,11 @@ export class MassaStationAccount implements IAccount {
   ): Promise<IContractReadOperationResponse> {
     const node = await this.getNodeUrlFromMassaStation();
     // Gas amount check
-    if (maxGas > MAX_READ_BLOCK_GAS) {
+    if (maxGas > MAX_GAS_CALL) {
       throw new Error(
         `
         The gas submitted ${maxGas.toString()} exceeds the max. allowed block gas of 
-        ${MAX_READ_BLOCK_GAS.toString()}
+        ${MAX_GAS_CALL.toString()}
         `,
       );
     }
