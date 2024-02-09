@@ -1,5 +1,5 @@
 import { IProvider } from '../provider/IProvider';
-import { providers } from './providers';
+import { getProvidersInstances, providers } from './providers';
 
 export class ProvidersListener {
   private intervalDelay: number;
@@ -14,7 +14,7 @@ export class ProvidersListener {
     callback: (providers: IProvider[]) => void,
   ): Promise<void> {
     try {
-      const newProviders = await providers();
+      const newProviders = await getProvidersInstances();
       if (this.hasProvidersChanged(newProviders)) {
         this.currentProviders = newProviders;
         callback(newProviders);

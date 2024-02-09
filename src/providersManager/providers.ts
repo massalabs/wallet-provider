@@ -2,8 +2,15 @@ import { Provider } from '../provider/Provider';
 import { connector } from '../connector/Connector';
 import { providerList } from './providerList';
 import { IProvider } from 'src/provider/IProvider';
+import { wait } from '../utils/time';
 
 export async function providers(): Promise<IProvider[]> {
+  // Wait for providers to be initialized
+  await wait(200);
+  return getProvidersInstances();
+}
+
+export async function getProvidersInstances(): Promise<IProvider[]> {
   const providerInstances: IProvider[] = [];
 
   for (const provider of providerList) {
