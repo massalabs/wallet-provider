@@ -35,7 +35,7 @@ jobs:
 
     - name: Format code snippets
       run: |
-        npm run prettier:fix
+        npm run prettier:fix-code-snippets
 
     - name: Commit Changes
       uses: stefanzweifel/git-auto-commit-action@v4
