@@ -1,68 +1,21 @@
+# Wallet-Provider
 
-# Wallet-provider
+> **PREREQUISITES:**
+> 
+>    - NodeJS 18+
+>    - npm / yarn (refer to package.json for specifics)
 
-  
+`Wallet-provider` is a TypeScript library designed to seamlessly connect frontend applications with MassaStation and browser wallet extensions adhering to the [massa standard](https://github.com/massalabs/massa-standards/blob/main/wallet/dapps-communication.md). This library provides a gateway to all massa-blockchain wallets, offering standardized functionalities for effortless integration.
 
-`Wallet-provider` is a TypeScript library that one could utilize to establish a connection between a frontend application and any browser wallet extensions that implement the [massa standard](https://github.com/massalabs/massa-standards/blob/main/wallet/dapps-communication.md). With this library one can access all massa-blockchain wallets and their standardized functionalities for ready use.
+## **Installation**
 
-  
+`Wallet-provider` can be integrated as a library within frameworks or bundled for direct browser use.
 
-## Usage
+### **For Frameworks (Node.js/React/Vue.js)**
 
-`Wallet-provider` could be used as a library for frameworks or as a stand-alone bundled js file which can be easily loaded into the browser.
-
-  
-
-### Library (Node.js/React/Vue.js) usage
-
-  
-
-> npm install @massalabs/wallet-provider
-
-  
-
-### Browser usage
-
-  
-
-Add the following script to your html file:
-
-  
-
-```ts
-
-<script
-
-type="text/javascript"
-
-src="https://cdn.jsdelivr.net/npm/@massalabs/wallet-provider@x.x.x/bundle.js"
-
-></script>
-
+```sh
+npm install @massalabs/wallet-provider
 ```
-
-  
-
-whereby the x.x.x is one of the available released versions under [Wallet-provider's releases page](https://github.com/massalabs/wallet-provider/releases).
-
-  
-
-In your code, once the script is fully loaded, just use `window.wallet` to access all `wallet-provider`'s' exported functionalities.
-
-
-```ts
-
-<script>
-
-const  providers = window.massa.providers();
-
-console.log("Massa Providers ", providers);
-
-</script>
-
-```
-
-  
 
 ## Documentation
 
@@ -76,31 +29,16 @@ npm run doc
 
 The documentation will be generated in the `docs/documentation/html` directory.
 
-   
+## Usage
 
-## Web3 Wallet Provider Requirement and Initialization
+- Go to [Web3 client initialization](https://docs.massa.net/docs/build/massa-web3#with-wallet-provider) to learn how to use wallet provider in a dapp.
 
+- Discover dApp examples with associated frontends at the [massa-sc-examples](https://github.com/massalabs/massa-sc-examples) repository.
 
-### Requirements
+## Example
 
-- NodeJS 16+
-
-- npm / yarn (see package.json)
-
-
-### Initialization
-
-1. Run `npm install` to install all dependencies
-
-2. Run `npx playwright install --with-deps` to install playwright and its dependencies
-
-3. Run `npm run build` to build distribution content
-
-4. Run `npm run test` to run integration and unit tests
-
-<br>
-
-The library exports a function called `providers` which can be executed to return a vector of all massa-wallet providers currently initialized in the space. As shown below in the example code, each provider has its own callable methods for listing, importing and deleting accounts. Each account can return its name, address and has methods to retrieve its balance and sign a data array.
+Wallet-provider is meant to be used with massa-web3 but can also be used as a standalone library.
+Here is a simple example of how to use Wallet-provider:
 
 ```ts
 
@@ -135,7 +73,7 @@ await  myProvider.importAccount(publicKey, privateKey);
 
 console.log("Retrieving the accounts ...");
 
-const  myAccounts = await  myProvider.accounts();
+const  myAccounts = await myProvider.accounts();
 
 console.log("Provider accounts ...", myAccounts);
   
@@ -151,7 +89,7 @@ console.log("Account address ", myAccount.address());
 
 console.log("Retrieving the account balance ...");
 
-const  accountBalance = await  myAccount.balance();
+const  accountBalance = await myAccount.balance();
 
 console.log("Account Balance = ", accountBalance.balance);
  
@@ -160,7 +98,7 @@ console.log("Account Balance = ", accountBalance.balance);
 
 console.log("Signing a message ...");
 
-const  signature = await  myAccount.sign([0, 1, 2]);
+const  signature = await myAccount.sign([0, 1, 2]);
 
 console.log("Signature = ", signature);
   
@@ -173,8 +111,11 @@ await  myProvider.importAccount(myAccount.address());
 
 ```
 
-
 ## Contributing
-We welcome contributions from the community!
 
-If you would like to contribute to Wallet Provider, please read the  [CONTRIBUTING file](https://github.com/massalabs/wallet-provider/blob/main/CONTRIBUTING.md).
+Community contributions are highly valued! If you're keen on contributing to `Wallet-provider`, please check out our [CONTRIBUTING guidelines](CONTRIBUTING.md).
+
+## License
+
+`Wallet-provider` is distributed under the [MIT License](LICENSE).
+

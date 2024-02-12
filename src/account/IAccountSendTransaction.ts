@@ -1,8 +1,11 @@
 /**
- * This interface represents the request object for roll operations (buy & sell) sent to the content script.
+ * Interface for transaction send requests sent to the content script.
  */
 export interface IAccountSendTransactionRequest {
+  /** Address of the recipient */
   recipientAddress: string;
+  /** Amount to be sent */
   amount: string;
+  /** Transaction fee */
   fee: string;
 }

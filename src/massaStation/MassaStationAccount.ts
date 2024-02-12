@@ -14,27 +14,13 @@ import {
   Args,
   IContractReadOperationData,
   IContractReadOperationResponse,
+  MAX_GAS_CALL,
 } from '@massalabs/web3-utils';
 
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
-import { IAccountSignOutput } from '../account/AccountSign';
+import { IAccountSignOutput, ISignMessage } from '../account/AccountSign';
 import { encode as base58Encode } from 'bs58check';
 import { ExecuteFunctionBody } from './types';
-
-/**
- * The maximum allowed gas for a read operation
- */
-const MAX_READ_BLOCK_GAS = BigInt(4_294_967_295);
-
-/**
- * This interface represents the payload returned by making a call to MassaStation's sign
- * operation `/signOperation` url.
- */
-interface ISignOperation {
-  operation: string;
-  batch?: boolean;
-  correlationId?: string;
-}
 
 /**
  * This interface represents the the individual wallet's final and pending balances returned by MassaStation
@@ -133,9 +119,9 @@ export class MassaStationAccount implements IAccount {
   }
 
   /**
-   * This method aims to sign a message.
+   * This method aims to sign an operation.
    *
-   * @param data - The message to be signed.
+   * @param data - The operation data to be signed.
    * @returns An IAccountSignResponse object. It contains the signature of the message.
    */
   public async sign(
@@ -143,13 +129,19 @@ export class MassaStationAccount implements IAccount {
   ): Promise<IAccountSignOutput> {
     let signOpResponse: JsonRpcResponseData<IAccountSignResponse> = null;
 
+    // TODO: Massa Station has 2 endpoints sign (to sign operation) and signMessage (to sign a message).
+    // To fix the current implementation we provide a dumb description and set DisplayData to true but it
+    // must this feature must be implemented in the future.
+    const signData: ISignMessage = {
+      description: '',
+      message: data.toString(),
+      DisplayData: true,
+    };
+
     try {
       signOpResponse = await postRequest<IAccountSignResponse>(
-        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/sign`,
-        {
-          operation: Buffer.from(data).toString('base64'),
-          batch: false,
-        } as ISignOperation,
+        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/signMessage`,
+        signData,
       );
     } catch (ex) {
       console.error(`MassaStation account signing error`);
@@ -288,9 +280,9 @@ export class MassaStationAccount implements IAccount {
     contractAddress: string,
     functionName: string,
     parameter: Uint8Array | Args,
-    amount: bigint,
-    fee: bigint,
-    maxGas: bigint,
+    coins: bigint,
+    fee?: bigint,
+    maxGas?: bigint,
     nonPersistentExecution = false,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     if (nonPersistentExecution) {
@@ -298,8 +290,6 @@ export class MassaStationAccount implements IAccount {
         contractAddress,
         functionName,
         parameter,
-        amount,
-        fee,
         maxGas,
       );
     }
@@ -316,10 +306,11 @@ export class MassaStationAccount implements IAccount {
       nickname: this._name,
       name: functionName,
       at: contractAddress,
-      args: args,
-      fee: amount.toString(),
-      maxGas: maxGas.toString(),
-      coins: Number(amount),
+      args,
+      coins: Number(coins),
+      fee: fee ? fee.toString() : '0',
+      // If maxGas is not provided, estimation will be done by MS
+      maxGas: maxGas ? maxGas.toString() : '',
       async: true,
     };
     try {
@@ -360,17 +351,15 @@ export class MassaStationAccount implements IAccount {
     contractAddress: string,
     functionName: string,
     parameter: Uint8Array | Args,
-    amount: bigint,
-    fee: bigint,
-    maxGas: bigint,
+    maxGas?: bigint,
   ): Promise<IContractReadOperationResponse> {
     const node = await this.getNodeUrlFromMassaStation();
     // Gas amount check
-    if (maxGas > MAX_READ_BLOCK_GAS) {
+    if (maxGas > MAX_GAS_CALL) {
       throw new Error(
         `
         The gas submitted ${maxGas.toString()} exceeds the max. allowed block gas of 
-        ${MAX_READ_BLOCK_GAS.toString()}
+        ${MAX_GAS_CALL.toString()}
         `,
       );
     }
@@ -384,7 +373,7 @@ export class MassaStationAccount implements IAccount {
     }
     // setup the request body
     const data = {
-      max_gas: Number(maxGas),
+      max_gas: maxGas ? Number(maxGas) : MAX_GAS_CALL,
       target_address: contractAddress,
       target_function: functionName,
       parameter: argumentArray,

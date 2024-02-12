@@ -7,7 +7,7 @@ import {
   EAccountImportResponse,
   IAccountImportRequest,
 } from '../provider/AccountImport';
-import { IProvider } from '../provider/IProvider';
+import { INetwork, IProvider } from '../provider/IProvider';
 import {
   JsonRpcResponseData,
   deleteRequest,
@@ -18,6 +18,8 @@ import {
 import { MassaStationAccount } from './MassaStationAccount';
 import { IAccount } from '../account/IAccount';
 import { IAccountDetails } from '../account';
+import { getNetworkInfoBody } from './types';
+import EventEmitter from 'events';
 
 /**
  * MassaStation url
@@ -40,6 +42,11 @@ export const MASSA_STATION_IMPORT_ACCOUNTS_URL = `${MASSA_STATION_ACCOUNTS_URL}/
 export const MASSA_STATION_PROVIDER_NAME = 'MASSASTATION';
 
 /**
+ * Events emitted by MassaStation
+ */
+const MASSA_STATION_NETWORK_CHANGED = 'MASSA_STATION_NETWORK_CHANGED';
+
+/**
  * This interface represents the payload returned by making a call to MassaStation's accounts url.
  */
 export interface IMassaStationWallet {
@@ -51,6 +58,12 @@ export interface IMassaStationWallet {
     publicKey: string;
     salt: string;
   };
+  status: MassaStationAccountStatus;
+}
+
+enum MassaStationAccountStatus {
+  OK = 'ok',
+  CORRUPTED = 'corrupted',
 }
 
 /**
@@ -59,17 +72,10 @@ export interface IMassaStationWallet {
  * This class is used as a proxy to the MassaStation server for exchanging message over https calls.
  */
 export class MassaStationProvider implements IProvider {
-  private providerName: string;
+  private providerName = MASSA_STATION_PROVIDER_NAME;
 
-  /**
-   * Provider constructor
-   *
-   * @param providerName - The name of the provider.
-   * @returns An instance of the Provider class.
-   */
-  public constructor() {
-    this.providerName = MASSA_STATION_PROVIDER_NAME;
-  }
+  private massaStationEventsListener = new EventEmitter();
+  private currentNetwork: INetwork;
 
   /**
    * This method returns the name of the provider.
@@ -103,15 +109,19 @@ export class MassaStationProvider implements IProvider {
     ) {
       throw massaStationAccountsResponse.error.message;
     }
-    return massaStationAccountsResponse.result.map((massaStationAccount) => {
-      return new MassaStationAccount(
-        {
-          address: massaStationAccount.address,
-          name: massaStationAccount.nickname,
-        },
-        this.providerName,
-      );
-    });
+    return massaStationAccountsResponse.result
+      .filter((massaStationAccount) => {
+        return massaStationAccount.status === MassaStationAccountStatus.OK;
+      })
+      .map((massaStationAccount) => {
+        return new MassaStationAccount(
+          {
+            address: massaStationAccount.address,
+            name: massaStationAccount.nickname,
+          },
+          this.providerName,
+        );
+      });
   }
 
   /**
@@ -242,17 +252,47 @@ export class MassaStationProvider implements IProvider {
    * @returns a Promise that resolves to a network.
    */
   public async getNetwork(): Promise<string> {
-    let nodesResponse: JsonRpcResponseData<unknown> = null;
     try {
-      nodesResponse = await getRequest<unknown>(
+      const nodesResponse = await getRequest<getNetworkInfoBody>(
         `${MASSA_STATION_URL}massa/node`,
       );
       if (nodesResponse.isError || nodesResponse.error) {
         throw nodesResponse.error.message;
       }
+
+      if (this.currentNetwork?.name !== nodesResponse.result.network) {
+        this.currentNetwork = {
+          name: nodesResponse.result.network,
+          url: nodesResponse.result.url,
+          chainId: BigInt(nodesResponse.result.chainId),
+        };
+      }
       const nodes = nodesResponse.result as { network: string };
 
       return nodes.network;
+    } catch (ex) {
+      console.error(`MassaStation nodes retrieval error`, ex);
+      throw ex;
+    }
+  }
+
+  /**
+   * Returns the chain id of the network MassaStation is connected to.
+   *
+   * @throws an error if the call fails.
+   *
+   * @returns a Promise that resolves to a chain id.
+   */
+  public async getChainId(): Promise<bigint> {
+    try {
+      const nodesResponse = await getRequest<getNetworkInfoBody>(
+        `${MASSA_STATION_URL}massa/node`,
+      );
+      if (nodesResponse.isError || nodesResponse.error) {
+        throw nodesResponse.error.message;
+      }
+      const nodes = nodesResponse.result as { chainId: number };
+      return BigInt(nodes.chainId);
     } catch (ex) {
       console.error(`MassaStation nodes retrieval error`, ex);
       throw ex;
@@ -287,5 +327,66 @@ export class MassaStationProvider implements IProvider {
       console.error(`Error while generating account: ${ex}`);
       throw ex;
     }
+  }
+
+  public listenAccountChanges(): { unsubscribe: () => void } | undefined {
+    throw new Error(
+      'listenAccountChanges is not yet implemented for the current provider.',
+    );
+  }
+
+  public listenNetworkChanges(
+    callback: (network: string) => void,
+  ): { unsubscribe: () => void } | undefined {
+    this.massaStationEventsListener.on(MASSA_STATION_NETWORK_CHANGED, (evt) =>
+      callback(evt),
+    );
+
+    // check periodically if network changed
+    const intervalId = setInterval(async () => {
+      const currentNetwork = this.currentNetwork?.name;
+      const network = await this.getNetwork();
+      if (currentNetwork !== network) {
+        this.massaStationEventsListener.emit(
+          MASSA_STATION_NETWORK_CHANGED,
+          network,
+        );
+      }
+    }, 500);
+
+    return {
+      unsubscribe: () => {
+        clearInterval(intervalId);
+        this.massaStationEventsListener.removeListener(
+          MASSA_STATION_NETWORK_CHANGED,
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          () => {},
+        );
+      },
+    };
+  }
+
+  public async connect(): Promise<boolean> {
+    throw new Error(
+      'connect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public async disconnect(): Promise<boolean> {
+    throw new Error(
+      'disconnect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public connected(): boolean {
+    throw new Error(
+      'connected functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public enabled(): boolean {
+    throw new Error(
+      'enabled functionality is not yet implemented for the current provider.',
+    );
   }
 }

@@ -22,13 +22,8 @@ import {
   IAccountSignRequest,
   IAccountSignResponse,
 } from '..';
-import {
-  ON_MASSA_STATION_DISCOVERED,
-  ON_MASSA_STATION_DISCONNECTED,
-  MassaStationDiscovery,
-} from '../massaStation/MassaStationDiscovery';
-import { MASSA_STATION_PROVIDER_NAME } from '../massaStation/MassaStationProvider';
 import { IAccount } from '../account/IAccount';
+import { PluginInfo } from '../massaStation/types';
 
 /**
  * A constant string that is used to identify the HTML element that is used for
@@ -65,9 +60,10 @@ export type AllowedResponses =
  *
  */
 class Connector {
-  private registeredProviders: { [key: string]: string } = {};
+  private registeredProviders: Record<string, string> = {};
   private pendingRequests: Map<string, CallbackFunction>;
-  private massaStationListener: MassaStationDiscovery;
+
+  private providersInfo: Record<string, PluginInfo> = {};
 
   /**
    * Connector constructor
@@ -84,8 +80,6 @@ class Connector {
   public constructor() {
     if (typeof document !== 'undefined') {
       this.pendingRequests = new Map<string, CallbackFunction>();
-      this.massaStationListener = new MassaStationDiscovery();
-      this.initMassaStationListener();
       this.register();
 
       // start listening to messages from content script
@@ -130,25 +124,6 @@ class Connector {
           this.registeredProviders[payload.providerName] =
             providerEventTargetName;
         });
-    }
-  }
-
-  private initMassaStationListener() {
-    this.massaStationListener.on(ON_MASSA_STATION_DISCOVERED, () => {
-      this.registeredProviders[
-        MASSA_STATION_PROVIDER_NAME
-      ] = `${MASSA_WINDOW_OBJECT}_${MASSA_STATION_PROVIDER_NAME}`;
-    });
-    this.massaStationListener.on(ON_MASSA_STATION_DISCONNECTED, () => {
-      delete this.registeredProviders[MASSA_STATION_PROVIDER_NAME];
-    });
-  }
-
-  public async startMassaStationDiscovery() {
-    try {
-      await this.massaStationListener.startListening();
-    } catch (e) {
-      console.log('MassaStation is not detected');
     }
   }
 
@@ -211,8 +186,16 @@ class Connector {
    * @returns The registered provider associated with its unique key.
    *
    */
-  public getWalletProviders(): { [key: string]: string } {
+  public getWalletProviders(): Record<string, string> {
     return this.registeredProviders;
+  }
+
+  /**
+   * This method returns the provider wallet info.
+   *
+   */
+  public getProviderInfo(providerName: string): PluginInfo | undefined {
+    return this.providersInfo[providerName];
   }
 
   /**

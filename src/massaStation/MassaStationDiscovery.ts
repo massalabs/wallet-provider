@@ -1,84 +1,32 @@
-/**
- * This file defines a TypeScript class named MassaStationDiscovery.
- * The class is being used to recursively search for a connection to MassaStation's server
- * and if so report this via emitting messages.
- *
- * @remarks
- * - If you are only looking to use our library, the connector MassaStationDiscovery will not be useful to you.
- * - If you want to work on this repo, you will probably be interested in this object
- *
- */
-
-import { EventEmitter } from 'events';
 import { JsonRpcResponseData, getRequest } from './RequestHandler';
+import { PluginInfo } from './types';
 
-/**
- * Url used for the MassaStation discovery and pinging the MassaStation server's index.html
- */
-export const MASSA_STATION_DISCOVERY_URL = 'https://station.massa/web/index';
+// Constants for URLs and plugin information
+const MASSA_STATION_URL = 'https://station.massa/plugin-manager';
+const PLUGIN_NAME = 'Massa Wallet';
+const PLUGIN_AUTHOR = 'Massa Labs';
+const TIMEOUT = 2000;
 
-/**
- * A message emitted on successful MassaStation discovery
- */
-export const ON_MASSA_STATION_DISCOVERED = 'ON_MASSA_STATION_DISCOVERED';
+async function fetchPluginData(): Promise<JsonRpcResponseData<PluginInfo[]>> {
+  return getRequest<PluginInfo[]>(MASSA_STATION_URL, TIMEOUT);
+}
 
-/**
- * A message emitted on MassaStation disconnect
- */
-export const ON_MASSA_STATION_DISCONNECTED = 'ON_MASSA_STATION_DISCONNECTED';
+function findWalletPlugin(plugins: PluginInfo[]): PluginInfo | undefined {
+  return plugins.find(
+    (plugin) => plugin.name === PLUGIN_NAME && plugin.author === PLUGIN_AUTHOR,
+  );
+}
 
-/**
- * This file defines a TypeScript class named MassaStation.
- * The class is being used to recursively ping MassaStation's server
- * and if a response is received emit a message so MassaStation can be enlisted as
- * a wallet provider in the `Connector` class.
- */
-export class MassaStationDiscovery extends EventEmitter {
-  private isDiscovered = false;
+export async function isMassaStationAvailable(): Promise<boolean> {
+  const response = await fetchPluginData();
+  return !response.isError;
+}
 
-  /**
-   * MassaStation constructor
-   *
-   * @param pollIntervalMillis - Polling interval defined in milliseconds
-   *
-   * @remarks
-   * - It creates a timeout using the given `pollIntervalMillis` argument on every trigger of which
-   *  the MassaStation pinging is triggered and if a successful response is fetched,
-   * a message `ON_MASSA_STATION_DISCOVERED` is emitted that MassaStation has been discovered
-   * as a wallet provider upon which the `Connector` class will enlist MassaStation as a wallet provider
-   * - If once found, but then disconnected the following message `ON_MASSA_STATION_DISCONNECTED` is being emitted
-   *  so that the `Connector` class delists MassaStation as a wallet provider
-   *
-   * @returns An instance of the MassaStation class.
-   *
-   */
-  public constructor() {
-    super();
+export async function isMassaWalletEnabled(): Promise<boolean> {
+  const response = await fetchPluginData();
 
-    this.startListening = this.startListening.bind(this);
-  }
+  if (response.isError) return false;
 
-  /**
-   * A method to start listening for a connection to MassaStation's server.
-   *
-   * @returns void
-   */
-  public async startListening(): Promise<void> {
-    let resp: JsonRpcResponseData<unknown> = null;
-    try {
-      resp = await getRequest(MASSA_STATION_DISCOVERY_URL, 2000);
-    } catch (ex) {
-      console.error(`Error calling ${MASSA_STATION_DISCOVERY_URL}`);
-    }
-
-    if (!resp.isError && !resp.error) {
-      this.isDiscovered = true;
-      this.emit(ON_MASSA_STATION_DISCOVERED);
-    }
-
-    if ((resp.isError || resp.error) && this.isDiscovered) {
-      this.isDiscovered = false;
-      this.emit(ON_MASSA_STATION_DISCONNECTED);
-    }
-  }
+  const walletPlugin = findWalletPlugin(response.result);
+  return walletPlugin && walletPlugin.status === 'Up';
 }

@@ -1,7 +1,9 @@
 /**
- * This interface represents the account details such as name and address.
+ * Interface for account details.
  */
 export interface IAccountDetails {
+  /** Optional account name */
   name?: string;
+  /** Account address */
   address: string;
 }

@@ -1,14 +1,17 @@
 /**
- * This interface represents the request object of the AccountBalance command.
+ * Request for an AccountBalance command.
  */
 export interface IAccountBalanceRequest {
+  /** Account address */
   address: string;
 }
 
 /**
- * This interface represents the response object of the AccountBalance command sent by the content script.
+ * Response from an AccountBalance command.
  */
 export interface IAccountBalanceResponse {
+  /** Final confirmed balance of the account */
   finalBalance: string;
+  /** Pending balance of the account */
   candidateBalance: string;
 }

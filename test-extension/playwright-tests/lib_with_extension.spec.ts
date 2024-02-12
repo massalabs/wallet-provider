@@ -73,7 +73,7 @@ export const expec = test.expect;
 test.describe.parallel('Browser Extension Testing', () => {
   test('test list content', async ({ context }) => {
     const page = await context.newPage();
-    await page.goto('http://127.0.0.1:9009/');
+    await page.goto('http://127.0.0.1:4173/');
     await expect(page.locator('ul > li')).toContainText([
       'SPACE_X',
       '0x0',

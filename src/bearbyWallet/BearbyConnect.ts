@@ -1,10 +1,7 @@
 import { web3 } from '@hicaru/bearby.js';
 
 export async function detectBearby(): Promise<boolean> {
-  if (globalThis.window && (globalThis.window as any)['bearby']) {
-    return true;
-  }
-  return false;
+  return web3.wallet.installed;
 }
 
 export async function connectBearby(): Promise<void> {
@@ -17,5 +14,4 @@ export async function connectBearby(): Promise<void> {
 
 export async function disconnectBearby(): Promise<void> {
   await web3.wallet.disconnect();
-  console.log('Bearby disconnected');
 }

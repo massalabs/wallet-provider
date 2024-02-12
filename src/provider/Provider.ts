@@ -171,6 +171,31 @@ export class Provider implements IProvider {
   }
 
   /**
+   * Returns the chain id of the network the provider is connected to.
+   *
+   * @returns a Promise that resolves to the chain id (bigint).
+   */
+  public async getChainId(): Promise<bigint> {
+    return new Promise<bigint>((resolve, reject) => {
+      connector.sendMessageToContentScript(
+        this.providerName,
+        AvailableCommands.ProviderGetChainId,
+        {},
+        (result, err) => {
+          if (err) return reject(err);
+          else if (typeof result !== 'number') {
+            return reject(
+              new Error(`Expected a number but got ${typeof result} instead`),
+            );
+          } else {
+            return resolve(BigInt(result));
+          }
+        },
+      );
+    });
+  }
+
+  /**
    * This method generates a new account by a given name and adds it to the wallet.
    *
    * @param name - The account name
@@ -189,5 +214,41 @@ export class Provider implements IProvider {
         },
       );
     });
+  }
+
+  public listenAccountChanges(): { unsubscribe: () => void } | undefined {
+    throw new Error(
+      'listenAccountChanges is not yet implemented for the current provider.',
+    );
+  }
+
+  public listenNetworkChanges(): { unsubscribe: () => void } | undefined {
+    throw new Error(
+      'listenNetworkChanges is not yet implemented for the current provider.',
+    );
+  }
+
+  public async connect(): Promise<boolean> {
+    throw new Error(
+      'connect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public async disconnect(): Promise<boolean> {
+    throw new Error(
+      'disconnect functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public connected(): boolean {
+    throw new Error(
+      'connected functionality is not yet implemented for the current provider.',
+    );
+  }
+
+  public enabled(): boolean {
+    throw new Error(
+      'enabled functionality is not yet implemented for the current provider.',
+    );
   }
 }

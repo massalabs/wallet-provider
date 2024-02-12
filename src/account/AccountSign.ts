@@ -1,24 +1,38 @@
 /**
- * This interface represents the request object for the signing operation sent to the content script.
+ * Payload for a signing operation request sent to the content script.
  */
 export interface IAccountSignRequest {
+  /** Account's unique address */
   address: string;
+  /** Data to be signed, represented as a Uint8Array */
   data: Uint8Array;
 }
 
 /**
- * This interface represents the response object containing the signed message data, which is sent by the content script
- * after the signing operation.
+ * Response from the content script after a signing operation.
  */
 export interface IAccountSignResponse {
+  /** Public key of the account */
   publicKey: string;
+  /** Signed message data */
   signature: string;
 }
 
 /**
- * This interface represents the output of a sign() method
+ * Output produced by the sign() method.
  */
 export interface IAccountSignOutput {
+  /** Public key of the account */
   publicKey: string;
+  /** Base58 encoded representation of the signature */
   base58Encoded: string;
+}
+
+/**
+ * Payload for a sign message request.
+ */
+export interface ISignMessage {
+  description: string;
+  message: string;
+  DisplayData: boolean;
 }
