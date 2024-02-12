@@ -28,7 +28,9 @@ describe('Generate new account', () => {
 
     // Create a new account with the same name and expect an error
     await massaStationProvider.generateNewAccount(accountName).catch((err) => {
-      expect(err).toEqual(`adding account in GenerateAccount: this account nickname already exists: ${accountName}`);
+      expect(err).toEqual(
+        `adding account in GenerateAccount: this account nickname already exists: ${accountName}`,
+      );
     });
   });
 });
