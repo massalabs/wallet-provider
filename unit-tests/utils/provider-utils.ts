@@ -18,17 +18,16 @@ export async function deleteAccount(address: string): Promise<void> {
   await massaStationProvider.deleteAccount(address);
 }
 
-export async function deleteStationAccountFromNickname(nickname: string): Promise<void> {
+export async function deleteStationAccountFromNickname(
+  nickname: string,
+): Promise<void> {
   const massaStationProvider = await getMassaStationProvider();
   const accounts = await massaStationProvider.accounts();
-
-  // Find the account with the given nickname
-  const account = accounts.find(account => account.name() === nickname);
+  const account = accounts.find((account) => account.name() === nickname);
 
   if (!account) {
     throw new Error(`Account with nickname ${nickname} not found`);
   }
 
-  // Delete the account
   await massaStationProvider.deleteAccount(account.address());
 }
