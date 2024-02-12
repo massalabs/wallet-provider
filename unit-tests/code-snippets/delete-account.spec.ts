@@ -30,6 +30,8 @@ it('should generate a new account with name and address and delete it', async ()
     newAccount.name || 'no name',
     'Account Address:',
     newAccount.address,
-    'has been deleted',
+    resp.response === EAccountDeletionResponse.OK
+      ? 'has been deleted'
+      : 'could not be deleted',
   );
 });
