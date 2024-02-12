@@ -1,9 +1,9 @@
 import { providers } from '@massalabs/wallet-provider';
-import { deleteAccount } from '../utils/provider-utils';
+import { deleteStationAccountFromNickname } from '../utils/provider-utils';
 
 describe('Generate new account', () => {
   afterAll(async () => {
-    await deleteAccount('my-massa-wallet');
+    await deleteStationAccountFromNickname('my-massa-wallet');
   });
 
   it('should generate a new account with name and address', async () => {
