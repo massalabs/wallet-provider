@@ -72,7 +72,7 @@ export class BearbyAccount implements IAccount {
     const res = await web3.massa.getAddresses(this._address);
 
     if (!res && !res.result) {
-      throw new Error('Error getting account balance');
+      throw new Error(res.error.message);
     }
 
     // TODO: check if we need to cast to AddressInfo. Fix to do on bearby.js
