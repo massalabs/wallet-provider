@@ -1,11 +1,6 @@
 /**
- * This file defines a TypeScript module named connector.
- * It is the tool that allows the 'provider' and 'account' objects to communicate with the web page script.
- *
- * @remarks
- * - If you are only looking to use our library, the connector object will not be useful to you.
- * - If you want to work on this repo, you will probably be interested in this object
- *
+ * The `Connector` class facilitates communication between 'provider' and 'account' objects and the web page script.
+ * It is primarily useful for developers working on this repository.
  */
 import { uid } from 'uid';
 import { ICustomEventMessageResponse } from './ICustomEventMessageResponse';
@@ -26,11 +21,17 @@ import { IAccount } from '../account/IAccount';
 import { PluginInfo } from '../massaStation/types';
 
 /**
- * A constant string that is used to identify the HTML element that is used for
- * communication between the web page script and the content script.
+ * Identifier for the HTML element facilitating communication between the web page script and the content script.
  */
 export const MASSA_WINDOW_OBJECT = 'massaWalletProvider';
 
+/**
+ * Type definition for a callback function used in handling responses.
+ * @param result - The result of the operation, typed as `AllowedResponses`.
+ * @param error - An error object if an error occurs, or null if the operation is successful.
+ *
+ * @returns The return type is unspecified (unknown), as it depends on the implementation of the callback.
+ */
 type CallbackFunction = (
   result: AllowedResponses,
   error: Error | null,
@@ -53,11 +54,7 @@ export type AllowedResponses =
   | string;
 
 /**
- * This class enables communication with the content script by sending and receiving messages.
- * @remarks
- * - This class is used to send messages to the content script and to receive messages from the content script.
- * - It is used to send messages to the content script and to receive messages from the content script.
- *
+ * The `Connector` class handles sending and receiving messages to and from the content script.
  */
 class Connector {
   private registeredProviders: Record<string, string> = {};
@@ -66,16 +63,7 @@ class Connector {
   private providersInfo: Record<string, PluginInfo> = {};
 
   /**
-   * Connector constructor
-   *
-   * @remarks
-   * - The Connector constructor takes no arguments.
-   * - It creates a Map object that is used to store pending requests.
-   * - It creates an HTML element that is used to communicate with the content script.
-   * - It adds an event listener to the HTML element that is used to communicate with the content script.
-   *
-   * @returns An instance of the Connector class.
-   *
+   * Initializes a new `Connector` instance.
    */
   public constructor() {
     if (typeof document !== 'undefined') {
@@ -93,15 +81,7 @@ class Connector {
   }
 
   /**
-   * This method adds a register listener in the web page.
-   * It listens to the 'register' event.
-   *
-   * @returns void
-   *
-   * @remarks
-   * - It is used to register a new provider.
-   * - This method creates a new HTML element and a listener that listens to the register event.
-   *
+   * Registers a new provider by creating an HTML element and listener for the register event.
    */
   private register() {
     // global event target to use for all wallet provider
@@ -128,22 +108,13 @@ class Connector {
   }
 
   /**
-   * This method sends a message from the webpage script to the content script.
+   * Sends a message to the content script using the specified provider name, command, and parameters.
    *
-   * @remarks
-   * Sends a message to the content script using the specified provider name, command, and parameters,
-   *
-   * @privateRemarks
-   * This method registers the response callback with a unique ID.
-   *
-   * @param providerName - The name of the provider.
-   * @param command - The command that is sent to the content script (among the {@link AvailableCommands}).
-   * @param params - The parameters that are sent to the content script.
-   * @param responseCallback - The callback function that is called when the content script sends a response.
-   * @returns void
-   *
+   * @param providerName - Name of the provider.
+   * @param command - Command sent to the content script.
+   * @param params - Parameters sent to the content script.
+   * @param responseCallback - Callback function for content script responses.
    */
-
   public sendMessageToContentScript(
     providerName: string,
     command: AvailableCommands,
@@ -181,30 +152,29 @@ class Connector {
   }
 
   /**
-   * This method returns the registered providers.
+   * Retrieves the registered providers.
    *
-   * @returns The registered provider associated with its unique key.
-   *
+   * @returns An object mapping provider names to their unique keys.
    */
   public getWalletProviders(): Record<string, string> {
     return this.registeredProviders;
   }
 
   /**
-   * This method returns the provider wallet info.
+   * Retrieves information about a specified provider.
    *
+   * @param providerName - Name of the provider.
+   *
+   * @returns Information about the provider, or undefined if not found.
    */
   public getProviderInfo(providerName: string): PluginInfo | undefined {
     return this.providersInfo[providerName];
   }
 
   /**
-   * This method handles the response from the content script by
-   * calling the response callback with the response and error objects.
+   * Handles responses from the content script, invoking the appropriate callback with the response and error data.
    *
-   * @param event - The event that is sent from the content script.
-   * @returns void
-   *
+   * @param event - Event sent from the content script.
    */
   private handleResponseFromContentScript(event: CustomEvent) {
     const { result, error, requestId }: ICustomEventMessageResponse =
