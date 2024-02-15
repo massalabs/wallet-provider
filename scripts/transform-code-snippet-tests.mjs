@@ -5,12 +5,14 @@ const testCodeSnippetDirectory = './unit-tests/code-snippets';
 
 // Extract import statements from the content
 const extractImports = (content) => {
-  const importRegex = /^import .* from .*;$/gm;
+  const importRegex = /^import [^]*? from .*;$/gm;
   return content.match(importRegex) || [];
 };
 
 // Transform the content of a test file into a code snippet
 const transformTestToSnippet = (content) => {
+  content = content.replace(/expect\([^]*?\).*\([^]*?\);/gm, '');
+
   const itBodyRegex =
     /it\(['"`].+['"`],\s*(?:async\s*)?\(\)\s*=>\s*\{([\s\S]*?)\}\);/g;
   let transformedContent = '';
@@ -19,8 +21,6 @@ const transformTestToSnippet = (content) => {
   while ((match = itBodyRegex.exec(content)) !== null) {
     transformedContent += match[1].trim() + '\n';
   }
-
-  transformedContent = transformedContent.replace(/expect\([^]*?\);/g, '');
 
   if (/await/.test(transformedContent)) {
     transformedContent = `(async () => {\n${transformedContent}\n})();`;

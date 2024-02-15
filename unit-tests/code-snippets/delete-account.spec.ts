@@ -1,6 +1,9 @@
-import { providers } from '@massalabs/wallet-provider';
+import {
+  providers,
+  EAccountDeletionResponse,
+} from '@massalabs/wallet-provider';
 
-(async () => {
+it('should generate a new account with name and address and delete it', async () => {
   const availableProviders = await providers();
   const massaStationProvider = availableProviders.find(
     (p) => p.name() === 'MASSASTATION',
@@ -12,8 +15,14 @@ import { providers } from '@massalabs/wallet-provider';
 
   // generate a new account
   const newAccount = await massaStationProvider.generateNewAccount(
-    'my-massa-wallet',
+    'account-to-be-deleted',
   );
+
+  const resp = await massaStationProvider.deleteAccount(newAccount.address);
+
+  expect(resp).toStrictEqual({
+    response: EAccountDeletionResponse.OK,
+  });
 
   // print the account name and address
   console.log(
@@ -21,5 +30,8 @@ import { providers } from '@massalabs/wallet-provider';
     newAccount.name || 'no name',
     'Account Address:',
     newAccount.address,
+    resp.response === EAccountDeletionResponse.OK
+      ? 'has been deleted'
+      : 'could not be deleted',
   );
-})();
+});

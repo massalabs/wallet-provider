@@ -35,12 +35,11 @@ jobs:
 
     - name: Format code snippets
       run: |
-        npm run prettier:fix
+        npm run prettier:fix-code-snippets
 
     - name: Commit Changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        token: 
         commit_message: "Generate code snippets"
         file_pattern: "code-snippets/*"
         # Commit code using massabot account that can bypass push and MR restriction

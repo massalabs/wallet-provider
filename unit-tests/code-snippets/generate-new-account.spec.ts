@@ -1,28 +1,34 @@
 import { providers } from '@massalabs/wallet-provider';
+import { deleteStationAccountFromNickname } from '../utils/provider-utils';
 
-it('should generate a new account with name and address', async () => {
-  const availableProviders = await providers();
-  const massaStationProvider = availableProviders.find(
-    (p) => p.name() === 'MASSASTATION',
-  );
+describe('Generate new account', () => {
+  afterAll(async () => {
+    await deleteStationAccountFromNickname('my-massa-wallet');
+  });
 
-  // stop the test if the provider is not available
-  if (!massaStationProvider)
-    throw new Error('Massa Station provider not found');
+  it('should generate a new account with name and address', async () => {
+    const availableProviders = await providers();
+    const massaStationProvider = availableProviders.find(
+      (p) => p.name() === 'MASSASTATION',
+    );
 
-  // generate a new account
-  const newAccount = await massaStationProvider.generateNewAccount(
-    'my-massa-wallet',
-  );
+    // stop the test if the provider is not available
+    if (!massaStationProvider)
+      throw new Error('Massa Station provider not found');
 
-  expect(newAccount).toHaveProperty('name');
-  expect(newAccount).toHaveProperty('address');
+    // generate a new account
+    const newAccount =
+      await massaStationProvider.generateNewAccount('my-massa-wallet');
 
-  // print the account name and address
-  console.log(
-    'Account Name:',
-    newAccount.name || 'no name',
-    'Account Address:',
-    newAccount.address,
-  );
+    expect(newAccount).toHaveProperty('name');
+    expect(newAccount).toHaveProperty('address');
+
+    // print the account name and address
+    console.log(
+      'Account Name:',
+      newAccount.name || 'no name',
+      'Account Address:',
+      newAccount.address,
+    );
+  });
 });

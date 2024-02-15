@@ -307,7 +307,6 @@ export class MassaStationProvider implements IProvider {
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
     let massaStationAccountsResponse: JsonRpcResponseData<IMassaStationWallet> =
       null;
-    console.log(MASSA_STATION_ACCOUNTS_URL + '/' + name);
     try {
       massaStationAccountsResponse = await postRequest<IMassaStationWallet>(
         MASSA_STATION_ACCOUNTS_URL + '/' + name,

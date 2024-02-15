@@ -1,15 +1,18 @@
 import { providers } from '@massalabs/wallet-provider';
 
-(async () => {
+it('should generate a new account and list all wallets', async () => {
   const availableProviders = await providers();
   const massaStationProvider = availableProviders.find(
     (p) => p.name() === 'MASSASTATION',
   );
 
+  // stop the test if the provider is not available
   if (!massaStationProvider)
     throw new Error('Massa Station provider not found');
 
-  const network = await massaStationProvider.getNetwork();
+  // get account object
+  const accounts = await massaStationProvider.accounts();
 
-  console.log('Network Name:', network);
-})();
+  // print the account name and address
+  console.log('Accounts:', accounts);
+});
