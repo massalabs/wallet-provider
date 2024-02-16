@@ -69,19 +69,26 @@ export class BearbyAccount implements IAccount {
     // TODO: check if we need to connect every time
     await this.connect();
 
-    const res = await web3.massa.getAddresses(this._address);
+    try {
+      const res = await web3.massa.getAddresses(this._address);
 
-    if (!res && !res.result) {
-      throw new Error(res.error.message);
+      if (res.error) {
+        throw res.error;
+      }
+
+      const addressInfo = res.result[0] as AddressInfo;
+
+      return {
+        finalBalance: addressInfo.final_balance,
+        candidateBalance: addressInfo.candidate_balance,
+      };
+    } catch (error) {
+      const errorMessage = `An unexpected error occurred while fetching the account balance: ${
+        error.message || 'Unknown error'
+      }.`;
+
+      throw new Error(errorMessage);
     }
-
-    // TODO: check if we need to cast to AddressInfo. Fix to do on bearby.js
-    const addressInfo = res?.result[0] as AddressInfo;
-
-    return {
-      finalBalance: addressInfo.final_balance,
-      candidateBalance: addressInfo.candidate_balance,
-    };
   }
 
   public async sign(
