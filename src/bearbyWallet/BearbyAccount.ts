@@ -8,9 +8,8 @@ import {
 import { ITransactionDetails } from '..';
 import { IAccountBalanceResponse, IAccountDetails } from '../account';
 import { IAccount } from '../account/IAccount';
-import { web3 } from '@hicaru/bearby.js';
+import { AddressInfo, web3 } from '@hicaru/bearby.js';
 import { postRequest } from '../massaStation/RequestHandler';
-import { BalanceResponse } from './BalanceResponse';
 import { IAccountSignOutput } from '../account/AccountSign';
 /**
  * The maximum allowed gas for a read operation
@@ -69,30 +68,29 @@ export class BearbyAccount implements IAccount {
   public async balance(): Promise<IAccountBalanceResponse> {
     // TODO: check if we need to connect every time
     await this.connect();
-    // Not available on bearby. we have to manually call the api
-    const body = {
-      jsonrpc: '2.0',
-      method: 'get_addresses',
-      params: [[this._address]],
-      id: 0,
-    };
 
-    // get node url: This is a temporary solution. We should get the balance from the provider
-    const nodeUrl = await getNodesUrl();
+    try {
+      const res = await web3.massa.getAddresses(this._address);
 
-    const addressInfos = await postRequest<BalanceResponse>(nodeUrl, body);
+      if (res.error) {
+        throw res.error;
+      }
 
-    if (addressInfos.isError || addressInfos.error) {
-      throw addressInfos.error.message;
+      const addressInfo = res.result[0] as AddressInfo;
+
+      return {
+        finalBalance: addressInfo.final_balance,
+        candidateBalance: addressInfo.candidate_balance,
+      };
+    } catch (error) {
+      const errorMessage = `An unexpected error occurred while fetching the account balance: ${
+        error.message || 'Unknown error'
+      }.`;
+
+      throw new Error(errorMessage);
     }
-
-    return {
-      finalBalance: addressInfos.result.result[0].final_balance,
-      candidateBalance: addressInfos.result.result[0].candidate_balance,
-    } as IAccountBalanceResponse;
   }
 
-  // need testing
   public async sign(
     data: Buffer | Uint8Array | string,
   ): Promise<IAccountSignOutput> {
