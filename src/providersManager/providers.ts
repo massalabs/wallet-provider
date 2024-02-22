@@ -1,7 +1,7 @@
 import { Provider } from '../provider/Provider';
 import { connector } from '../connector/Connector';
 import { providerList } from './providerList';
-import { IProvider } from 'src/provider/IProvider';
+import { IProvider } from '../provider/IProvider';
 import { wait } from '../utils/time';
 
 export async function providers(): Promise<IProvider[]> {
