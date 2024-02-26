@@ -16,7 +16,7 @@
         "test-extension:serve-dapp": "cd test-extension/dapp-vite && npm run preview",
         "test-extension": "cd ./test-extension && npx playwright test",
         "unit-test-commonjs": "jest --config ./jest.config.commonjs.js",
-        "unit-test-esm": "jest --config ./jest.config.esm.js",
+        "unit-test-esm": "jest --config ./jest.config.esm.js --runInBand",
         "unit-test": "npm-run-all unit-test-*",
         "unit-test-local": "NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm-run-all unit-test-esm",
         "lint": "eslint .",
