@@ -1,7 +1,7 @@
 name: CI Extension tests
 on: [push]
 jobs:
-  unit-tests:
+  tests-e2e:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.36.2-focal
