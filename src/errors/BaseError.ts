@@ -1,11 +1,21 @@
 type BaseErrorParameters = {
   docsPath?: string;
   metaMessages?: string[];
-  cause?: BaseError | Error;
-};
+} & (
+  | {
+      cause?: never;
+      details?: string;
+    }
+  | {
+      cause: BaseError | Error;
+      details?: never;
+    }
+);
 
 export default class BaseError extends Error {
   metaMessages: string[];
+  docsPath?: string;
+  override name = 'WalletProviderError';
   constructor(shortMessage: string, args: BaseErrorParameters = {}) {
     super();
 
@@ -15,12 +25,19 @@ export default class BaseError extends Error {
       ? `Docs: ${args.docsPath} for more information.`
       : '';
 
-    this.message = [shortMessage, metaMessageStr, docsMessageStr]
-      .filter(Boolean) // Remove empty strings
-      .join('\n');
+    const detailsMessage = args.details ? `Details: ${args.details}` : '';
 
-    this.name = this.constructor.name;
+    this.message = [
+      shortMessage,
+      metaMessageStr,
+      docsMessageStr,
+      detailsMessage,
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
     this.metaMessages = args.metaMessages || [];
-    if (args.cause) this.cause = args.cause;
+    this.docsPath = args.docsPath;
+    this.cause = args.cause;
   }
 }
