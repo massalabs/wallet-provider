@@ -1,20 +1,39 @@
 import BaseError from './BaseError';
 
-describe('BaseError', () => {
-  it('should create a new instance of BaseError', () => {
-    const error = new BaseError('Short message', {
-      docsPath: 'https://example.com/docs',
-      metaMessages: ['Meta message 1', 'Meta message 2'],
-      cause: new Error('Cause message'),
-    });
+test('BaseError', () => {
+  expect(new BaseError('An error occurred.').message).toBe(
+    `An error occurred.`,
+  );
 
-    expect(error).toBeInstanceOf(Error);
-    expect(error).toBeInstanceOf(BaseError);
-    expect(error.message).toBe(
-      'Short message\nMeta: Meta message 1\nMeta: Meta message 2\nDocs: https://example.com/docs for more information.',
-    );
-    expect(error.name).toBe('BaseError');
-    expect(error.metaMessages).toEqual(['Meta message 1', 'Meta message 2']);
-    expect(error.cause).toBeInstanceOf(Error);
-  });
+  expect(
+    new BaseError('An error occurred.', { details: 'Some details' }).message,
+  ).toBe(`An error occurred.
+
+Details: Some details`);
+
+  expect(
+    new BaseError('An error occurred.', {
+      metaMessages: ['Some meta message'],
+    }).message,
+  ).toBe(`An error occurred.
+
+Meta: Some meta message`);
+
+  expect(
+    new BaseError('An error occurred.', {
+      docsPath: 'https://example.com/docs',
+    }).message,
+  ).toBe(`An error occurred.
+
+Docs: https://example.com/docs for more information.`);
+});
+
+test('BaseError with cause', () => {
+  const cause = new Error('The cause of the error');
+  const baseError = new BaseError('An error occurred.', { cause });
+  expect(baseError.cause).toBe(cause);
+  expect(baseError.message).toBe(`An error occurred.`);
+  if (baseError.cause instanceof Error) {
+    expect(baseError.cause.message).toBe(`The cause of the error`);
+  }
 });
