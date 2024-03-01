@@ -215,9 +215,10 @@ export class BearbyAccount implements IAccount {
       target_function: functionName,
       parameter: argumentArray,
       caller_address: this._address,
-      coins: Number(amount),
-      fee: Number(fee),
+      coins: amount.toString(),
+      fee: fee.toString(),
     };
+
     const body = [
       {
         jsonrpc: '2.0',
@@ -240,7 +241,7 @@ export class BearbyAccount implements IAccount {
       jsonRpcCallResult = resp.result;
     } catch (ex) {
       throw new Error(
-        `MassaStation account: error while interacting with smart contract: ${ex}`,
+        `Bearby account: error while interacting with smart contract: ${ex}`,
       );
     }
     if (jsonRpcCallResult.length <= 0) {
@@ -248,7 +249,7 @@ export class BearbyAccount implements IAccount {
         `Read operation bad response. No results array in json rpc response. Inspect smart contract`,
       );
     }
-    if (jsonRpcCallResult[0].result.Error) {
+    if (jsonRpcCallResult[0].result?.Error) {
       throw new Error(jsonRpcCallResult[0].result.Error);
     }
     return {
