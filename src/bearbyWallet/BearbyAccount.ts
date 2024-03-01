@@ -13,7 +13,6 @@ import { postRequest } from '../massaStation/RequestHandler';
 import { IAccountSignOutput } from '../account/AccountSign';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
-
 export class BearbyAccount implements IAccount {
   private _providerName: string;
   private _address: string;
