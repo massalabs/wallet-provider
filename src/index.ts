@@ -59,6 +59,8 @@ export {
   Provider,
 } from './provider';
 
+export * from './errors';
+
 export { IMassaStationWallet } from './massaStation/MassaStationProvider';
 
 export { MassaStationAccount } from './massaStation/MassaStationAccount';

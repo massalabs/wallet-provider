@@ -1,4 +1,4 @@
-import BaseError from './BaseError';
+import { BaseError } from './base';
 
 test('BaseError', () => {
   expect(new BaseError('An error occurred.').message).toBe(

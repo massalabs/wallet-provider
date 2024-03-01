@@ -1,4 +1,4 @@
-type BaseErrorParameters = {
+export type BaseErrorParameters = {
   docsPath?: string;
   metaMessages?: string[];
 } & (
@@ -12,7 +12,9 @@ type BaseErrorParameters = {
     }
 );
 
-export default class BaseError extends Error {
+export type BaseErrorType = BaseError & { name: 'WalletProviderError' };
+
+export class BaseError extends Error {
   metaMessages: string[];
   docsPath?: string;
   override name = 'WalletProviderError';

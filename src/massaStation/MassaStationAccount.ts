@@ -21,6 +21,7 @@ import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { IAccountSignOutput, ISignMessage } from '../account/AccountSign';
 import { encode as base58Encode } from 'bs58check';
 import { ExecuteFunctionBody } from './types';
+import { operationErrorMapping } from '../errors/utils/errorMapping';
 
 /**
  * This interface represents the the individual wallet's final and pending balances returned by MassaStation
@@ -138,18 +139,13 @@ export class MassaStationAccount implements IAccount {
       DisplayData: true,
     };
 
-    try {
-      signOpResponse = await postRequest<IAccountSignResponse>(
-        `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/signMessage`,
-        signData,
-      );
-    } catch (ex) {
-      console.error(`MassaStation account signing error`);
-      throw ex;
-    }
+    signOpResponse = await postRequest<IAccountSignResponse>(
+      `${MASSA_STATION_ACCOUNTS_URL}/${this._name}/signMessage`,
+      signData,
+    );
 
     if (signOpResponse.isError || signOpResponse.error) {
-      throw signOpResponse.error;
+      throw operationErrorMapping('sign', signOpResponse.error);
     }
 
     const signature = base58Encode(
@@ -180,14 +176,11 @@ export class MassaStationAccount implements IAccount {
       amount: amount.toString(),
       side: 'buy',
     };
-    try {
-      buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
-    } catch (ex) {
-      console.error(`MassaStation account: error while buying rolls: ${ex}`);
-      throw ex;
-    }
+
+    buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
+
     if (buyRollsOpResponse.isError || buyRollsOpResponse.error) {
-      throw buyRollsOpResponse.error;
+      operationErrorMapping('buyRolls', buyRollsOpResponse.error);
     }
     return buyRollsOpResponse.result;
   }
@@ -210,14 +203,11 @@ export class MassaStationAccount implements IAccount {
       amount: amount.toString(),
       side: 'sell',
     };
-    try {
-      sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
-    } catch (ex) {
-      console.error(`MassaStation account: error while selling rolls: ${ex}`);
-      throw ex;
-    }
+
+    sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
+
     if (sellRollsOpResponse.isError || sellRollsOpResponse.error) {
-      throw sellRollsOpResponse.error;
+      operationErrorMapping('sellRolls', sellRollsOpResponse.error);
     }
     return sellRollsOpResponse.result;
   }
@@ -242,17 +232,12 @@ export class MassaStationAccount implements IAccount {
       recipientAddress: recipientAddress,
     };
 
-    try {
-      sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
-    } catch (ex) {
-      console.error(
-        `MassaStation account: error while sending transaction: ${ex}`,
-      );
-      throw ex;
-    }
+    sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
+
     if (sendTxOpResponse.isError || sendTxOpResponse.error) {
-      throw sendTxOpResponse.error;
+      throw operationErrorMapping('sendTransaction', sendTxOpResponse.error);
     }
+
     return sendTxOpResponse.result;
   }
 
@@ -313,16 +298,11 @@ export class MassaStationAccount implements IAccount {
       maxGas: maxGas ? maxGas.toString() : '',
       async: true,
     };
-    try {
-      CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
-    } catch (ex) {
-      console.log(
-        `MassaStation account: error while interacting with smart contract: ${ex}`,
-      );
-      throw ex;
-    }
+
+    CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
+
     if (CallSCOpResponse.isError || CallSCOpResponse.error) {
-      throw CallSCOpResponse.error;
+      throw operationErrorMapping('callSmartContract', CallSCOpResponse.error);
     }
     return CallSCOpResponse.result;
   }
