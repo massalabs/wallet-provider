@@ -1,4 +1,7 @@
+import { ErrorCodes } from './utils/codes';
+
 export type BaseErrorParameters = {
+  code?: ErrorCodes;
   docsPath?: string;
   metaMessages?: string[];
 } & (
@@ -17,8 +20,13 @@ export type BaseErrorType = BaseError & { name: 'WalletProviderError' };
 export class BaseError extends Error {
   metaMessages: string[];
   docsPath?: string;
+  code: ErrorCodes;
+
   override name = 'WalletProviderError';
-  constructor(shortMessage: string, args: BaseErrorParameters = {}) {
+  constructor(
+    shortMessage: string,
+    args: BaseErrorParameters = { code: ErrorCodes.UnknownError },
+  ) {
     super();
 
     const metaMessageStr =
@@ -40,6 +48,7 @@ export class BaseError extends Error {
 
     this.metaMessages = args.metaMessages || [];
     this.docsPath = args.docsPath;
+    this.code = args.code;
     this.cause = args.cause;
   }
 }

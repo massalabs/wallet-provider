@@ -1,4 +1,5 @@
 import { BaseError } from './base';
+import { ErrorCodes } from './utils/codes';
 
 test('BaseError', () => {
   expect(new BaseError('An error occurred.').message).toBe(
@@ -36,4 +37,11 @@ test('BaseError with cause', () => {
   if (baseError.cause instanceof Error) {
     expect(baseError.cause.message).toBe(`The cause of the error`);
   }
+});
+
+test('BaseError with code', () => {
+  const baseError = new BaseError('An error occurred.', {
+    code: ErrorCodes.UnknownError,
+  });
+  expect(baseError.code).toBe(ErrorCodes.UnknownError);
 });

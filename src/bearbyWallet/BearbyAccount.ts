@@ -12,28 +12,7 @@ import { AddressInfo, web3 } from '@hicaru/bearby.js';
 import { postRequest } from '../massaStation/RequestHandler';
 import { IAccountSignOutput } from '../account/AccountSign';
 import { operationErrorMapping } from '../errors/utils/errorMapping';
-/**
- * The maximum allowed gas for a read operation
- */
-
-export enum OperationsType {
-  Payment,
-  RollBuy,
-  RollSell,
-  ExecuteSC,
-  CallSC,
-}
-
-/**
- * Associates an operation type with a number.
- */
-export enum OperationTypeId {
-  Transaction = 0,
-  RollBuy = 1,
-  RollSell = 2,
-  ExecuteSC = 3,
-  CallSC = 4,
-}
+import { operationType } from 'src/utils/constants';
 
 export class BearbyAccount implements IAccount {
   private _providerName: string;
@@ -112,7 +91,7 @@ export class BearbyAccount implements IAccount {
         base58Encoded: signature.signature,
       };
     } catch (error) {
-      throw operationErrorMapping('sign', error);
+      throw operationErrorMapping(operationType.SIGN, error);
     }
   }
 
@@ -124,7 +103,7 @@ export class BearbyAccount implements IAccount {
         operationId,
       };
     } catch (error) {
-      throw operationErrorMapping('buyRolls', error);
+      throw operationErrorMapping(operationType.BUY_ROLLS, error);
     }
   }
 
@@ -154,7 +133,7 @@ export class BearbyAccount implements IAccount {
 
       return { operationId };
     } catch (error) {
-      throw operationErrorMapping('sendTransaction', error);
+      throw operationErrorMapping(operationType.SEND_TRANSACTION, error);
     }
   }
 
@@ -195,7 +174,7 @@ export class BearbyAccount implements IAccount {
         unsafeParameters,
       });
     } catch (error) {
-      throw operationErrorMapping('callSC', error);
+      throw operationErrorMapping(operationType.CALL_SC, error);
     }
     return { operationId };
   }

@@ -17,8 +17,9 @@ export function operationErrorMapping(
   if (isUserRejectionError(error)) {
     return new UserRejectionError({
       operationName: operationName,
+      cause: error,
     });
-  } else {
-    return error;
   }
+
+  return error;
 }
