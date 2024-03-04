@@ -103,10 +103,7 @@ export class MassaStationProvider implements IProvider {
       console.error(`MassaStation accounts retrieval error`);
       throw ex;
     }
-    if (
-      massaStationAccountsResponse.isError ||
-      massaStationAccountsResponse.error
-    ) {
+    if (massaStationAccountsResponse.isError) {
       throw massaStationAccountsResponse.error.message;
     }
     return massaStationAccountsResponse.result
@@ -141,26 +138,28 @@ export class MassaStationProvider implements IProvider {
       publicKey,
       privateKey,
     };
+
     let massaStationAccountsResponse: JsonRpcResponseData<unknown> = null;
+
     try {
-      massaStationAccountsResponse = await putRequest<unknown>(
+      massaStationAccountsResponse = await putRequest(
         MASSA_STATION_ACCOUNTS_URL,
         accountImportRequest,
       );
-    } catch (ex) {
-      console.log(`MassaStation accounts retrieval error: ${ex}`);
-      throw ex;
+    } catch (error) {
+      // TODO: Create custom error instead of logging
+      console.log(`MassaStation accounts retrieval error: ${error}`);
+      throw error;
     }
-    if (
-      massaStationAccountsResponse.isError ||
-      massaStationAccountsResponse.error
-    ) {
+
+    if (massaStationAccountsResponse.isError) {
       throw massaStationAccountsResponse.error.message;
     }
+
     return {
       response: EAccountImportResponse.OK,
       message: 'Account imported successfully',
-    } as IAccountImportResponse;
+    };
   }
 
   /**
@@ -182,9 +181,9 @@ export class MassaStationProvider implements IProvider {
       console.log(`MassaStation accounts retrieval error: ${ex}`);
       throw ex;
     }
-    if (allAccounts.isError || allAccounts.error) {
-      throw allAccounts.error.message;
-    }
+
+    if (allAccounts.isError) throw allAccounts.error.message;
+
     // find the account with the desired address
     const accountToDelete = allAccounts.result.find(
       (account) => account.address.toLowerCase() === address.toLowerCase(),
@@ -200,23 +199,18 @@ export class MassaStationProvider implements IProvider {
       console.log(`MassaStation accounts deletion error`, ex);
       return {
         response: EAccountDeletionResponse.ERROR,
-      } as IAccountDeletionResponse;
+      };
     }
-    if (
-      massaStationAccountsResponse.isError ||
-      massaStationAccountsResponse.error
-    ) {
+    if (massaStationAccountsResponse.isError) {
       console.log(
         `MassaStation accounts deletion error`,
         massaStationAccountsResponse.error.message,
       );
-      return {
-        response: EAccountDeletionResponse.ERROR,
-      } as IAccountDeletionResponse;
+      return { response: EAccountDeletionResponse.ERROR };
     }
     return {
       response: EAccountDeletionResponse.OK,
-    } as IAccountDeletionResponse;
+    };
   }
 
   /**
@@ -232,7 +226,7 @@ export class MassaStationProvider implements IProvider {
       nodesResponse = await getRequest<unknown>(
         `${MASSA_STATION_URL}massa/node`,
       );
-      if (nodesResponse.isError || nodesResponse.error) {
+      if (nodesResponse.isError) {
         throw nodesResponse.error.message;
       }
       // transform nodesResponse.result to a json and then get the "url" property
@@ -256,9 +250,7 @@ export class MassaStationProvider implements IProvider {
       const nodesResponse = await getRequest<getNetworkInfoBody>(
         `${MASSA_STATION_URL}massa/node`,
       );
-      if (nodesResponse.isError || nodesResponse.error) {
-        throw nodesResponse.error.message;
-      }
+      if (nodesResponse.isError) throw nodesResponse.error.message;
 
       if (this.currentNetwork?.name !== nodesResponse.result.network) {
         this.currentNetwork = {
@@ -267,7 +259,7 @@ export class MassaStationProvider implements IProvider {
           chainId: BigInt(nodesResponse.result.chainId),
         };
       }
-      const nodes = nodesResponse.result as { network: string };
+      const nodes = nodesResponse.result;
 
       return nodes.network;
     } catch (ex) {
@@ -288,10 +280,11 @@ export class MassaStationProvider implements IProvider {
       const nodesResponse = await getRequest<getNetworkInfoBody>(
         `${MASSA_STATION_URL}massa/node`,
       );
-      if (nodesResponse.isError || nodesResponse.error) {
-        throw nodesResponse.error.message;
-      }
-      const nodes = nodesResponse.result as { chainId: number };
+
+      if (nodesResponse.isError) throw nodesResponse.error.message;
+
+      const nodes = nodesResponse.result;
+
       return BigInt(nodes.chainId);
     } catch (ex) {
       console.error(`MassaStation nodes retrieval error`, ex);
@@ -305,23 +298,18 @@ export class MassaStationProvider implements IProvider {
    * @returns a Promise that resolves to the details of the newly generated account.
    */
   public async generateNewAccount(name: string): Promise<IAccountDetails> {
-    let massaStationAccountsResponse: JsonRpcResponseData<IMassaStationWallet> =
-      null;
+    let response: JsonRpcResponseData<IMassaStationWallet> = null;
     try {
-      massaStationAccountsResponse = await postRequest<IMassaStationWallet>(
+      response = await postRequest<IMassaStationWallet>(
         MASSA_STATION_ACCOUNTS_URL + '/' + name,
         {},
       );
-      if (
-        massaStationAccountsResponse.isError ||
-        massaStationAccountsResponse.error
-      ) {
-        throw massaStationAccountsResponse.error.message;
-      }
+      if (response.isError) throw response.error.message;
+
       return {
-        address: massaStationAccountsResponse.result.address,
-        name: massaStationAccountsResponse.result.nickname,
-      } as IAccountDetails;
+        address: response.result.address,
+        name: response.result.nickname,
+      };
     } catch (ex) {
       console.error(`Error while generating account: ${ex}`);
       throw ex;

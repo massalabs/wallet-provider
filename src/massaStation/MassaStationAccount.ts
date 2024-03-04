@@ -109,11 +109,12 @@ export class MassaStationAccount implements IAccount {
       console.error(`MassaStation account balance error`);
       throw ex;
     }
-    if (signOpResponse.isError) {
-      throw signOpResponse.error;
-    }
+
+    if (signOpResponse.isError) throw signOpResponse.error;
+
     const balance: IBalance =
       signOpResponse.result.addressesAttributes[this._address].balance;
+
     return {
       finalBalance: balance.final,
       candidateBalance: balance.pending,
@@ -180,7 +181,7 @@ export class MassaStationAccount implements IAccount {
 
     buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
 
-    if (buyRollsOpResponse.isError || buyRollsOpResponse.error) {
+    if (buyRollsOpResponse.isError) {
       errorHandler(operationType.BuyRolls, buyRollsOpResponse.error);
     }
     return buyRollsOpResponse.result;
@@ -207,7 +208,7 @@ export class MassaStationAccount implements IAccount {
 
     sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
 
-    if (sellRollsOpResponse.isError || sellRollsOpResponse.error) {
+    if (sellRollsOpResponse.isError) {
       errorHandler(operationType.SellRolls, sellRollsOpResponse.error);
     }
     return sellRollsOpResponse.result;
@@ -235,7 +236,7 @@ export class MassaStationAccount implements IAccount {
 
     sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
 
-    if (sendTxOpResponse.isError || sendTxOpResponse.error) {
+    if (sendTxOpResponse.isError) {
       throw errorHandler(operationType.SendTransaction, sendTxOpResponse.error);
     }
 
@@ -302,7 +303,7 @@ export class MassaStationAccount implements IAccount {
 
     CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
 
-    if (CallSCOpResponse.isError || CallSCOpResponse.error) {
+    if (CallSCOpResponse.isError) {
       throw errorHandler('callSmartContract', CallSCOpResponse.error);
     }
     return CallSCOpResponse.result;
@@ -316,9 +317,8 @@ export class MassaStationAccount implements IAccount {
       nodesResponse = await getRequest<unknown>(
         `${MASSA_STATION_URL}massa/node`,
       );
-      if (nodesResponse.isError || nodesResponse.error) {
-        throw nodesResponse.error.message;
-      }
+      if (nodesResponse.isError) throw nodesResponse.error.message;
+
       // transform nodesResponse.result to a json and then get the "url" property
       const nodes = nodesResponse.result as { url: string };
       node = nodes.url;
@@ -375,9 +375,8 @@ export class MassaStationAccount implements IAccount {
         node,
         body,
       );
-      if (resp.isError || resp.error) {
-        throw resp.error.message;
-      }
+      if (resp.isError) throw resp.error.message;
+
       jsonRpcCallResult = resp.result;
     } catch (ex) {
       throw new Error(
