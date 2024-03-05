@@ -229,4 +229,23 @@ export class Account implements IAccount {
       );
     });
   }
+
+  public async readSc(
+    contractAddress: string,
+    functionName: string,
+    parameters: Uint8Array | Args,
+    amount: bigint,
+    fee: bigint,
+    maxGas: bigint,
+  ): Promise<IContractReadOperationResponse> {
+    return this.callSC(
+      contractAddress,
+      functionName,
+      parameters,
+      amount,
+      fee,
+      maxGas,
+      true,
+    ) as Promise<IContractReadOperationResponse>;
+  }
 }

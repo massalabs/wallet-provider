@@ -273,12 +273,7 @@ export class MassaStationAccount implements IAccount {
     nonPersistentExecution = false,
   ): Promise<ITransactionDetails | IContractReadOperationResponse> {
     if (nonPersistentExecution) {
-      return this.nonPersistentCallSC(
-        contractAddress,
-        functionName,
-        parameter,
-        maxGas,
-      );
+      return this.readSc(contractAddress, functionName, parameter, maxGas);
     }
     // convert parameter to base64
     let args = '';
@@ -328,7 +323,7 @@ export class MassaStationAccount implements IAccount {
     return node;
   }
 
-  public async nonPersistentCallSC(
+  public async readSc(
     contractAddress: string,
     functionName: string,
     parameter: Uint8Array | Args,

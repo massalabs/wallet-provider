@@ -148,7 +148,7 @@ export class BearbyAccount implements IAccount {
     await this.connect();
 
     if (nonPersistentExecution) {
-      return this.nonPersistentCallSC(
+      return this.readSc(
         contractAddress,
         functionName,
         parameter,
@@ -178,7 +178,7 @@ export class BearbyAccount implements IAccount {
     return { operationId };
   }
 
-  public async nonPersistentCallSC(
+  public async readSc(
     contractAddress: string,
     functionName: string,
     parameters: Uint8Array | Args,
