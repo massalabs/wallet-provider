@@ -1,7 +1,7 @@
 name: CI unit tests
 on: [push]
 jobs:
-  unit-tests:
+  tests-e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -55,7 +55,7 @@ jobs:
           curl -X POST "http://station.massa/plugin-manager/?source=https://github.com/massalabs/station-massa-wallet/releases/latest/download/wallet-plugin_linux-amd64.zip"
 
       - name: Test using dummy extension
-        run: NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm run unit-test-esm
+        run: NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm run tests-e2e-esm
 
       - name: Print MassaStation logs
         if: always()

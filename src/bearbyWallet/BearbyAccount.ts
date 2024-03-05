@@ -11,28 +11,8 @@ import { IAccount } from '../account/IAccount';
 import { AddressInfo, web3 } from '@hicaru/bearby.js';
 import { postRequest } from '../massaStation/RequestHandler';
 import { IAccountSignOutput } from '../account/AccountSign';
-/**
- * The maximum allowed gas for a read operation
- */
-
-export enum OperationsType {
-  Payment,
-  RollBuy,
-  RollSell,
-  ExecuteSC,
-  CallSC,
-}
-
-/**
- * Associates an operation type with a number.
- */
-export enum OperationTypeId {
-  Transaction = 0,
-  RollBuy = 1,
-  RollSell = 2,
-  ExecuteSC = 3,
-  CallSC = 4,
-}
+import { errorHandler } from '../errors/utils/errorHandler';
+import { operationType } from '../utils/constants';
 
 export class BearbyAccount implements IAccount {
   private _providerName: string;
@@ -103,29 +83,40 @@ export class BearbyAccount implements IAccount {
     if (data instanceof Buffer) {
       strData = data.toString();
     }
-    const signature = await web3.wallet.signMessage(strData);
-    return {
-      publicKey: signature.publicKey,
-      base58Encoded: signature.signature,
-    };
+    try {
+      const signature = await web3.wallet.signMessage(strData);
+
+      return {
+        publicKey: signature.publicKey,
+        base58Encoded: signature.signature,
+      };
+    } catch (error) {
+      throw errorHandler(operationType.Sign, error);
+    }
   }
 
   public async buyRolls(amount: bigint): Promise<ITransactionDetails> {
     await this.connect();
-    const operationId = await web3.massa.buyRolls(amount.toString());
-
-    return {
-      operationId,
-    } as ITransactionDetails;
+    try {
+      const operationId = await web3.massa.buyRolls(amount.toString());
+      return {
+        operationId,
+      };
+    } catch (error) {
+      throw errorHandler(operationType.BuyRolls, error);
+    }
   }
 
   public async sellRolls(amount: bigint): Promise<ITransactionDetails> {
     await this.connect();
-    const operationId = await web3.massa.sellRolls(amount.toString());
-
-    return {
-      operationId,
-    } as ITransactionDetails;
+    try {
+      const operationId = await web3.massa.sellRolls(amount.toString());
+      return {
+        operationId,
+      };
+    } catch (error) {
+      throw errorHandler(operationType.SellRolls, error);
+    }
   }
 
   public async sendTransaction(
@@ -134,12 +125,16 @@ export class BearbyAccount implements IAccount {
   ): Promise<ITransactionDetails> {
     await this.connect();
 
-    const operationId = await web3.massa.payment(
-      amount.toString(),
-      recipientAddress,
-    );
+    try {
+      const operationId = await web3.massa.payment(
+        amount.toString(),
+        recipientAddress,
+      );
 
-    return { operationId };
+      return { operationId };
+    } catch (error) {
+      throw errorHandler(operationType.SendTransaction, error);
+    }
   }
 
   public async callSC(
@@ -164,22 +159,23 @@ export class BearbyAccount implements IAccount {
       );
     }
 
-    let unsafeParameters: Uint8Array;
-    if (parameter instanceof Uint8Array) {
-      unsafeParameters = parameter;
-    } else {
-      unsafeParameters = Uint8Array.from(parameter.serialize());
+    const unsafeParameters =
+      parameter instanceof Uint8Array
+        ? parameter
+        : Uint8Array.from(parameter.serialize());
+    let operationId;
+    try {
+      operationId = await web3.contract.call({
+        maxGas: Number(maxGas),
+        coins: Number(amount),
+        fee: Number(fee),
+        targetAddress: contractAddress,
+        functionName: functionName,
+        unsafeParameters,
+      });
+    } catch (error) {
+      throw errorHandler(operationType.CallSC, error);
     }
-
-    const operationId = await web3.contract.call({
-      maxGas: Number(maxGas),
-      coins: Number(amount),
-      fee: Number(fee),
-      targetAddress: contractAddress,
-      functionName: functionName,
-      unsafeParameters,
-    });
-
     return { operationId };
   }
 
