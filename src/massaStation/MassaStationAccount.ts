@@ -109,7 +109,7 @@ export class MassaStationAccount implements IAccount {
       console.error(`MassaStation account balance error`);
       throw ex;
     }
-    if (signOpResponse.isError || signOpResponse) {
+    if (signOpResponse.isError) {
       throw signOpResponse.error;
     }
     const balance: IBalance =
@@ -145,7 +145,7 @@ export class MassaStationAccount implements IAccount {
       signData,
     );
 
-    if (signOpResponse.isError || signOpResponse) {
+    if (signOpResponse.isError) {
       throw errorHandler(operationType.Sign, signOpResponse.error);
     }
 

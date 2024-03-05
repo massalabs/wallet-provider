@@ -13,6 +13,7 @@ import { postRequest } from '../massaStation/RequestHandler';
 import { IAccountSignOutput } from '../account/AccountSign';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
+
 export class BearbyAccount implements IAccount {
   private _providerName: string;
   private _address: string;
@@ -230,9 +231,7 @@ export class BearbyAccount implements IAccount {
         nodeUrl,
         body,
       );
-      if (resp.isError || resp.error) {
-        throw resp.error.message;
-      }
+      if (resp.isError) throw resp.error.message;
       jsonRpcCallResult = resp.result;
     } catch (ex) {
       throw new Error(
