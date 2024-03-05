@@ -10,10 +10,7 @@ export function isUserRejectionError(error: Error): boolean {
   );
 }
 
-export function operationErrorMapping(
-  operationName: string,
-  error: Error,
-): Error {
+export function errorHandler(operationName: string, error: Error): Error {
   if (isUserRejectionError(error)) {
     return new UserRejectionError({
       operationName: operationName,

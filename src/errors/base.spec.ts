@@ -33,9 +33,9 @@ test('BaseError with cause', () => {
   const cause = new Error('The cause of the error');
   const baseError = new BaseError('An error occurred.', { cause });
   expect(baseError.cause).toBe(cause);
-  expect(baseError.message).toBe(`An error occurred.`);
+  expect(baseError.message).toBe('An error occurred.');
   if (baseError.cause instanceof Error) {
-    expect(baseError.cause.message).toBe(`The cause of the error`);
+    expect(baseError.cause.message).toBe('The cause of the error');
   }
 });
 

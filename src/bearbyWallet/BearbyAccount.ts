@@ -11,8 +11,8 @@ import { IAccount } from '../account/IAccount';
 import { AddressInfo, web3 } from '@hicaru/bearby.js';
 import { postRequest } from '../massaStation/RequestHandler';
 import { IAccountSignOutput } from '../account/AccountSign';
-import { operationErrorMapping } from '../errors/utils/errorMapping';
-import { operationType } from 'src/utils/constants';
+import { errorHandler } from '../errors/utils/errorHandler';
+import { operationType } from '../utils/constants';
 
 export class BearbyAccount implements IAccount {
   private _providerName: string;
@@ -91,7 +91,7 @@ export class BearbyAccount implements IAccount {
         base58Encoded: signature.signature,
       };
     } catch (error) {
-      throw operationErrorMapping(operationType.SIGN, error);
+      throw errorHandler(operationType.Sign, error);
     }
   }
 
@@ -103,7 +103,7 @@ export class BearbyAccount implements IAccount {
         operationId,
       };
     } catch (error) {
-      throw operationErrorMapping(operationType.BUY_ROLLS, error);
+      throw errorHandler(operationType.BuyRolls, error);
     }
   }
 
@@ -115,7 +115,7 @@ export class BearbyAccount implements IAccount {
         operationId,
       };
     } catch (error) {
-      throw operationErrorMapping('sellRolls', error);
+      throw errorHandler(operationType.SellRolls, error);
     }
   }
 
@@ -133,7 +133,7 @@ export class BearbyAccount implements IAccount {
 
       return { operationId };
     } catch (error) {
-      throw operationErrorMapping(operationType.SEND_TRANSACTION, error);
+      throw errorHandler(operationType.SendTransaction, error);
     }
   }
 
@@ -174,7 +174,7 @@ export class BearbyAccount implements IAccount {
         unsafeParameters,
       });
     } catch (error) {
-      throw operationErrorMapping(operationType.CALL_SC, error);
+      throw errorHandler(operationType.CallSC, error);
     }
     return { operationId };
   }

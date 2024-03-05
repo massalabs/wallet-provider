@@ -1,5 +1,5 @@
 import { UserRejectionError } from '../userRejection';
-import { isUserRejectionError, operationErrorMapping } from './errorMapping';
+import { isUserRejectionError, errorHandler } from './errorHandler';
 
 const massaUserRejectionErrorMessage = 'Action canceled by user';
 const bearbyUserRejectionErrorMessage = 'User rejected';
@@ -22,19 +22,19 @@ describe('isUserRejectionError', () => {
   });
 });
 
-describe('operationErrorMapping', () => {
+describe('errorHandler', () => {
   it('should return a UserRejectionError if the error is a user rejection error', () => {
     const error = new Error('User rejected');
-    const mappedError = operationErrorMapping('someOperation', error);
-    expect(mappedError).toBeInstanceOf(UserRejectionError);
-    expect(mappedError.message).toBe(
+    const processedError = errorHandler('someOperation', error);
+    expect(processedError).toBeInstanceOf(UserRejectionError);
+    expect(processedError.message).toBe(
       'The operation someOperation was rejected by the user.',
     );
   });
 
   it('should return the original error if the error is not a user rejection error', () => {
     const error = new Error(someOtherErrorMessage);
-    const mappedError = operationErrorMapping('someOperation', error);
-    expect(mappedError).toBe(error);
+    const processedError = errorHandler('someOperation', error);
+    expect(processedError).toBe(error);
   });
 });

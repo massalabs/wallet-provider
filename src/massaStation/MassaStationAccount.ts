@@ -21,7 +21,8 @@ import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { IAccountSignOutput, ISignMessage } from '../account/AccountSign';
 import { encode as base58Encode } from 'bs58check';
 import { ExecuteFunctionBody } from './types';
-import { operationErrorMapping } from '../errors/utils/errorMapping';
+import { errorHandler } from '../errors/utils/errorHandler';
+import { operationType } from '../utils/constants';
 
 /**
  * This interface represents the the individual wallet's final and pending balances returned by MassaStation
@@ -145,7 +146,7 @@ export class MassaStationAccount implements IAccount {
     );
 
     if (signOpResponse.isError || signOpResponse.error) {
-      throw operationErrorMapping('sign', signOpResponse.error);
+      throw errorHandler(operationType.Sign, signOpResponse.error);
     }
 
     const signature = base58Encode(
@@ -180,7 +181,7 @@ export class MassaStationAccount implements IAccount {
     buyRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
 
     if (buyRollsOpResponse.isError || buyRollsOpResponse.error) {
-      operationErrorMapping('buyRolls', buyRollsOpResponse.error);
+      errorHandler(operationType.BuyRolls, buyRollsOpResponse.error);
     }
     return buyRollsOpResponse.result;
   }
@@ -207,7 +208,7 @@ export class MassaStationAccount implements IAccount {
     sellRollsOpResponse = await postRequest<ITransactionDetails>(url, body);
 
     if (sellRollsOpResponse.isError || sellRollsOpResponse.error) {
-      operationErrorMapping('sellRolls', sellRollsOpResponse.error);
+      errorHandler(operationType.SellRolls, sellRollsOpResponse.error);
     }
     return sellRollsOpResponse.result;
   }
@@ -235,7 +236,7 @@ export class MassaStationAccount implements IAccount {
     sendTxOpResponse = await postRequest<ITransactionDetails>(url, body);
 
     if (sendTxOpResponse.isError || sendTxOpResponse.error) {
-      throw operationErrorMapping('sendTransaction', sendTxOpResponse.error);
+      throw errorHandler(operationType.SendTransaction, sendTxOpResponse.error);
     }
 
     return sendTxOpResponse.result;
@@ -302,7 +303,7 @@ export class MassaStationAccount implements IAccount {
     CallSCOpResponse = await postRequest<ITransactionDetails>(url, body);
 
     if (CallSCOpResponse.isError || CallSCOpResponse.error) {
-      throw operationErrorMapping('callSmartContract', CallSCOpResponse.error);
+      throw errorHandler('callSmartContract', CallSCOpResponse.error);
     }
     return CallSCOpResponse.result;
   }
