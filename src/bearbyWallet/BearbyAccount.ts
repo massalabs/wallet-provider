@@ -1,6 +1,5 @@
 import {
   Args,
-  CHAIN_ID_RPC_URL_MAP,
   IContractReadOperationData,
   IContractReadOperationResponse,
   MAX_GAS_CALL,
@@ -13,7 +12,7 @@ import { postRequest } from '../massaStation/RequestHandler';
 import { IAccountSignOutput } from '../account/AccountSign';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
-
+import { bearbyNodeUrl } from './utils/bearbyCommons';
 export class BearbyAccount implements IAccount {
   private _providerName: string;
   private _address: string;
@@ -149,7 +148,7 @@ export class BearbyAccount implements IAccount {
     await this.connect();
 
     if (nonPersistentExecution) {
-      return this.nonPersistentCallSC(
+      return this.readSc(
         contractAddress,
         functionName,
         parameter,
@@ -179,84 +178,59 @@ export class BearbyAccount implements IAccount {
     return { operationId };
   }
 
-  public async nonPersistentCallSC(
+  public async readSc(
     contractAddress: string,
     functionName: string,
-    parameter: Uint8Array | Args,
+    parameters: Uint8Array | Args,
     amount: bigint,
     fee: bigint,
     maxGas: bigint,
   ): Promise<IContractReadOperationResponse> {
-    // Gas amount check
     if (maxGas > MAX_GAS_CALL) {
       throw new Error(
-        `
-        The gas submitted ${maxGas.toString()} exceeds the max. allowed block gas of 
-        ${MAX_GAS_CALL.toString()}
-        `,
+        `Gas amount ${maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
       );
     }
 
-    // convert parameter to an array of numbers
-    let argumentArray = [];
-    if (parameter instanceof Uint8Array) {
-      argumentArray = Array.from(parameter);
-    } else {
-      argumentArray = Array.from(parameter.serialize());
-    }
-    // setup the request body
-    const data = {
-      max_gas: Number(maxGas),
-      target_address: contractAddress,
-      target_function: functionName,
-      parameter: argumentArray,
-      caller_address: this._address,
-      coins: amount.toString(),
-      fee: fee.toString(),
-    };
+    const args =
+      parameters instanceof Uint8Array
+        ? Array.from(parameters)
+        : Array.from(parameters.serialize());
 
-    const body = [
+    const requestBody = [
       {
         jsonrpc: '2.0',
         method: 'execute_read_only_call',
-        params: [[data]],
+        params: [
+          [
+            {
+              max_gas: Number(maxGas),
+              target_address: contractAddress,
+              target_function: functionName,
+              parameter: args,
+              caller_address: this._address,
+              coins: amount.toString(),
+              fee: fee.toString(),
+            },
+          ],
+        ],
         id: 0,
       },
     ];
-    // returns operation ids
-    let jsonRpcCallResult: Array<IContractReadOperationData> = [];
-    const nodeUrl = await getNodesUrl();
-    try {
-      let resp = await postRequest<Array<IContractReadOperationData>>(
-        nodeUrl,
-        body,
-      );
-      if (resp.isError || resp.error) {
-        throw resp.error.message;
-      }
-      jsonRpcCallResult = resp.result;
-    } catch (ex) {
-      throw new Error(
-        `Bearby account: error while interacting with smart contract: ${ex}`,
-      );
-    }
-    if (jsonRpcCallResult.length <= 0) {
-      throw new Error(
-        `Read operation bad response. No results array in json rpc response. Inspect smart contract`,
-      );
-    }
-    if (jsonRpcCallResult[0].result?.Error) {
-      throw new Error(jsonRpcCallResult[0].result.Error);
-    }
+
+    // TODO error if nodeUrl not available
+    const response = await postRequest<Array<IContractReadOperationData>>(
+      await bearbyNodeUrl(),
+      requestBody,
+    );
+
+    if (response.isError) throw response.error;
+
+    const operationResult = response.result[0];
+
     return {
-      returnValue: new Uint8Array(jsonRpcCallResult[0].result[0].result.Ok),
-      info: jsonRpcCallResult[0],
+      returnValue: new Uint8Array(operationResult.result[0].result.Ok),
+      info: operationResult,
     };
   }
-}
-
-// TODO: Should be removed from account when bearby.js is updated
-async function getNodesUrl(): Promise<string> {
-  const info = (await web3.massa.getNodesStatus()) as any;
-  return CHAIN_ID_RPC_URL_MAP[info.result.chain_id];
 }

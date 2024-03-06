@@ -7,22 +7,27 @@
  * - If you want to work on this repo, you will probably be interested in this object
  *
  */
-import axios, { AxiosResponse, AxiosRequestHeaders } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 const requestHeaders = {
   Accept:
     'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
   'Content-Type': 'application/json',
-} as AxiosRequestHeaders;
+};
 /**
  * This interface represents a payload returned by making an http call
  */
-export interface JsonRpcResponseData<T> {
-  isError: boolean;
-  result: T | null;
-  error: Error | null;
-}
-
+export type JsonRpcResponseData<T> =
+  | {
+      isError: false;
+      result: T;
+      error?: never;
+    }
+  | {
+      isError: true;
+      result?: never;
+      error: Error;
+    };
 /**
  * This method makes a GET request to an http rest point.
  *
@@ -41,19 +46,13 @@ export async function getRequest<T>(
       headers: requestHeaders,
       timeout,
     });
+    return { isError: false, result: resp.data };
   } catch (ex) {
     return {
       isError: true,
-      result: null,
       error: new Error('Axios Error: ' + String(ex)),
-    } as JsonRpcResponseData<T>;
+    };
   }
-
-  return {
-    isError: false,
-    result: resp.data as T,
-    error: null,
-  } as JsonRpcResponseData<T>;
 }
 
 /**
@@ -74,19 +73,14 @@ export async function postRequest<T>(
       headers: requestHeaders,
     });
 
-    return {
-      isError: false,
-      result: resp.data as T,
-      error: null,
-    } as JsonRpcResponseData<T>;
-  } catch (ex) {
+    return { isError: false, result: resp.data };
+  } catch (error) {
     return {
       isError: true,
-      result: null,
-      error: ex.response?.data?.message
-        ? new Error(String(ex.response.data.message))
-        : new Error('Axios error: ' + String(ex)),
-    } as JsonRpcResponseData<T>;
+      error: error.response?.data?.message
+        ? new Error(String(error.response.data.message))
+        : new Error('Axios error: ' + String(error)),
+    };
   }
 }
 
@@ -106,19 +100,14 @@ export async function deleteRequest<T>(
     resp = await axios.delete<unknown, AxiosResponse, object>(url, {
       headers: requestHeaders,
     });
+
+    return { isError: false, result: resp.data };
   } catch (ex) {
     return {
       isError: true,
-      result: null,
       error: new Error('Axios Error: ' + String(ex)),
-    } as JsonRpcResponseData<T>;
+    };
   }
-
-  return {
-    isError: false,
-    result: resp.data as T,
-    error: null,
-  } as JsonRpcResponseData<T>;
 }
 
 /**
@@ -139,17 +128,12 @@ export async function putRequest<T>(
     resp = await axios.put<unknown, AxiosResponse, object>(url, body, {
       headers: requestHeaders,
     });
+
+    return { isError: false, result: resp.data };
   } catch (ex) {
     return {
       isError: true,
-      result: null,
       error: new Error('Axios error: ' + String(ex)),
-    } as JsonRpcResponseData<T>;
+    };
   }
-
-  return {
-    isError: false,
-    result: resp.data as T,
-    error: null,
-  } as JsonRpcResponseData<T>;
 }

@@ -73,4 +73,23 @@ export interface IAccount {
     maxGas: bigint,
     nonPersistentExecution?: boolean,
   ): Promise<ITransactionDetails | IContractReadOperationResponse>;
+
+  /**
+   * Reads a smart contract.
+   *
+   * @param contractAddress - Address of the smart contract.
+   * @param functionName - Name of the function to call.
+   * @param parameters - Parameters to pass to the function.
+   * @param amount - Amount of funds to send with the call.
+   * @param fee - Fee for the transaction.
+   * @param maxGas - Maximum gas to use for the transaction.
+   */
+  readSc(
+    contractAddress: string,
+    functionName: string,
+    parameters: Uint8Array | Args,
+    amount: bigint,
+    fee: bigint,
+    maxGas: bigint,
+  ): Promise<IContractReadOperationResponse>;
 }
