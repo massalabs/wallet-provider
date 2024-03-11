@@ -54,7 +54,7 @@
         "dist"
     ],
     "dependencies": {
-        "@hicaru/bearby.js": "^0.5.6",
+        "@hicaru/bearby.js": "^0.5.7",
         "@massalabs/web3-utils": "^1.4.9-dev",
         "axios": "^0.26.1",
         "bs58check": "^3.0.1",
