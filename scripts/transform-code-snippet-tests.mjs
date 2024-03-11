@@ -1,7 +1,7 @@
 import { readdir, readFile, writeFile } from 'fs';
 import { join } from 'path';
 
-const testCodeSnippetDirectory = './tests-e2e/code-snippets';
+const testCodeSnippetDirectory = './test-e2e/code-snippets';
 
 // Extract import statements from the content
 const extractImports = (content) => {
