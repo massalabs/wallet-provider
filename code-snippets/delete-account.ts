@@ -1,10 +1,10 @@
 import {
-  providers,
   EAccountDeletionResponse,
+  providers,
 } from '@massalabs/wallet-provider';
 
 (async () => {
-const availableProviders = await providers();
+  const availableProviders = await providers();
   const massaStationProvider = availableProviders.find(
     (p) => p.name() === 'MASSASTATION',
   );
@@ -20,8 +20,6 @@ const availableProviders = await providers();
 
   const resp = await massaStationProvider.deleteAccount(newAccount.address);
 
-  
-
   // print the account name and address
   console.log(
     'Account Name:',
@@ -32,5 +30,4 @@ const availableProviders = await providers();
       ? 'has been deleted'
       : 'could not be deleted',
   );
-
 })();

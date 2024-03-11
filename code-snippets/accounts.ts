@@ -1,7 +1,7 @@
 import { providers } from '@massalabs/wallet-provider';
 
 (async () => {
-const availableProviders = await providers();
+  const availableProviders = await providers();
   const massaStationProvider = availableProviders.find(
     (p) => p.name() === 'MASSASTATION',
   );
@@ -15,5 +15,4 @@ const availableProviders = await providers();
 
   // print the account name and address
   console.log('Accounts:', accounts);
-
 })();

@@ -1,7 +1,7 @@
 import { providers } from '@massalabs/wallet-provider';
 
 (async () => {
-const availableProviders = await providers();
+  const availableProviders = await providers();
   const massaStationProvider = availableProviders.find(
     (p) => p.name() === 'MASSASTATION',
   );
@@ -11,9 +11,5 @@ const availableProviders = await providers();
 
   const networkUrls = await massaStationProvider.getNodesUrls();
 
-  
-  
-
   console.log('Network Urls:', networkUrls);
-
 })();
