@@ -1,15 +1,12 @@
 import { providers } from '@massalabs/wallet-provider';
 
-(async () => {
-  const availableProviders = await providers();
-  const massaStationProvider = availableProviders.find(
-    (p) => p.name() === 'MASSASTATION',
-  );
+const availableProviders = await providers();
+const massaStationProvider = availableProviders.find(
+  (p) => p.name() === 'MASSASTATION',
+);
 
-  if (!massaStationProvider)
-    throw new Error('Massa Station provider not found');
+if (!massaStationProvider) throw new Error('Massa Station provider not found');
 
-  const network = await massaStationProvider.getNetwork();
+const network = await massaStationProvider.getNetwork();
 
-  console.log('Network Name:', network);
-})();
+console.log('Network Name:', network);
