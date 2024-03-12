@@ -1,35 +1,35 @@
+// Importing necessary modules from the 'fs' package and the 'path' module
 import { readdir, readFile, writeFile } from 'fs';
 import { join } from 'path';
 
 const testCodeSnippetDirectory = './test-e2e/code-snippets';
 
-// Extract import statements from the content
 const extractImports = (content) => {
   const importRegex = /^import [^]*? from .*;$/gm;
   return content.match(importRegex) || [];
 };
 
-// Transform the content of a test file into a code snippet
 const transformTestToSnippet = (content) => {
+  // Remove expect statements
   content = content.replace(/expect\([^]*?\).*\([^]*?\);/gm, '');
 
+  // Regex to match the body of "it" functions
   const itBodyRegex =
     /it\(['"`].+['"`],\s*(?:async\s*)?\(\)\s*=>\s*\{([\s\S]*?)\}\);/g;
   let transformedContent = '';
   let match;
 
+  // Extract the body of each "it" function
   while ((match = itBodyRegex.exec(content)) !== null) {
     transformedContent += match[1].trim() + '\n';
-  }
-
-  if (/await/.test(transformedContent)) {
-    transformedContent = `(async () => {\n${transformedContent}\n})();`;
   }
 
   return transformedContent;
 };
 
-// Read and transform test files
+/**
+ * Reads and transforms test files from a specified directory into code snippets.
+ */
 readdir(testCodeSnippetDirectory, (err, files) => {
   if (err) {
     console.error(`Error reading the directory: ${err}`);
@@ -40,6 +40,7 @@ readdir(testCodeSnippetDirectory, (err, files) => {
 
   specFiles.forEach((fileName) => {
     const filePath = join(testCodeSnippetDirectory, fileName);
+
     readFile(filePath, 'utf8', (err, content) => {
       if (err) {
         console.error(`Error reading the file ${filePath}: ${err}`);
@@ -54,6 +55,7 @@ readdir(testCodeSnippetDirectory, (err, files) => {
         './code-snippets',
         fileName.replace('.spec', ''),
       );
+
       writeFile(newFilePath, snippetContent, 'utf8', (err) => {
         if (err) {
           console.error(`Error writing the file ${newFilePath}: ${err}`);
