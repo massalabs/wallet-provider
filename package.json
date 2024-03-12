@@ -56,7 +56,7 @@
     "dependencies": {
         "@hicaru/bearby.js": "^0.5.7",
         "@massalabs/web3-utils": "^1.4.9-dev",
-        "axios": "^0.26.1",
+        "axios": "^0.28.0",
         "bs58check": "^3.0.1",
         "buffer": "^6.0.3",
         "uid": "^2.0.1"
