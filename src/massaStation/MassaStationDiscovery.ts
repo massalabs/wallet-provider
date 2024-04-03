@@ -5,7 +5,7 @@ import { PluginInfo } from './types';
 const MASSA_STATION_URL = 'https://station.massa/plugin-manager';
 const PLUGIN_NAME = 'Massa Wallet';
 const PLUGIN_AUTHOR = 'Massa Labs';
-const TIMEOUT = 2000;
+const TIMEOUT = 4000;
 
 async function fetchPluginData(): Promise<JsonRpcResponseData<PluginInfo[]>> {
   return getRequest<PluginInfo[]>(MASSA_STATION_URL, TIMEOUT);
