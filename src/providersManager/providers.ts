@@ -14,15 +14,17 @@ export async function getProvidersInstances(): Promise<IProvider[]> {
   const providerInstances: IProvider[] = [];
   const promises = [];
   for (const provider of providerList) {
-    promises.push(async () => {
-      try {
-        if (await provider.checkInstalled()) {
-          providerInstances.push(provider.createInstance());
+    promises.push(
+      (async () => {
+        try {
+          if (await provider.checkInstalled()) {
+            providerInstances.push(provider.createInstance());
+          }
+        } catch (error) {
+          console.error(`Error initializing provider ${provider.name}:`, error);
         }
-      } catch (error) {
-        console.error(`Error initializing provider ${provider.name}:`, error);
-      }
-    });
+      })(),
+    );
   }
 
   await Promise.all(promises);
