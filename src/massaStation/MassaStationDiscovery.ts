@@ -25,7 +25,10 @@ export async function isMassaStationAvailable(): Promise<boolean> {
 export async function isMassaWalletEnabled(): Promise<boolean> {
   const response = await fetchPluginData();
 
-  if (response.isError) return false;
+  if (response.isError) {
+    console.warn('Error fetching plugin data:', response.error);
+    return false;
+  }
 
   const walletPlugin = findWalletPlugin(response.result);
   return walletPlugin && walletPlugin.status === 'Up';
