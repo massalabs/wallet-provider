@@ -10,7 +10,7 @@
       "args": [
         "${fileBasenameNoExtension}",
         "--config",
-        "jest.e2e.config.esm.js"
+        "jest.e2e.config.esm.cjs"
       ],
       "console": "integratedTerminal",
       "disableOptimisticBPs": true,

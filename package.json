@@ -18,7 +18,7 @@
         "test-extension:serve-dapp": "cd test-extension/dapp-vite && npm run preview",
         "test-extension": "cd ./test-extension && npx playwright test",
         "tests-e2e-commonjs": "jest --config jest.e2e.config.commonjs.js --runInBand",
-        "tests-e2e-esm": "jest --config jest.e2e.config.esm.js --runInBand",
+        "tests-e2e-esm": "jest --config jest.e2e.config.esm.cjs --runInBand",
         "tests-e2e": "npm-run-all tests-e2e-*",
         "tests-e2e-local": "NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm-run-all tests-e2e-esm",
         "lint": "eslint .",
