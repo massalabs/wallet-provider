@@ -1,4 +1,4 @@
-import { Args } from '@massalabs/web3-utils';
+import { Args } from '@massalabs/massa-web3';
 
 /**
  * Converts an Args object to a base64 string

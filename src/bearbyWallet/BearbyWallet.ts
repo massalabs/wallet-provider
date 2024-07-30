@@ -1,40 +1,25 @@
-import {
-  JsonRPCResponse,
-  JsonRPCResponseNodeStatus,
-  web3,
-} from '@hicaru/bearby.js';
-import { IAccount, IAccountDetails } from '../account';
-import {
-  IAccountDeletionResponse,
-  IAccountImportResponse,
-  IProvider,
-} from '../provider';
+import { JsonRPCResponseNodeStatus, web3 } from '@hicaru/bearby.js';
+import { IAccountDeletionResponse, IAccountImportResponse } from '../wallet';
 import { BearbyAccount } from './BearbyAccount';
-import {
-  bearbyChainId,
-  bearbyNetwork,
-  bearbyNodeUrl,
-} from './utils/bearbyCommons';
+import { Wallet } from '../wallet/interface';
+import { Network, Provider } from '@massalabs/massa-web3';
+import { networkInfos } from './utils/network';
 
-export class BearbyProvider implements IProvider {
-  private providerName = 'BEARBY';
+export const WALLET_NAME = 'BEARBY';
+
+export class BearbyWallet implements Wallet {
+  private walletName = WALLET_NAME;
 
   public name(): string {
-    return this.providerName;
+    return this.walletName;
   }
 
-  public async accounts(): Promise<IAccount[]> {
+  public async accounts(): Promise<BearbyAccount[]> {
     // check if bearby is unlocked
     if (!web3.wallet.connected) {
       await web3.wallet.connect();
     }
-
-    const account = {
-      address: await web3.wallet.account.base58,
-      name: 'BEARBY',
-    };
-
-    return [new BearbyAccount(account, this.providerName)];
+    return [new BearbyAccount(await web3.wallet.account.base58)];
   }
 
   public async importAccount(): Promise<IAccountImportResponse> {
@@ -45,27 +30,14 @@ export class BearbyProvider implements IProvider {
     throw new Error('Method not implemented.');
   }
 
-  public async getNodesUrls(): Promise<string[]> {
-    // TODO: Check why we need to put in an array
-    return [await bearbyNodeUrl()];
+  public async networkInfos(): Promise<Network> {
+    if (!web3.wallet.connected) {
+      await web3.wallet.connect();
+    }
+    return networkInfos();
   }
 
-  public async getChainId(): Promise<bigint> {
-    return bearbyChainId();
-  }
-
-  public async getNetwork(): Promise<string> {
-    return bearbyNetwork();
-  }
-
-  // TODO: Harmonize the response with other providers
-  public async getNodeStatus(): Promise<
-    JsonRPCResponse<JsonRPCResponseNodeStatus>
-  > {
-    return web3.massa.getNodesStatus();
-  }
-
-  public async generateNewAccount(): Promise<IAccountDetails> {
+  public async generateNewAccount(): Promise<Provider> {
     throw new Error('Method not implemented.');
   }
 
@@ -90,10 +62,10 @@ export class BearbyProvider implements IProvider {
    * observer.unsubscribe();
    * ```
    */
-  public listenAccountChanges(callback: (base58: string) => void): {
+  public listenAccountChanges(callback: (address: string) => void): {
     unsubscribe: () => void;
   } {
-    return web3.wallet.account.subscribe((base58) => callback(base58));
+    return web3.wallet.account.subscribe((address) => callback(address));
   }
 
   /**

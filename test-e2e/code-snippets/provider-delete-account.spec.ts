@@ -1,10 +1,5 @@
-import {
-  providers,
-  EAccountDeletionResponse,
-} from '@massalabs/wallet-provider';
-
 it('should generate a new account with name and address and delete it', async () => {
-  const availableProviders = await providers();
+  const availableProviders = await wallets();
   const massaStationProvider = availableProviders.find(
     (p) => p.name() === 'MASSASTATION',
   );
