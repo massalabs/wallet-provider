@@ -25,14 +25,9 @@ export const supportedWallets: SupportedWallet[] = [
   },
 ];
 
-export async function getWallets(): Promise<Wallet[]> {
-  // Wait for providers to be initialized
-  // TODO: check if still needed
-  await wait(200);
-  return walletsList();
-}
+export async function getWallets(delay = 200): Promise<Wallet[]> {
+  await wait(delay);
 
-export async function walletsList(): Promise<Wallet[]> {
   return Promise.all(
     supportedWallets
       .map(async (wallet): Promise<Wallet> | undefined => {
