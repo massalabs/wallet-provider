@@ -1,5 +1,5 @@
 import { Wallet } from '../wallet/interface';
-import { getWallets, walletsList } from './walletList';
+import { getWallets } from './walletList';
 
 export class WalletsListener {
   private intervalId: NodeJS.Timeout | null;
@@ -11,7 +11,7 @@ export class WalletsListener {
     callback: (wallets: Wallet[]) => void,
   ): Promise<void> {
     try {
-      const newWallets = await walletsList();
+      const newWallets = await getWallets(0);
       if (this.hasWalletsChanged(newWallets)) {
         this.currentWallets = newWallets;
         callback(newWallets);
