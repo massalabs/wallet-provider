@@ -37,7 +37,9 @@ export async function getWallets(delay = 200): Promise<Wallet[]> {
           }
         } catch (error) {
           console.error(`Error initializing wallet ${wallet.name}:`, error);
+          return undefined;
         }
+        return undefined;
       })
       .filter((wallet) => wallet !== undefined),
   );

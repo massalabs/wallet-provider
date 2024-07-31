@@ -29,17 +29,10 @@ export enum AvailableCommands {
   AccountCallSC = 'ACCOUNT_CALL_SC',
 }
 
-export { AllowedRequests, AllowedResponses } from './connector';
-
 export {
-  EAccountDeletionResponse,
-  EAccountImportResponse,
   IAccountDeletionRequest,
   IAccountDeletionResponse,
-  IAccountImportRequest,
   IAccountImportResponse,
-  IProvider,
-  Provider,
 } from './wallet';
 
 export * from './errors';
@@ -48,9 +41,7 @@ export { MassaStationWallet } from './massaStation/MassaStationWallet';
 
 export { MassaStationAccount } from './massaStation/MassaStationAccount';
 
-export { wallets, WalletsListener } from './walletsManager';
-
-export { connectBearby, disconnectBearby } from './bearbyWallet/BearbyConnect';
+export { getWallets, WalletsListener } from './walletsManager';
 
 export {
   isMassaStationAvailable,
