@@ -22,12 +22,15 @@ export class BearbyWallet implements Wallet {
   }
 
   public async importAccount(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     publicKey: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     privateKey: string,
   ): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async deleteAccount(address: string): Promise<void> {
     throw new Error('Method not implemented.');
   }

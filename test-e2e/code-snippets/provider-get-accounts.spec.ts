@@ -1,17 +1,16 @@
-import { providers } from '@massalabs/wallet-provider';
+import { getWallets } from '../../src';
 
 it('should generate a new account and list all wallets', async () => {
-  const availableProviders = await providers();
-  const massaStationProvider = availableProviders.find(
+  const availableWallets = await getWallets();
+  const massaStationWallet = availableWallets.find(
     (p) => p.name() === 'MASSASTATION',
   );
 
   // stop the test if the provider is not available
-  if (!massaStationProvider)
-    throw new Error('Massa Station provider not found');
+  if (!massaStationWallet) throw new Error('Massa Station provider not found');
 
   // get account object
-  const accounts = await massaStationProvider.accounts();
+  const accounts = await massaStationWallet.accounts();
 
   // print the account name and address
   console.log('Accounts:', accounts);

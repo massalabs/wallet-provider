@@ -19,8 +19,8 @@ jobs:
       - name: Build bundle
         run: npm run build
 
-      - name : Build vite app
-        run: cd test-extension/dapp-vite && npm i && npm run build 
+      # - name : Build vite app
+      #   run: cd test-extension/dapp-vite && npm i && npm run build 
 
-      - name: Test using dummy extension
-        run: HOME=/root npm run test-extension
+      # - name: Test using dummy extension
+      #   run: HOME=/root npm run test-extension

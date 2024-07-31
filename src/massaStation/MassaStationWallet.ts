@@ -5,13 +5,8 @@ import {
   putRequest,
 } from './RequestHandler';
 import { MassaStationAccount } from './MassaStationAccount';
-import {
-  MassaStationAccountStatus,
-  MSAccount,
-  MSAccountsResp,
-  MSNetworksResp,
-} from './types';
-import EventEmitter from 'events';
+import { MassaStationAccountStatus, MSAccount, MSAccountsResp } from './types';
+import { EventEmitter } from 'events';
 import { Wallet } from '../wallet/interface';
 import { Network } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
@@ -88,6 +83,10 @@ export class MassaStationWallet implements Wallet {
     const accountToDelete = allAccounts.result.find(
       (account) => account.address === address,
     );
+
+    if (!accountToDelete) {
+      throw new Error('Account not found');
+    }
 
     const res = await deleteRequest<unknown>(
       `${MASSA_STATION_ACCOUNTS_URL}/${accountToDelete.nickname}`,

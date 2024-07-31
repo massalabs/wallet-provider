@@ -28,19 +28,17 @@ export const supportedWallets: SupportedWallet[] = [
 export async function getWallets(delay = 200): Promise<Wallet[]> {
   await wait(delay);
 
-  return Promise.all(
-    supportedWallets
-      .map(async (wallet): Promise<Wallet> | undefined => {
-        try {
-          if (await wallet.checkInstalled()) {
-            return wallet.createInstance();
-          }
-        } catch (error) {
-          console.error(`Error initializing wallet ${wallet.name}:`, error);
-          return undefined;
-        }
-        return undefined;
-      })
-      .filter((wallet) => wallet !== undefined),
-  );
+  const walletPromises = supportedWallets.map(async (wallet) => {
+    try {
+      if (await wallet.checkInstalled()) {
+        return wallet.createInstance();
+      }
+    } catch (error) {
+      console.error(`Error initializing wallet ${wallet.name}:`, error);
+    }
+    return null;
+  });
+
+  const resolvedWallets = await Promise.all(walletPromises);
+  return resolvedWallets.filter((wallet): wallet is Wallet => wallet !== null);
 }

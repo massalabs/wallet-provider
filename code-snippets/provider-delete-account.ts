@@ -1,22 +1,22 @@
 import {
   EAccountDeletionResponse,
-  providers,
+  getWallets,
 } from '@massalabs/wallet-provider';
 
-const availableProviders = await providers();
-const massaStationProvider = availableProviders.find(
+const availableWallets = await getWallets();
+const massaStationWallet = availableWallets.find(
   (p) => p.name() === 'MASSASTATION',
 );
 
 // stop the test if the provider is not available
-if (!massaStationProvider) throw new Error('Massa Station provider not found');
+if (!massaStationWallet) throw new Error('Massa Station provider not found');
 
 // generate a new account
-const newAccount = await massaStationProvider.generateNewAccount(
+const newAccount = await massaStationWallet.generateNewAccount(
   'account-to-be-deleted',
 );
 
-const resp = await massaStationProvider.deleteAccount(newAccount.address);
+const resp = await massaStationWallet.deleteAccount(newAccount.address);
 
 // print the account name and address
 console.log(
