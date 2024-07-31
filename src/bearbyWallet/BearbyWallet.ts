@@ -1,5 +1,4 @@
-import { JsonRPCResponseNodeStatus, web3 } from '@hicaru/bearby.js';
-import { IAccountDeletionResponse, IAccountImportResponse } from '../wallet';
+import { web3 } from '@hicaru/bearby.js';
 import { BearbyAccount } from './BearbyAccount';
 import { Wallet } from '../wallet/interface';
 import { Network, Provider } from '@massalabs/massa-web3';
@@ -22,11 +21,14 @@ export class BearbyWallet implements Wallet {
     return [new BearbyAccount(await web3.wallet.account.base58)];
   }
 
-  public async importAccount(): Promise<IAccountImportResponse> {
+  public async importAccount(
+    publicKey: string,
+    privateKey: string,
+  ): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  public async deleteAccount(): Promise<IAccountDeletionResponse> {
+  public async deleteAccount(address: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
