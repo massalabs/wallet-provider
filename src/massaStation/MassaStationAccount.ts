@@ -218,7 +218,8 @@ export class MassaStationAccount implements Provider {
     return client.executeReadOnlyCall(readOnlyParams);
   }
 
-  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
     throw new Error('Method not implemented.');
   }
 

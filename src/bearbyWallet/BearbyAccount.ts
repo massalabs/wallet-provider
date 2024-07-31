@@ -1,8 +1,8 @@
 import {
-  AddressInfo,
   EventFilterParam,
   JsonRPCResponseFilteredSCOutputEvent,
   web3,
+  AddressInfo,
 } from '@hicaru/bearby.js';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
@@ -58,6 +58,7 @@ export class BearbyAccount implements Provider {
       }
 
       // TODO: fix typings in bearby.js to avoid this cast
+      // https://github.com/bearby-wallet/bearby-web3/pull/19
       const { final_balance, candidate_balance } = res.result[0] as AddressInfo;
 
       return Mas.fromString(final ? final_balance : candidate_balance);
@@ -98,6 +99,7 @@ export class BearbyAccount implements Provider {
 
   public async buyRolls(
     amount: bigint,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _opts?: OperationOptions,
   ): Promise<Operation> {
     // await this.connect();
@@ -111,6 +113,7 @@ export class BearbyAccount implements Provider {
 
   public async sellRolls(
     amount: bigint,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _opts?: OperationOptions,
   ): Promise<Operation> {
     // await this.connect();
@@ -125,6 +128,7 @@ export class BearbyAccount implements Provider {
   public async transfer(
     to: Address | string,
     amount: bigint,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _opts?: OperationOptions,
   ): Promise<Operation> {
     // await this.connect();
@@ -183,7 +187,8 @@ export class BearbyAccount implements Provider {
         fee: Number(params.fee),
         targetAddress: params.target,
         targetFunction: params.func,
-        // TODO: it seems the type of parameter is wrong in bearby.js
+        // TODO: add unsafeParameters to bearby.js
+        // https://github.com/bearby-wallet/bearby-web3/pull/18
         parameter: unsafeParameters as any,
       });
 
@@ -197,6 +202,7 @@ export class BearbyAccount implements Provider {
           events: data.output_events.map((event: any) => ({
             data: event.data,
             // todo fix bearby.js typings
+            // https://github.com/bearby-wallet/bearby-web3/pull/20
             context: event.context,
           })),
           // TODO: where is gas_cost ? fix bearby.js
@@ -210,16 +216,18 @@ export class BearbyAccount implements Provider {
     }
   }
 
-  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
     // TODO: Implement deploySC using web3.contract.deploy
     throw new Error('Method not implemented.');
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
     try {
-      const res = (await web3.massa.getOperations(opId)) as any;
-      console.log('todo check typings of this...');
-      const op = res.result[0];
+      // todo fix bearby.js typings
+      // https://github.com/bearby-wallet/bearby-web3/pull/21
+      const { result } = await web3.massa.getOperations(opId);
+      const op = result[0] as any;
       if (op.op_exec_status === null) {
         if (op.is_operation_final === null) {
           return OperationStatus.NotFound;
@@ -256,16 +264,18 @@ export class BearbyAccount implements Provider {
       original_operation_id: filter.operationId,
       // Followings filters are not supported in bearby.js
       // TODO: either implement them in bearby.js or throw an error
+      // https://github.com/bearby-wallet/bearby-web3/pull/20
       // is_final: filter.isFinal,
       // is_error: filter.isError,
     };
 
     try {
       const res = (await web3.contract.getFilteredSCOutputEvent(
-        filter,
+        formattedFilter,
       )) as JsonRPCResponseFilteredSCOutputEvent;
       return res.result.map((event) => ({
         // TODO check bearby.js typings
+        // https://github.com/bearby-wallet/bearby-web3/pull/20
         data: event.datastring,
         context: event.context,
       })) as any;
