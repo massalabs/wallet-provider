@@ -1,9 +1,4 @@
-import {
-  EventFilterParam,
-  JsonRPCResponseFilteredSCOutputEvent,
-  web3,
-  AddressInfo,
-} from '@hicaru/bearby.js';
+import { EventFilterParam, web3, AddressInfo } from '@hicaru/bearby.js';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
 import {
@@ -11,6 +6,7 @@ import {
   CallSCParams,
   DeploySCParams,
   EventFilter,
+  JsonRPCClient,
   Mas,
   MAX_GAS_CALL,
   Network,
@@ -54,7 +50,7 @@ export class BearbyAccount implements Provider {
       const res = await web3.massa.getAddresses(this.address);
 
       if (res.error) {
-        throw res.error;
+        throw new Error(res.error?.message || 'Bearby unknown error');
       }
 
       // TODO: fix typings in bearby.js to avoid this cast
@@ -63,9 +59,7 @@ export class BearbyAccount implements Provider {
 
       return Mas.fromString(final ? final_balance : candidate_balance);
     } catch (error) {
-      const errorMessage = `An unexpected error occurred while fetching the account balance: ${
-        error.message || 'Unknown error'
-      }.`;
+      const errorMessage = `An unexpected error occurred while fetching the account balance: ${error.message}.`;
 
       throw new Error(errorMessage);
     }
@@ -180,35 +174,47 @@ export class BearbyAccount implements Provider {
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
     try {
-      const res = await web3.contract.readSmartContract({
-        // TODO: add bigint support in bearby.js
-        maxGas: Number(params.maxGas),
-        coins: Number(params.coins),
-        fee: Number(params.fee),
-        targetAddress: params.target,
-        targetFunction: params.func,
-        // TODO: add unsafeParameters to bearby.js
-        // https://github.com/bearby-wallet/bearby-web3/pull/18
-        parameter: unsafeParameters as any,
-      });
+      // const res = await web3.contract.readSmartContract({
+      //   // TODO: add bigint support in bearby.js
+      //   maxGas: Number(params.maxGas),
+      //   coins: Number(params.coins),
+      //   fee: Number(params.fee),
+      //   targetAddress: params.target,
+      //   targetFunction: params.func,
+      //   // TODO: add unsafeParameters to bearby.js
+      //   // https://github.com/bearby-wallet/bearby-web3/pull/18
+      //   parameter: unsafeParameters as any,
+      // });
 
-      console.log('bearby readSC res', res[0]);
-      const data = res[0].result[0];
+      // console.log('bearby readSC res', res[0]);
+      // const data = res[0].result[0];
 
-      return {
-        value: data.result as any,
-        info: {
-          error: data.result as any,
-          events: data.output_events.map((event: any) => ({
-            data: event.data,
-            // todo fix bearby.js typings
-            // https://github.com/bearby-wallet/bearby-web3/pull/20
-            context: event.context,
-          })),
-          // TODO: where is gas_cost ? fix bearby.js
-          gasCost: 0,
-        },
+      // return {
+      //   value: data.result as any,
+      //   info: {
+      //     error: data.result as any,
+      //     events: data.output_events.map((event: any) => ({
+      //       data: event.data,
+      //       // todo fix bearby.js typings
+      //       // https://github.com/bearby-wallet/bearby-web3/pull/20
+      //       context: event.context,
+      //     })),
+      //     // TODO: where is gas_cost ? fix bearby.js
+      //     gasCost: 0,
+      //   },
+      // };
+
+      // Temp implementation to remove when bearby.js is fixed
+      const network = await this.networkInfos();
+      const client =
+        network.name === 'mainnet'
+          ? JsonRPCClient.mainnet()
+          : JsonRPCClient.buildnet();
+      const readOnlyParams = {
+        ...params,
+        parameter: unsafeParameters,
       };
+      return client.executeReadOnlyCall(readOnlyParams);
     } catch (error) {
       throw new Error(
         `An error occurred while reading the smart contract: ${error.message}`,
@@ -226,8 +232,12 @@ export class BearbyAccount implements Provider {
     try {
       // todo fix bearby.js typings
       // https://github.com/bearby-wallet/bearby-web3/pull/21
-      const { result } = await web3.massa.getOperations(opId);
-      const op = result[0] as any;
+      const res = await web3.massa.getOperations(opId);
+
+      if (res.error) {
+        throw new Error(res.error?.message || 'Bearby unknown error');
+      }
+      const op = res.result[0] as any;
       if (op.op_exec_status === null) {
         if (op.is_operation_final === null) {
           return OperationStatus.NotFound;
@@ -270,15 +280,12 @@ export class BearbyAccount implements Provider {
     };
 
     try {
-      const res = (await web3.contract.getFilteredSCOutputEvent(
-        formattedFilter,
-      )) as JsonRPCResponseFilteredSCOutputEvent;
-      return res.result.map((event) => ({
-        // TODO check bearby.js typings
-        // https://github.com/bearby-wallet/bearby-web3/pull/20
-        data: event.datastring,
-        context: event.context,
-      })) as any;
+      const res = web3.contract.getFilteredSCOutputEvent(formattedFilter);
+      if (res instanceof Array) {
+        return res as any;
+      } else {
+        return [res] as any;
+      }
     } catch (error) {
       throw new Error(
         `An error occurred while fetching the operation status: ${error.message}`,
