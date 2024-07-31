@@ -1,4 +1,5 @@
-import { providers } from '@massalabs/wallet-provider';
+import { getWallets } from '../../src';
+
 import { Args } from '@massalabs/web3-utils';
 (async () => {
   console.log('[DAPP_HTML] Hello from Dapp! ');

@@ -1,4 +1,6 @@
-import { providers } from '@massalabs/wallet-provider';
+// import { getWallets } from '../../src';
+
+import { getWallets } from '../../src';
 import { deleteStationAccountFromNickname } from '../utils/provider-utils';
 
 describe('Sign a message', () => {
@@ -7,30 +9,32 @@ describe('Sign a message', () => {
   });
 
   it('should generate a new account and sign data with it', async () => {
-    const availableProviders = await providers();
-    const massaStationProvider = availableProviders.find(
-      (p) => p.name() === 'MASSASTATION',
-    );
+    const wallets = await getWallets();
+    const massaStationWallet = wallets.find((p) => p.name() === 'MASSASTATION');
 
     // stop the test if the provider is not available
-    if (!massaStationProvider)
+    if (!massaStationWallet)
       throw new Error('Massa Station provider not found');
 
     const accountName = 'signing-account';
     const dataToSign = 'test';
 
     // generate a new account
-    await massaStationProvider.generateNewAccount(accountName);
+    await massaStationWallet.generateNewAccount(accountName);
 
-    // get account object
-    const accounts = await massaStationProvider.accounts();
-    const newAccount = accounts.find((a) => a.name() === accountName);
+    //   // get account object
+    const accounts = await massaStationWallet.accounts();
+    const newAccount = accounts.find((a) => a.accountName === accountName);
+
+    if (!newAccount) {
+      throw new Error('Account not found');
+    }
 
     const resp = await newAccount.sign(dataToSign);
 
     expect(resp).not.toBeNull();
     expect(resp.publicKey).not.toBeNull();
-    expect(resp.base58Encoded).not.toBeNull();
+    expect(resp.signature).not.toBeNull();
 
     // print the account name and address
     console.log(
@@ -39,7 +43,7 @@ describe('Sign a message', () => {
       'signed data:',
       dataToSign,
       'signature:',
-      resp.base58Encoded,
+      resp.signature,
     );
   });
 });

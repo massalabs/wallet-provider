@@ -1,32 +1,36 @@
+import exp from 'constants';
+import { getWallets } from '../../src';
+
 it('should generate a new account with name and address and delete it', async () => {
-  const availableProviders = await wallets();
-  const massaStationProvider = availableProviders.find(
+  const availableWallets = await getWallets();
+  const massaStationWallet = availableWallets.find(
     (p) => p.name() === 'MASSASTATION',
   );
 
   // stop the test if the provider is not available
-  if (!massaStationProvider)
-    throw new Error('Massa Station provider not found');
+  if (!massaStationWallet) throw new Error('Massa Station provider not found');
 
   // generate a new account
-  const newAccount = await massaStationProvider.generateNewAccount(
+  const newAccount = await massaStationWallet.generateNewAccount(
     'account-to-be-deleted',
   );
 
-  const resp = await massaStationProvider.deleteAccount(newAccount.address);
+  await massaStationWallet.deleteAccount(newAccount.address);
 
-  expect(resp).toStrictEqual({
-    response: EAccountDeletionResponse.OK,
-  });
+  const accounts = await massaStationWallet.accounts();
+
+  const isAccountDeleted = accounts.some(
+    (account) => account.address === newAccount.address,
+  );
+
+  expect(isAccountDeleted).toBe(false);
 
   // print the account name and address
   console.log(
     'Account Name:',
-    newAccount.name || 'no name',
+    newAccount.accountName || 'no name',
     'Account Address:',
     newAccount.address,
-    resp.response === EAccountDeletionResponse.OK
-      ? 'has been deleted'
-      : 'could not be deleted',
+    isAccountDeleted ? 'Account deleted' : 'Account not deleted',
   );
 });

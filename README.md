@@ -42,19 +42,19 @@ Here is a simple example of how to use Wallet-provider:
 
 ```ts
 
-import { providers } from  "@massalabs/wallet-provider";
+import { getWallets } from  "@massalabs/wallet-provider";
 
 
 // get all available massa-wallet providers
 
-const  providers = providers();
+const  wallets = getWallets();
   
 
 // get a provider
 
-const  myProvider = providers[0];
+const  myWallet = wallets[0];
 
-console.log("Provider Name", myProvider.name());
+console.log("Provider Name", myProvider.name);
 
 
 // import an account via the massa-wallet provider
@@ -82,7 +82,7 @@ console.log("Provider accounts ...", myAccounts);
 
 const  myAccount = myAccounts[0];
 
-console.log("Account address ", myAccount.address());
+console.log("Account address ", myAccount.address);
  
 
 // getting account balance
@@ -107,7 +107,7 @@ console.log("Signature = ", signature);
 
 console.log("Deleting an account ...");
 
-await  myProvider.importAccount(myAccount.address());
+await  myProvider.importAccount(myAccount.address);
 
 ```
 

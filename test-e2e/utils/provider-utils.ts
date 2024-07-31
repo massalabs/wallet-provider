@@ -1,33 +1,34 @@
-import { providers } from '@massalabs/wallet-provider';
+import { getWallets } from '../../src';
+import { Wallet } from '../../src/wallet';
 
-export async function getMassaStationProvider(): Promise<any> {
-  const availableProviders = await providers();
-  const massaStationProvider = availableProviders.find(
+export async function getMassaStationWallet(): Promise<Wallet> {
+  const availableWallets = await getWallets();
+  const massaStationWallet = availableWallets.find(
     (p) => p.name() === 'MASSASTATION',
   );
 
-  // stop the test if the provider is not available
-  if (!massaStationProvider)
-    throw new Error('Massa Station provider not found');
+  // stop the test if the wallet is not available
+  if (!massaStationWallet) throw new Error('Massa Station wallet not found');
 
-  return massaStationProvider;
+  return massaStationWallet;
 }
 
 export async function deleteAccount(address: string): Promise<void> {
-  const massaStationProvider = await getMassaStationProvider();
-  await massaStationProvider.deleteAccount(address);
+  const massaStationWallet = await getMassaStationWallet();
+  await massaStationWallet.deleteAccount(address);
 }
 
 export async function deleteStationAccountFromNickname(
   nickname: string,
 ): Promise<void> {
-  const massaStationProvider = await getMassaStationProvider();
-  const accounts = await massaStationProvider.accounts();
-  const account = accounts.find((account) => account.name() === nickname);
+  const massaStationWallet = await getMassaStationWallet();
+  const accounts = await massaStationWallet.accounts();
+  const account = accounts.find((account) => account.accountName === nickname);
 
   if (!account) {
-    throw new Error(`Account with nickname ${nickname} not found`);
+    console.log(`Account with nickname ${nickname} not found`);
+    return;
   }
 
-  await massaStationProvider.deleteAccount(account.address());
+  await massaStationWallet.deleteAccount(account.address);
 }
