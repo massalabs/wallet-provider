@@ -1,5 +1,5 @@
 import { web3 } from '@hicaru/bearby.js';
-import { Network } from '@massalabs/massa-web3';
+import { Mas, Network } from '@massalabs/massa-web3';
 
 export const networkInfos = async (): Promise<Network> => {
   const { net } = await web3.wallet.network;
@@ -12,6 +12,6 @@ export const networkInfos = async (): Promise<Network> => {
   return {
     name: net,
     chainId: res.result.chain_id,
-    minimalFee: res.result.minimal_fee,
+    minimalFee: Mas.fromString(res.result.minimal_fee),
   };
 };
