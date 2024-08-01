@@ -96,16 +96,18 @@ export class MassaStationAccount implements Provider {
     };
   }
 
+  private async minimalFee(): Promise<bigint> {
+    const client = await getClient();
+    return client.getMinimalFee();
+  }
+
   private async rollOperation(
     type: operationType.BuyRolls | operationType.SellRolls,
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
-    let fee = opts?.fee;
-    if (!fee) {
-      const client = await getClient();
-      fee = await client.getMinimalFee();
-    }
+    let fee = opts?.fee ?? (await this.minimalFee());
+
     const body = {
       fee: fee.toString(),
       amount: amount.toString(),
@@ -142,11 +144,8 @@ export class MassaStationAccount implements Provider {
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
-    let fee = opts?.fee;
-    if (!fee) {
-      const client = await getClient();
-      fee = await client.getMinimalFee();
-    }
+    let fee = opts?.fee ?? (await this.minimalFee());
+
     const body = {
       fee: fee.toString(),
       amount: amount.toString(),
@@ -174,11 +173,7 @@ export class MassaStationAccount implements Provider {
       args = argsToBase64(params.parameter);
     }
 
-    let fee = params?.fee;
-    if (!fee) {
-      const client = await getClient();
-      fee = await client.getMinimalFee();
-    }
+    let fee = params?.fee ?? (await this.minimalFee());
 
     const body: ExecuteFunctionBody = {
       nickname: this.accountName,
@@ -220,10 +215,7 @@ export class MassaStationAccount implements Provider {
 
     const client = await getClient();
 
-    let fee = params?.fee;
-    if (!fee) {
-      fee = await client.getMinimalFee();
-    }
+    let fee = params?.fee ?? (await this.minimalFee());
 
     const args = params.parameter ?? new Uint8Array();
     const readOnlyParams = {
