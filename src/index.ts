@@ -43,6 +43,8 @@ export { MassaStationAccount } from './massaStation/MassaStationAccount';
 
 export { getWallets, WalletsListener } from './walletsManager';
 
+export * from './wallet';
+
 export {
   isMassaStationAvailable,
   isMassaWalletEnabled,
