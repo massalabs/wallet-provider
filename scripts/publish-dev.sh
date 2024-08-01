@@ -12,12 +12,4 @@ PACKAGE_NAME=$(cat package.json | jq -r '.name')
 PUBLISH_VERSION=$(cat package.json | jq -r '.version')
 echo publishing ${PACKAGE_NAME}@$PUBLISH_VERSION
 
-BRANCH=${GITHUB_REF##*/}
-TAG=""
-if [[ "$BRANCH" == "buildnet" ]]; then
-  TAG="buildnet-"
-elif [[ "$BRANCH" == "testnet" ]]; then
-  TAG="testnet-"
-fi
-
-npm publish --access public --tag ${TAG}dev
+npm publish --access public --tag dev
