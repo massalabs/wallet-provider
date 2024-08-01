@@ -50,7 +50,7 @@ export class BearbyAccount implements Provider {
       const res = await web3.massa.getAddresses(this.address);
 
       if (res.error) {
-        throw new Error(res.error?.message || 'Bearby unknown error');
+        throw new Error(res.error?.message || 'Bearby getAddresses error');
       }
 
       // TODO: fix typings in bearby.js to avoid this cast
@@ -235,7 +235,7 @@ export class BearbyAccount implements Provider {
       const res = await web3.massa.getOperations(opId);
 
       if (res.error) {
-        throw new Error(res.error?.message || 'Bearby unknown error');
+        throw new Error(res.error?.message || 'Bearby getOperations error');
       }
       const op = res.result[0] as any;
       if (op.op_exec_status === null) {

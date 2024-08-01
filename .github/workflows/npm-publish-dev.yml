@@ -5,9 +5,12 @@ on:
     branches: [ main ]
 
 jobs:
+  test:
+    uses: ./.github/workflows/massaStation-e2e-tests.yml
   publish-npm-dev:
 
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout code
@@ -17,7 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          registry-url: https://registry.npmjs.org
+          cache: 'npm'
         
       - name: Publish dev version to npm
         run: ./scripts/publish-dev.sh
