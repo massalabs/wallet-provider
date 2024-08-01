@@ -47,7 +47,7 @@ export class MassaStationWallet implements Wallet {
     const res = await getRequest<MSAccountsResp>(MASSA_STATION_ACCOUNTS_URL);
 
     if (res.isError) {
-      throw res.error.message;
+      throw res.error;
     }
     return res.result
       .filter((account) => {
@@ -68,7 +68,7 @@ export class MassaStationWallet implements Wallet {
     });
 
     if (res.isError) {
-      throw res.error.message;
+      throw res.error;
     }
   }
 
@@ -78,7 +78,7 @@ export class MassaStationWallet implements Wallet {
       MASSA_STATION_ACCOUNTS_URL,
     );
 
-    if (allAccounts.isError) throw allAccounts.error.message;
+    if (allAccounts.isError) throw allAccounts.error;
 
     const accountToDelete = allAccounts.result.find(
       (account) => account.address === address,
@@ -93,7 +93,7 @@ export class MassaStationWallet implements Wallet {
     );
 
     if (res.isError) {
-      throw res.error.message;
+      throw res.error;
     }
   }
 
@@ -112,7 +112,7 @@ export class MassaStationWallet implements Wallet {
       {},
     );
 
-    if (response.isError) throw response.error.message;
+    if (response.isError) throw response.error;
 
     return new MassaStationAccount(
       response.result.address,
