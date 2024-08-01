@@ -12,5 +12,6 @@ export const networkInfos = async (): Promise<Network> => {
   return {
     name: net,
     chainId: res.result.chain_id,
+    minimalFee: res.result.minimal_fee,
   };
 };
