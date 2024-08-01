@@ -22,7 +22,7 @@ jobs:
           node-version: 18
           cache: 'npm'
         
-      - name: Publish dev version to npm
+      - name: Publish next version to npm
         run: ./scripts/publish-next.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
