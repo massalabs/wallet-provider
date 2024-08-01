@@ -8,14 +8,6 @@ let client: JsonRPCClient;
 // Use rpcUrl to check if node has changed
 let rpcUrl: string;
 
-export async function getClient(): Promise<JsonRPCClient> {
-  if(!client){
-    // this initialize client
-    await this.networkInfos();
-  }
-  return client;
-}
-
 export async function networkInfos(): Promise<Network> {
   const nodesResponse = await getRequest<MSNetworksResp>(
     `${MASSA_STATION_URL}massa/node`,
@@ -23,7 +15,7 @@ export async function networkInfos(): Promise<Network> {
   if (nodesResponse.isError) throw nodesResponse.error.message;
 
   const url = nodesResponse.result.url;
-  if(!client || rpcUrl !== url){
+  if (!client || rpcUrl !== url) {
     client = new JsonRPCClient(url);
     rpcUrl = url;
   }
@@ -33,6 +25,13 @@ export async function networkInfos(): Promise<Network> {
     url,
     chainId: BigInt(nodesResponse.result.chainId),
     minimalFee: await client.getMinimalFee(),
-
   };
+}
+
+export async function getClient(): Promise<JsonRPCClient> {
+  if (!client) {
+    // this initialize client
+    await networkInfos();
+  }
+  return client;
 }

@@ -146,11 +146,11 @@ export class BearbyAccount implements Provider {
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-      let fee = params?.fee;
-      if(!fee) {
-        const {minimalFee} = await this.networkInfos();
-        fee = minimalFee;
-      }
+    let fee = params?.fee;
+    if (!fee) {
+      const { minimalFee } = await this.networkInfos();
+      fee = minimalFee;
+    }
 
     try {
       const operationId = await web3.contract.call({
@@ -179,11 +179,11 @@ export class BearbyAccount implements Provider {
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-      let fee = params?.fee;
-      if(!fee) {
-        const {minimalFee} = await this.networkInfos();
-        fee = minimalFee;
-      }
+    let fee = params?.fee;
+    if (!fee) {
+      const { minimalFee } = await this.networkInfos();
+      fee = minimalFee;
+    }
 
     try {
       // const res = await web3.contract.readSmartContract({
