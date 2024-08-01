@@ -4,7 +4,6 @@ import {
   MASSA_STATION_ACCOUNTS_URL,
   WALLET_NAME,
 } from './MassaStationWallet';
-import { MAX_GAS_CALL } from '@massalabs/web3-utils';
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import bs58check from 'bs58check';
 import {
@@ -22,6 +21,7 @@ import {
   DeploySCParams,
   EventFilter,
   Mas,
+  MAX_GAS_CALL,
   Network,
   Operation,
   OperationOptions,
@@ -86,7 +86,9 @@ export class MassaStationAccount implements Provider {
       throw errorHandler(operationType.Sign, res.error);
     }
 
-    const signature = bs58check.encode(Buffer.from(res.result.signature, 'base64'));
+    const signature = bs58check.encode(
+      Buffer.from(res.result.signature, 'base64'),
+    );
 
     return {
       publicKey: res.result.publicKey,
@@ -100,7 +102,7 @@ export class MassaStationAccount implements Provider {
     opts?: OperationOptions,
   ): Promise<Operation> {
     let fee = opts?.fee;
-    if(!fee) {
+    if (!fee) {
       const client = await getClient();
       fee = await client.getMinimalFee();
     }
@@ -141,7 +143,7 @@ export class MassaStationAccount implements Provider {
     opts?: OperationOptions,
   ): Promise<Operation> {
     let fee = opts?.fee;
-    if(!fee) {
+    if (!fee) {
       const client = await getClient();
       fee = await client.getMinimalFee();
     }
@@ -173,7 +175,7 @@ export class MassaStationAccount implements Provider {
     }
 
     let fee = params?.fee;
-    if(!fee) {
+    if (!fee) {
       const client = await getClient();
       fee = await client.getMinimalFee();
     }
@@ -218,9 +220,8 @@ export class MassaStationAccount implements Provider {
 
     const client = await getClient();
 
-
     let fee = params?.fee;
-    if(!fee) {
+    if (!fee) {
       fee = await client.getMinimalFee();
     }
 
