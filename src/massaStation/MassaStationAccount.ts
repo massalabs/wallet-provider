@@ -6,7 +6,7 @@ import {
 } from './MassaStationWallet';
 import { MAX_GAS_CALL } from '@massalabs/web3-utils';
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
-import { encode as base58Encode } from 'bs58check';
+import bs58check from 'bs58check';
 import {
   ExecuteFunctionBody,
   MSAccountSignPayload,
@@ -86,7 +86,7 @@ export class MassaStationAccount implements Provider {
       throw errorHandler(operationType.Sign, res.error);
     }
 
-    const signature = base58Encode(Buffer.from(res.result.signature, 'base64'));
+    const signature = bs58check.encode(Buffer.from(res.result.signature, 'base64'));
 
     return {
       publicKey: res.result.publicKey,

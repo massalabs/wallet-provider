@@ -55,7 +55,7 @@
         "@massalabs/massa-web3": "^5.0.0-next",
         "@massalabs/web3-utils": "^1.4.9-dev",
         "axios": "^0.28.0",
-        "bs58check": "^3.0.1",
+        "bs58check": "^4.0.0",
         "buffer": "^6.0.3",
         "uid": "^2.0.1"
     },
