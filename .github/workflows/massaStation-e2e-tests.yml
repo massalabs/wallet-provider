@@ -1,8 +1,16 @@
-name: CI unit tests
-on: [push]
+name: MassaStation e2e tests
+
+on:
+  push:
+  workflow_call:
+
 jobs:
-  tests-e2e:
+  format:
+    uses: ./.github/workflows/check-format.yml
+
+  massaStation-tests-e2e:
     runs-on: ubuntu-latest
+    needs: format
     steps:
       - uses: actions/checkout@v3
 
