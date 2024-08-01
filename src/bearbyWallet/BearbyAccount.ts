@@ -146,12 +146,18 @@ export class BearbyAccount implements Provider {
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
+      let fee = params?.fee;
+      if(!fee) {
+        const {minimalFee} = await this.networkInfos();
+        fee = minimalFee;
+      }
+
     try {
       const operationId = await web3.contract.call({
         // TODO: add bigint support in bearby.js
         maxGas: Number(params.maxGas),
         coins: Number(params.coins),
-        fee: Number(params.fee),
+        fee: Number(fee),
         targetAddress: params.target,
         functionName: params.func,
         unsafeParameters,
@@ -173,12 +179,18 @@ export class BearbyAccount implements Provider {
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
+      let fee = params?.fee;
+      if(!fee) {
+        const {minimalFee} = await this.networkInfos();
+        fee = minimalFee;
+      }
+
     try {
       // const res = await web3.contract.readSmartContract({
       //   // TODO: add bigint support in bearby.js
       //   maxGas: Number(params.maxGas),
       //   coins: Number(params.coins),
-      //   fee: Number(params.fee),
+      //   fee: Number(fee),
       //   targetAddress: params.target,
       //   targetFunction: params.func,
       //   // TODO: add unsafeParameters to bearby.js
@@ -212,6 +224,7 @@ export class BearbyAccount implements Provider {
           : JsonRPCClient.buildnet();
       const readOnlyParams = {
         ...params,
+        fee,
         parameter: unsafeParameters,
       };
       return client.executeReadOnlyCall(readOnlyParams);

@@ -21,7 +21,6 @@ import {
   CallSCParams,
   DeploySCParams,
   EventFilter,
-  JsonRPCClient,
   Mas,
   Network,
   Operation,
@@ -34,7 +33,7 @@ import {
   SignedData,
   SmartContract,
 } from '@massalabs/massa-web3';
-import { networkInfos } from './utils/network';
+import { getClient, networkInfos } from './utils/network';
 
 /**
  * This module contains the MassaStationAccount class. It is responsible for representing an account in
@@ -100,8 +99,13 @@ export class MassaStationAccount implements Provider {
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
+    let fee = opts?.fee;
+    if(!fee) {
+      const client = await getClient();
+      fee = await client.getMinimalFee();
+    }
     const body = {
-      fee: opts?.fee.toString() ?? '0',
+      fee: fee.toString(),
       amount: amount.toString(),
       side: type === operationType.BuyRolls ? 'buy' : 'sell',
     };
@@ -136,8 +140,13 @@ export class MassaStationAccount implements Provider {
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
+    let fee = opts?.fee;
+    if(!fee) {
+      const client = await getClient();
+      fee = await client.getMinimalFee();
+    }
     const body = {
-      fee: opts?.fee.toString() ?? '0',
+      fee: fee.toString(),
       amount: amount.toString(),
       recipientAddress: to,
     };
@@ -163,13 +172,19 @@ export class MassaStationAccount implements Provider {
       args = argsToBase64(params.parameter);
     }
 
+    let fee = params?.fee;
+    if(!fee) {
+      const client = await getClient();
+      fee = await client.getMinimalFee();
+    }
+
     const body: ExecuteFunctionBody = {
       nickname: this.accountName,
       name: params.func,
       at: params.target,
       args,
       coins: params.coins ? Number(params.coins) : 0,
-      fee: params.fee ? params.fee.toString() : '0',
+      fee: fee.toString(),
       // If maxGas is not provided, estimation will be done by MS
       maxGas: params.maxGas ? params.maxGas.toString() : '',
       async: true,
@@ -190,11 +205,6 @@ export class MassaStationAccount implements Provider {
     return networkInfos();
   }
 
-  private async getClient(): Promise<JsonRPCClient> {
-    const { url } = await this.networkInfos();
-    return new JsonRPCClient(url);
-  }
-
   public async readSC(params: ReadSCParams): Promise<ReadSCData> {
     // Gas amount check
     if (params.maxGas > MAX_GAS_CALL) {
@@ -206,11 +216,18 @@ export class MassaStationAccount implements Provider {
       );
     }
 
-    const client = await this.getClient();
+    const client = await getClient();
+
+
+    let fee = params?.fee;
+    if(!fee) {
+      fee = await client.getMinimalFee();
+    }
 
     const args = params.parameter ?? new Uint8Array();
     const readOnlyParams = {
       ...params,
+      fee,
       parameter:
         args instanceof Uint8Array ? args : Uint8Array.from(args.serialize()),
     };
@@ -224,15 +241,14 @@ export class MassaStationAccount implements Provider {
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
-    const client = await this.getClient();
+    const client = await getClient();
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
     return client.getOperationStatus(opId);
   }
 
   public async getEvents(filter: EventFilter): Promise<SCEvent[]> {
-    const client = await this.getClient();
+    const client = await getClient();
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
-
     return client.getEvents(filter);
   }
 }
