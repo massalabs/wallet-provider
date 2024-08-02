@@ -29,19 +29,13 @@ export enum AvailableCommands {
   AccountCallSC = 'ACCOUNT_CALL_SC',
 }
 
-export {
-  IAccountDeletionRequest,
-  IAccountDeletionResponse,
-  IAccountImportResponse,
-} from './wallet';
-
 export * from './errors';
 
 export { MassaStationWallet } from './massaStation/MassaStationWallet';
 
 export { MassaStationAccount } from './massaStation/MassaStationAccount';
 
-export { getWallets, WalletsListener } from './walletsManager';
+export { getWallets, getWallet, WalletsListener } from './walletsManager';
 
 export * from './wallet';
 

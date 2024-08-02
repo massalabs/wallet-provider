@@ -1,44 +1,37 @@
-import { web3 } from '@hicaru/bearby.js';
-import {
-  WALLET_NAME as BEARBY,
-  BearbyWallet,
-} from '../bearbyWallet/BearbyWallet';
-import { isMassaWalletEnabled } from '../massaStation/MassaStationDiscovery';
-import { SupportedWallet } from './types';
+import { BearbyWallet } from '../bearbyWallet/BearbyWallet';
+import { WalletInterfaces } from './types';
 import { Wallet } from '../wallet/interface';
 import { wait } from '../utils/time';
-import {
-  MassaStationWallet,
-  WALLET_NAME as MASSASTATION,
-} from '../massaStation/MassaStationWallet';
+import { MassaStationWallet } from '../massaStation/MassaStationWallet';
+import { WalletName } from '../wallet/types';
 
-export const supportedWallets: SupportedWallet[] = [
-  {
-    name: BEARBY,
-    checkInstalled: async () => web3.wallet.installed,
-    createInstance: () => new BearbyWallet(),
-  },
-  {
-    name: MASSASTATION,
-    checkInstalled: isMassaWalletEnabled,
-    createInstance: () => new MassaStationWallet(),
-  },
+export const supportedWallets: WalletInterfaces = [
+  BearbyWallet,
+  MassaStationWallet,
 ];
 
 export async function getWallets(delay = 200): Promise<Wallet[]> {
   await wait(delay);
 
-  const walletPromises = supportedWallets.map(async (wallet) => {
+  const walletPromises = supportedWallets.map(async (WalletClass) => {
     try {
-      if (await wallet.checkInstalled()) {
-        return wallet.createInstance();
+      if (await WalletClass.checkInstalled()) {
+        return new WalletClass();
       }
     } catch (error) {
-      console.error(`Error initializing wallet ${wallet.name}:`, error);
+      console.error(`Error initializing wallet ${WalletClass.name}:`, error);
     }
     return null;
   });
 
   const resolvedWallets = await Promise.all(walletPromises);
-  return resolvedWallets.filter((wallet): wallet is Wallet => wallet !== null);
+  return resolvedWallets.filter((wallet) => !!wallet);
+}
+
+export async function getWallet(
+  name: WalletName,
+  delay = 200,
+): Promise<Wallet | undefined> {
+  const wallets = await getWallets(delay);
+  return wallets.find((p) => p.name() === name);
 }

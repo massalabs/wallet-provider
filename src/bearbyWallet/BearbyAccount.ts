@@ -20,8 +20,8 @@ import {
   SignedData,
   SmartContract,
 } from '@massalabs/massa-web3';
-import { WALLET_NAME } from './BearbyWallet';
 import { networkInfos } from './utils/network';
+import { WalletName } from '../wallet';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -31,7 +31,7 @@ export class BearbyAccount implements Provider {
   }
 
   get providerName(): string {
-    return WALLET_NAME;
+    return WalletName.Bearby;
   }
 
   // public async connect() {

@@ -1,11 +1,8 @@
 import { Network, Provider } from '@massalabs/massa-web3';
-
-type ListenerCtrl = {
-  unsubscribe: () => void;
-};
+import { ListenerCtrl, WalletName } from './types';
 
 export interface Wallet {
-  name(): string;
+  name(): WalletName;
   accounts(): Promise<Provider[]>;
   importAccount(publicKey: string, privateKey: string): Promise<void>;
   deleteAccount(address: string): Promise<void>;
