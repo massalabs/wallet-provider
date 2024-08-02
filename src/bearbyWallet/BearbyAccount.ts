@@ -180,7 +180,8 @@ export class BearbyAccount implements Provider {
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-    let fee = params?.fee ?? (await this.minimalFee());
+    const fee = params?.fee ?? (await this.minimalFee());
+    const caller = params.caller ?? this.address;
 
     try {
       // const res = await web3.contract.readSmartContract({
@@ -221,6 +222,7 @@ export class BearbyAccount implements Provider {
           : JsonRPCClient.buildnet();
       const readOnlyParams = {
         ...params,
+        caller,
         fee,
         parameter: unsafeParameters,
       };

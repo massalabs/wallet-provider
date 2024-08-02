@@ -70,7 +70,7 @@ export class MassaStationWallet implements Wallet {
       publicKey,
       privateKey,
     });
-
+    console.log('importAccount res ', res);
     if (res.isError) {
       throw res.error;
     }
