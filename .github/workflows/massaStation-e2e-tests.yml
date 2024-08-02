@@ -44,11 +44,15 @@ jobs:
           sudo mkdir -p /etc/massastation/certs
           sudo chmod 777 /etc/massastation/
           sudo massastation -repair
+          mkdir -p $HOME/.config/massa-station-wallet/
+          echo "$WALLET_YML" > $HOME/.config/massa-station-wallet/wallet_e2e.yaml
+        env:
+            WALLET_YML: ${{ secrets.WALLET_YML }}
 
       - name: Running Massastation
         run: xvfb-run massastation > massastation_logs.txt &
         env:
-          WALLET_PASSWORD: my_wallet_password
+          WALLET_PASSWORD: ${{ secrets.WALLET_PWD }}
 
       - name: Define station.massa
         run: sudo echo "127.0.0.1 station.massa" | sudo tee -a /etc/hosts
@@ -62,6 +66,9 @@ jobs:
         run: |
           curl -X POST "http://station.massa/plugin-manager/?source=https://github.com/massalabs/station-massa-wallet/releases/latest/download/wallet-plugin_linux-amd64.zip"
 
+      - name: Switch to buildnet
+        run: curl -X POST "http://station.massa/network/buildnet"
+          
       - name: Test using dummy extension
         run: NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm run test:e2e
 

@@ -144,12 +144,12 @@ export class MassaStationAccount implements Provider {
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
-    let fee = opts?.fee ?? (await this.minimalFee());
+    const fee = opts?.fee ?? (await this.minimalFee());
 
     const body = {
       fee: fee.toString(),
       amount: amount.toString(),
-      recipientAddress: to,
+      recipientAddress: to.toString(),
     };
 
     const res = await postRequest<MSSendOperationResp>(
@@ -215,11 +215,12 @@ export class MassaStationAccount implements Provider {
 
     const client = await getClient();
 
-    let fee = params?.fee ?? (await this.minimalFee());
-
+    const fee = params?.fee ?? (await this.minimalFee());
+    const caller = params.caller ?? this.address;
     const args = params.parameter ?? new Uint8Array();
     const readOnlyParams = {
       ...params,
+      caller,
       fee,
       parameter:
         args instanceof Uint8Array ? args : Uint8Array.from(args.serialize()),

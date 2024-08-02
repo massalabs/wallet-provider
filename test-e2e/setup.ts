@@ -3,7 +3,7 @@ import { getMassaStationWallet } from './massaStation/utils/utils';
 
 export let msWallet: MassaStationWallet;
 
-jest.setTimeout(30000); // in milliseconds
+jest.setTimeout(120_000);
 
 beforeAll(async () => {
   msWallet = await getMassaStationWallet();
