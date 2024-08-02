@@ -3,14 +3,17 @@ import { BearbyAccount } from './BearbyAccount';
 import { Wallet } from '../wallet/interface';
 import { Network, Provider } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
-
-export const WALLET_NAME = 'BEARBY';
+import { WalletName } from '../wallet';
 
 export class BearbyWallet implements Wallet {
-  private walletName = WALLET_NAME;
+  private walletName = WalletName.Bearby;
 
-  public name(): string {
+  public name(): WalletName {
     return this.walletName;
+  }
+
+  static async checkInstalled(): Promise<boolean> {
+    return web3.wallet.installed;
   }
 
   public async accounts(): Promise<BearbyAccount[]> {

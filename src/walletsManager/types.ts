@@ -1,7 +1,7 @@
-import { Wallet } from '../wallet/interface';
+import { BearbyWallet } from '../bearbyWallet/BearbyWallet';
+import { MassaStationWallet } from '../massaStation/MassaStationWallet';
 
-export type SupportedWallet = {
-  name: string;
-  checkInstalled: () => Promise<boolean>;
-  createInstance: () => Wallet;
-};
+export type WalletInterfaces = (
+  | typeof BearbyWallet
+  | typeof MassaStationWallet
+)[];

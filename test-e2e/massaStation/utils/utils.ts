@@ -1,14 +1,9 @@
-import { getWallets } from '../../../src';
-import {
-  WALLET_NAME as MASSASTATION,
-  MassaStationWallet,
-} from '../../../src/massaStation/MassaStationWallet';
+import { WalletName } from '../../../src';
+import { MassaStationWallet } from '../../../src/massaStation/MassaStationWallet';
+import { getWallet } from '../../../src/walletsManager/walletList';
 
 export async function getMassaStationWallet(): Promise<MassaStationWallet> {
-  const availableWallets = await getWallets();
-  const massaStationWallet = availableWallets.find(
-    (p) => p.name() === MASSASTATION,
-  );
+  const massaStationWallet = await getWallet(WalletName.MassaStation);
 
   // stop the test if the wallet is not available
   if (!massaStationWallet) throw new Error('Massa Station wallet not found');

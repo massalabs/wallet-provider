@@ -2,7 +2,6 @@ import { getRequest, postRequest } from './RequestHandler';
 import {
   MASSA_STATION_URL,
   MASSA_STATION_ACCOUNTS_URL,
-  WALLET_NAME,
 } from './MassaStationWallet';
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
 import bs58check from 'bs58check';
@@ -34,6 +33,7 @@ import {
   SmartContract,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
+import { WalletName } from '../wallet';
 
 /**
  * This module contains the MassaStationAccount class. It is responsible for representing an account in
@@ -44,7 +44,7 @@ import { getClient, networkInfos } from './utils/network';
  *
  */
 export class MassaStationAccount implements Provider {
-  private _providerName = WALLET_NAME;
+  private _providerName = WalletName.MassaStation;
 
   constructor(
     public address: string,

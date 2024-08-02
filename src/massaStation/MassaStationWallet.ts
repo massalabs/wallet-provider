@@ -10,6 +10,8 @@ import { EventEmitter } from 'events';
 import { Wallet } from '../wallet/interface';
 import { Network } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
+import { WalletName } from '../wallet';
+import { isMassaWalletEnabled } from './MassaStationDiscovery';
 
 /**
  * MassaStation url
@@ -20,8 +22,6 @@ export const MASSA_STATION_URL = 'https://station.massa/';
  * The MassaStation accounts url
  */
 export const MASSA_STATION_ACCOUNTS_URL = `${MASSA_STATION_URL}plugin/massa-labs/massa-wallet/api/accounts`;
-
-export const WALLET_NAME = 'MASSASTATION';
 
 /**
  * Events emitted by MassaStation
@@ -34,13 +34,17 @@ const MASSA_STATION_NETWORK_CHANGED = 'MASSA_STATION_NETWORK_CHANGED';
  * This class is used as a proxy to the MassaStation server for exchanging message over https calls.
  */
 export class MassaStationWallet implements Wallet {
-  private walletName = WALLET_NAME;
+  private walletName = WalletName.MassaStation;
 
   private eventsListener = new EventEmitter();
   private currentNetwork: Network;
 
-  public name(): string {
+  public name(): WalletName {
     return this.walletName;
+  }
+
+  static async checkInstalled(): Promise<boolean> {
+    return isMassaWalletEnabled();
   }
 
   public async accounts(): Promise<MassaStationAccount[]> {
