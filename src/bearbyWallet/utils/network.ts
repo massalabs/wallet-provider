@@ -1,5 +1,5 @@
 import { web3 } from '@hicaru/bearby.js';
-import { Network } from '@massalabs/massa-web3';
+import { Mas, Network } from '@massalabs/massa-web3';
 
 export const networkInfos = async (): Promise<Network> => {
   const { net } = await web3.wallet.network;
@@ -8,5 +8,7 @@ export const networkInfos = async (): Promise<Network> => {
   return {
     name: net,
     chainId: result.chain_id,
+    // TODO - fix this. should be done from bearby. waiting for new release
+    minimalFee: Mas.fromString('0.01'),
   };
 };

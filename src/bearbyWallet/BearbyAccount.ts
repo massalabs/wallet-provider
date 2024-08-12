@@ -213,6 +213,7 @@ export class BearbyAccount implements Provider {
       const readOnlyParams = {
         ...params,
         parameter: unsafeParameters,
+        caller: this.address,
       };
       return client.executeReadOnlyCall(readOnlyParams);
     } catch (error) {

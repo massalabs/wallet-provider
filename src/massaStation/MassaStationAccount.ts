@@ -200,9 +200,9 @@ export class MassaStationAccount implements Provider {
     if (params.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `
-        The gas submitted ${params.maxGas.toString()} exceeds the max. allowed block gas of 
-        ${MAX_GAS_CALL.toString()}
-        `,
+          The gas submitted ${params.maxGas.toString()} exceeds the max. allowed block gas of 
+          ${MAX_GAS_CALL.toString()}
+          `,
       );
     }
 
@@ -213,6 +213,7 @@ export class MassaStationAccount implements Provider {
       ...params,
       parameter:
         args instanceof Uint8Array ? args : Uint8Array.from(args.serialize()),
+      caller: this.address,
     };
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
     return client.executeReadOnlyCall(readOnlyParams);
