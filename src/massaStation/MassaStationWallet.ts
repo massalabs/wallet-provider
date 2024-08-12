@@ -6,7 +6,7 @@ import {
 } from './RequestHandler';
 import { MassaStationAccount } from './MassaStationAccount';
 import { MassaStationAccountStatus, MSAccount, MSAccountsResp } from './types';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { Wallet } from '../wallet/interface';
 import { Network } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
