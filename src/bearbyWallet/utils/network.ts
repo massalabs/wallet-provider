@@ -8,10 +8,9 @@ export const networkInfos = async (): Promise<Network> => {
   if (res.error) {
     throw new Error(res.error?.message || 'Bearby getNodesStatus error');
   }
-
   return {
     name: net,
     chainId: res.result.chain_id,
-    minimalFee: Mas.fromString(res.result.minimal_fee),
+    minimalFee: Mas.fromString(res.result.minimal_fees),
   };
 };

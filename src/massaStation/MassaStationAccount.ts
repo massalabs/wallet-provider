@@ -19,9 +19,11 @@ import {
   CallSCParams,
   DeploySCParams,
   EventFilter,
+  formatNodeStatusObject,
   Mas,
   MAX_GAS_CALL,
   Network,
+  NodeStatusInfo,
   Operation,
   OperationOptions,
   OperationStatus,
@@ -244,5 +246,11 @@ export class MassaStationAccount implements Provider {
     const client = await getClient();
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
     return client.getEvents(filter);
+  }
+
+  public async getNodeStatus(): Promise<NodeStatusInfo> {
+    const client = await getClient();
+    const status = await client.status();
+    return formatNodeStatusObject(status);
   }
 }

@@ -6,10 +6,12 @@ import {
   CallSCParams,
   DeploySCParams,
   EventFilter,
+  formatNodeStatusObject,
   JsonRPCClient,
   Mas,
   MAX_GAS_CALL,
   Network,
+  NodeStatusInfo,
   Operation,
   OperationOptions,
   OperationStatus,
@@ -22,6 +24,7 @@ import {
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
+import { NodeStatus } from '@massalabs/massa-web3/dist/esm/generated/client';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -303,5 +306,11 @@ export class BearbyAccount implements Provider {
         `An error occurred while fetching the operation status: ${error.message}`,
       );
     }
+  }
+
+  public async getNodeStatus(): Promise<NodeStatusInfo> {
+    const status = await web3.massa.getNodesStatus();
+    console.log(status.result);
+    return formatNodeStatusObject(status.result as NodeStatus);
   }
 }
