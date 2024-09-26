@@ -17,6 +17,7 @@ import { operationType } from '../utils/constants';
 import {
   Address,
   CallSCParams,
+  DatastoreEntry,
   DeploySCParams,
   EventFilter,
   formatNodeStatusObject,
@@ -33,6 +34,7 @@ import {
   SCEvent,
   SignedData,
   SmartContract,
+  strToBytes,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -252,5 +254,31 @@ export class MassaStationAccount implements Provider {
     const client = await getClient();
     const status = await client.status();
     return formatNodeStatusObject(status);
+  }
+
+  public async getStorageKeys(
+    address: string,
+    filter: Uint8Array | string = new Uint8Array(),
+    final = true,
+  ): Promise<Uint8Array[]> {
+    // This implementation is wrong. We should use massaStation instead of targeting the node directly.
+    const client = await getClient();
+    const filterBytes: Uint8Array =
+      typeof filter === 'string' ? strToBytes(filter) : filter;
+    return client.getDataStoreKeys(address, filterBytes, final);
+  }
+
+  public async readStorage(
+    address: string,
+    keys: Uint8Array[] | string[],
+    final = true,
+  ): Promise<Uint8Array[]> {
+    // This implementation is wrong. We should use massaStation instead of targeting the node directly.
+    const client = await getClient();
+    const entries: DatastoreEntry[] = keys.map((key) => ({
+      key,
+      address,
+    }));
+    return client.getDatastoreEntries(entries, final);
   }
 }
