@@ -1,4 +1,8 @@
-import { EventFilterParam, web3, AddressInfo } from '@hicaru/bearby.js';
+import {
+  EventFilterParam,
+  web3,
+  DatastoreEntryInputParam,
+} from '@hicaru/bearby.js';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
 import {
@@ -21,10 +25,12 @@ import {
   SCEvent,
   SignedData,
   SmartContract,
+  strToBytes,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import { NodeStatus } from '@massalabs/massa-web3/dist/esm/generated/client';
+import isEqual from 'lodash.isequal';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -56,9 +62,7 @@ export class BearbyAccount implements Provider {
         throw new Error(res.error?.message || 'Bearby getAddresses error');
       }
 
-      // TODO: fix typings in bearby.js to avoid this cast
-      // https://github.com/bearby-wallet/bearby-web3/pull/19
-      const { final_balance, candidate_balance } = res.result[0] as AddressInfo;
+      const { final_balance, candidate_balance } = res.result[0];
 
       return Mas.fromString(final ? final_balance : candidate_balance);
     } catch (error) {
@@ -246,8 +250,6 @@ export class BearbyAccount implements Provider {
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
     try {
-      // todo fix bearby.js typings
-      // https://github.com/bearby-wallet/bearby-web3/pull/21
       const res = await web3.massa.getOperations(opId);
 
       if (res.error) {
@@ -288,11 +290,8 @@ export class BearbyAccount implements Provider {
       emitter_address: filter.smartContractAddress,
       original_caller_address: filter.callerAddress,
       original_operation_id: filter.operationId,
-      // Followings filters are not supported in bearby.js
-      // TODO: either implement them in bearby.js or throw an error
-      // https://github.com/bearby-wallet/bearby-web3/pull/20
-      // is_final: filter.isFinal,
-      // is_error: filter.isError,
+      is_final: filter.isFinal,
+      is_error: filter.isError,
     };
 
     try {
@@ -312,5 +311,46 @@ export class BearbyAccount implements Provider {
   public async getNodeStatus(): Promise<NodeStatusInfo> {
     const status = await web3.massa.getNodesStatus();
     return formatNodeStatusObject(status.result as NodeStatus);
+  }
+
+  public async getStorageKeys(
+    address: string,
+    filter: Uint8Array | string,
+    final?: boolean,
+  ): Promise<Uint8Array[]> {
+    const addressInfo = (await web3.massa.getAddresses(address)).result[0];
+    const keys = final
+      ? addressInfo.final_datastore_keys
+      : addressInfo.candidate_datastore_keys;
+
+    const filterBytes: Uint8Array =
+      typeof filter === 'string' ? strToBytes(filter) : filter;
+
+    return keys
+      .filter(
+        (key) =>
+          !filter.length ||
+          isEqual(
+            Uint8Array.from(key.slice(0, filterBytes.length)),
+            filterBytes,
+          ),
+      )
+      .map((d) => Uint8Array.from(d));
+  }
+
+  public async readStorage(
+    address: string,
+    keys: Uint8Array[] | string[],
+    final = true,
+  ): Promise<Uint8Array[]> {
+    const input: DatastoreEntryInputParam[] = keys.map((key) => ({
+      key,
+      address,
+    }));
+    const data = await web3.contract.getDatastoreEntries(...input);
+
+    return final
+      ? data.map((d) => Uint8Array.from(d.final_value))
+      : data.map((d) => Uint8Array.from(d.candidate_value));
   }
 }
