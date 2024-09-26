@@ -315,8 +315,8 @@ export class BearbyAccount implements Provider {
 
   public async getStorageKeys(
     address: string,
-    filter: Uint8Array | string,
-    final?: boolean,
+    filter: Uint8Array | string = new Uint8Array(),
+    final = true,
   ): Promise<Uint8Array[]> {
     const addressInfo = (await web3.massa.getAddresses(address)).result[0];
     const keys = final
