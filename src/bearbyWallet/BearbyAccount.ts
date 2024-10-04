@@ -159,8 +159,9 @@ export class BearbyAccount implements Provider {
     try {
       const operationId = await web3.contract.call({
         // TODO: add bigint support in bearby.js
-        maxGas: Number(params.maxGas),
-        coins: Number(params.coins),
+        // TODO add gas estimation here
+        maxGas: Number(params.maxGas || MAX_GAS_CALL),
+        coins: Number(params.coins || 0),
         fee: Number(fee),
         targetAddress: params.target,
         functionName: params.func,
@@ -173,7 +174,7 @@ export class BearbyAccount implements Provider {
   }
 
   public async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    if (params.maxGas > MAX_GAS_CALL) {
+    if (params?.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
       );
@@ -310,7 +311,6 @@ export class BearbyAccount implements Provider {
 
   public async getNodeStatus(): Promise<NodeStatusInfo> {
     const status = await web3.massa.getNodesStatus();
-    console.log(status.result);
     return formatNodeStatusObject(status.result as NodeStatus);
   }
 }
