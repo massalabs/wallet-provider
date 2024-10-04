@@ -1,16 +1,9 @@
 /** Polyfills */
-import { Buffer } from 'buffer';
 
 declare global {
   interface Window {
-    Buffer: typeof Buffer;
     bearby?: unknown;
   }
-}
-
-// Check if we are on browser
-if (typeof window !== 'undefined') {
-  window.Buffer = Buffer;
 }
 
 export enum AvailableCommands {
