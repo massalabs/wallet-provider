@@ -29,8 +29,8 @@ import {
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
-import { NodeStatus } from '@massalabs/massa-web3/dist/esm/generated/client';
 import isEqual from 'lodash.isequal';
+import { NodeStatus } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -62,7 +62,7 @@ export class BearbyAccount implements Provider {
         throw new Error(res.error?.message || 'Bearby getAddresses error');
       }
 
-      const { final_balance, candidate_balance } = res.result[0];
+      const { final_balance, candidate_balance } = res.result[0] as any; // remove cast when bearby.js is fixed;
 
       return Mas.fromString(final ? final_balance : candidate_balance);
     } catch (error) {
@@ -292,7 +292,7 @@ export class BearbyAccount implements Provider {
       original_operation_id: filter.operationId,
       is_final: filter.isFinal,
       is_error: filter.isError,
-    };
+    } as EventFilterParam; // remove cast when bearby.js is fixed;
 
     try {
       const res = web3.contract.getFilteredSCOutputEvent(formattedFilter);
@@ -318,7 +318,8 @@ export class BearbyAccount implements Provider {
     filter: Uint8Array | string = new Uint8Array(),
     final = true,
   ): Promise<Uint8Array[]> {
-    const addressInfo = (await web3.massa.getAddresses(address)).result[0];
+    const addressInfo = (await web3.massa.getAddresses(address))
+      .result[0] as any; // remove cast when bearby.js is fixed;
     const keys = final
       ? addressInfo.final_datastore_keys
       : addressInfo.candidate_datastore_keys;
