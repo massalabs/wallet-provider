@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo apt update
           npm ci
-          sudo apt install xvfb libnss3-tools libwebkit2gtk-4.0-dev
+          sudo apt install xvfb libnss3-tools libwebkit2gtk-4.1-0
 
       - name: Build bundle
         run: npm run build

@@ -1,6 +1,6 @@
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'jsdom',
+  testEnvironment: 'node',
   setupFilesAfterEnv: ['./test-e2e/setup.ts'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
