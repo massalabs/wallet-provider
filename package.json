@@ -52,7 +52,7 @@
         "dist"
     ],
     "dependencies": {
-        "@hicaru/bearby.js": "^0.5.8",
+        "@hicaru/bearby.js": "^0.5.9",
         "@massalabs/massa-web3": "^5.0.0-next",
         "axios": "^0.28.0",
         "bs58check": "^4.0.0",

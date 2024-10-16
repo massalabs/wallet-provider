@@ -30,7 +30,6 @@ import {
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
-import { NodeStatus } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -62,7 +61,7 @@ export class BearbyAccount implements Provider {
         throw new Error(res.error?.message || 'Bearby getAddresses error');
       }
 
-      const { final_balance, candidate_balance } = res.result[0] as any; // remove cast when bearby.js is fixed;
+      const { final_balance, candidate_balance } = res.result[0];
 
       return Mas.fromString(final ? final_balance : candidate_balance);
     } catch (error) {
@@ -208,17 +207,14 @@ export class BearbyAccount implements Provider {
       // const data = res[0].result[0];
 
       // return {
-      //   value: data.result as any,
+      //   value: data.result.Ok ? Uint8Array.from(data.result.Ok): new Uint8Array(),
       //   info: {
-      //     error: data.result as any,
-      //     events: data.output_events.map((event: any) => ({
+      //     error: data.result.Error,
+      //     events: data.output_events.map((event: SCEvent) => ({
       //       data: event.data,
-      //       // todo fix bearby.js typings
-      //       // https://github.com/bearby-wallet/bearby-web3/pull/20
       //       context: event.context,
       //     })),
-      //     // TODO: where is gas_cost ? fix bearby.js
-      //     gasCost: 0,
+      //     gasCost: data.gas_cost,
       //   },
       // };
 
@@ -255,7 +251,7 @@ export class BearbyAccount implements Provider {
       if (res.error) {
         throw new Error(res.error?.message || 'Bearby getOperations error');
       }
-      const op = res.result[0] as any;
+      const op = res.result[0] as any; // cast to remove when bearby.js typings are fixed
       if (op.op_exec_status === null) {
         if (op.is_operation_final === null) {
           return OperationStatus.NotFound;
@@ -292,15 +288,12 @@ export class BearbyAccount implements Provider {
       original_operation_id: filter.operationId,
       is_final: filter.isFinal,
       is_error: filter.isError,
-    } as EventFilterParam; // remove cast when bearby.js is fixed;
+    };
 
     try {
-      const res = web3.contract.getFilteredSCOutputEvent(formattedFilter);
-      if (res instanceof Array) {
-        return res as any;
-      } else {
-        return [res] as any;
-      }
+      const res = await web3.contract.getFilteredSCOutputEvent(formattedFilter);
+
+      return (res as any).result; // TODO: to remove when bearby.js typings are fixed
     } catch (error) {
       throw new Error(
         `An error occurred while fetching the operation status: ${error.message}`,
@@ -310,7 +303,7 @@ export class BearbyAccount implements Provider {
 
   public async getNodeStatus(): Promise<NodeStatusInfo> {
     const status = await web3.massa.getNodesStatus();
-    return formatNodeStatusObject(status.result as NodeStatus);
+    return formatNodeStatusObject(status.result);
   }
 
   public async getStorageKeys(
@@ -318,8 +311,7 @@ export class BearbyAccount implements Provider {
     filter: Uint8Array | string = new Uint8Array(),
     final = true,
   ): Promise<Uint8Array[]> {
-    const addressInfo = (await web3.massa.getAddresses(address))
-      .result[0] as any; // remove cast when bearby.js is fixed;
+    const addressInfo = (await web3.massa.getAddresses(address)).result[0];
     const keys = final
       ? addressInfo.final_datastore_keys
       : addressInfo.candidate_datastore_keys;
