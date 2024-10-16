@@ -2,6 +2,10 @@ name: MassaStation e2e tests
 
 on:
   push:
+    # for these branchs, tests will be callend from publish workflow
+    branches-ignore:
+      - main
+      - next
   workflow_call:
 
 jobs:
