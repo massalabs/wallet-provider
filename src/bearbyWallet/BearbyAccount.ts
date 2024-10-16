@@ -157,7 +157,7 @@ export class BearbyAccount implements Provider {
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-    let fee = params?.fee ?? (await this.minimalFee());
+    const fee = params?.fee ?? (await this.minimalFee());
 
     try {
       const operationId = await web3.contract.call({
