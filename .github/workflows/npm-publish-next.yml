@@ -10,7 +10,7 @@ jobs:
   publish-npm-next:
 
     runs-on: ubuntu-latest
-    # needs: test
+    needs: test
 
     steps:
       - name: Checkout code
