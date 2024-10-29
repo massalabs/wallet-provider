@@ -152,7 +152,7 @@
                   };
                   // answer to the message target
                   walletProviderEventTarget.dispatchEvent(
-                    new CustomEvent(
+                    new Event(
                       'message',
                       detailWrapper({ detail: respMessage }),
                     ),

@@ -1,79 +1,82 @@
 import {
-  Args,
-  IContractReadOperationData,
-  IContractReadOperationResponse,
-  MAX_GAS_CALL,
-} from '@massalabs/web3-utils';
-import { ITransactionDetails } from '..';
-import { IAccountBalanceResponse, IAccountDetails } from '../account';
-import { IAccount } from '../account/IAccount';
-import { AddressInfo, web3 } from '@hicaru/bearby.js';
-import { postRequest } from '../massaStation/RequestHandler';
-import { IAccountSignOutput } from '../account/AccountSign';
+  EventFilterParam,
+  web3,
+  DatastoreEntryInputParam,
+} from '@hicaru/bearby.js';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
-import { bearbyNodeUrl } from './utils/bearbyCommons';
-export class BearbyAccount implements IAccount {
-  private _providerName: string;
-  private _address: string;
-  private _name: string;
+import {
+  Address,
+  CallSCParams,
+  DeploySCParams,
+  EventFilter,
+  formatNodeStatusObject,
+  JsonRPCClient,
+  Mas,
+  MAX_GAS_CALL,
+  Network,
+  NodeStatusInfo,
+  Operation,
+  OperationOptions,
+  OperationStatus,
+  Provider,
+  ReadSCData,
+  ReadSCParams,
+  SCEvent,
+  SignedData,
+  SmartContract,
+  strToBytes,
+} from '@massalabs/massa-web3';
+import { networkInfos } from './utils/network';
+import { WalletName } from '../wallet';
+import isEqual from 'lodash.isequal';
 
-  public constructor({ address, name }: IAccountDetails, providerName: string) {
-    this._address = address;
-    this._name = name ?? 'Bearby_account';
-    this._providerName = providerName;
+export class BearbyAccount implements Provider {
+  public constructor(public address: string) {}
+
+  get accountName(): string {
+    return this.address;
   }
 
-  public address(): string {
-    return this._address;
+  get providerName(): string {
+    return WalletName.Bearby;
   }
 
-  public name(): string {
-    return this._name;
-  }
+  // public async connect() {
+  //   try {
+  //     await web3.wallet.connect();
+  //   } catch (ex) {
+  //     console.log('Bearby connection error: ', ex);
+  //   }
+  // }
 
-  public providerName(): string {
-    return this._providerName;
-  }
+  public async balance(final = false): Promise<bigint> {
+    // // TODO: check if we need to connect every time
+    // await this.connect();
 
-  public async connect() {
     try {
-      await web3.wallet.connect();
-    } catch (ex) {
-      console.log('Bearby connection error: ', ex);
-    }
-  }
-
-  public async balance(): Promise<IAccountBalanceResponse> {
-    // TODO: check if we need to connect every time
-    await this.connect();
-
-    try {
-      const res = await web3.massa.getAddresses(this._address);
+      const res = await web3.massa.getAddresses(this.address);
 
       if (res.error) {
-        throw res.error;
+        throw new Error(res.error?.message || 'Bearby getAddresses error');
       }
 
-      const addressInfo = res.result[0] as AddressInfo;
+      const { final_balance, candidate_balance } = res.result[0];
 
-      return {
-        finalBalance: addressInfo.final_balance,
-        candidateBalance: addressInfo.candidate_balance,
-      };
+      return Mas.fromString(final ? final_balance : candidate_balance);
     } catch (error) {
-      const errorMessage = `An unexpected error occurred while fetching the account balance: ${
-        error.message || 'Unknown error'
-      }.`;
+      const errorMessage = `An unexpected error occurred while fetching the account balance: ${error.message}.`;
 
       throw new Error(errorMessage);
     }
   }
 
-  public async sign(
-    data: Buffer | Uint8Array | string,
-  ): Promise<IAccountSignOutput> {
-    await this.connect();
+  public async networkInfos(): Promise<Network> {
+    return networkInfos();
+  }
+
+  public async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
+    // await this.connect();
 
     let strData: string;
     if (data instanceof Uint8Array) {
@@ -87,150 +90,260 @@ export class BearbyAccount implements IAccount {
 
       return {
         publicKey: signature.publicKey,
-        base58Encoded: signature.signature,
+        signature: signature.signature,
       };
     } catch (error) {
       throw errorHandler(operationType.Sign, error);
     }
   }
 
-  public async buyRolls(amount: bigint): Promise<ITransactionDetails> {
-    await this.connect();
+  public async buyRolls(
+    amount: bigint,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _opts?: OperationOptions,
+  ): Promise<Operation> {
+    // await this.connect();
     try {
       const operationId = await web3.massa.buyRolls(amount.toString());
-      return {
-        operationId,
-      };
+      return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.BuyRolls, error);
     }
   }
 
-  public async sellRolls(amount: bigint): Promise<ITransactionDetails> {
-    await this.connect();
+  public async sellRolls(
+    amount: bigint,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _opts?: OperationOptions,
+  ): Promise<Operation> {
+    // await this.connect();
     try {
       const operationId = await web3.massa.sellRolls(amount.toString());
-      return {
-        operationId,
-      };
+      return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.SellRolls, error);
     }
   }
 
-  public async sendTransaction(
+  public async transfer(
+    to: Address | string,
     amount: bigint,
-    recipientAddress: string,
-  ): Promise<ITransactionDetails> {
-    await this.connect();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _opts?: OperationOptions,
+  ): Promise<Operation> {
+    // await this.connect();
 
     try {
       const operationId = await web3.massa.payment(
         amount.toString(),
-        recipientAddress,
+        to.toString(),
       );
 
-      return { operationId };
+      return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.SendTransaction, error);
     }
   }
 
-  public async callSC(
-    contractAddress: string,
-    functionName: string,
-    parameter: Args | Uint8Array,
-    amount: bigint,
-    fee: bigint,
-    maxGas: bigint,
-    nonPersistentExecution = false,
-  ): Promise<ITransactionDetails | IContractReadOperationResponse> {
-    await this.connect();
+  private async minimalFee(): Promise<bigint> {
+    const { minimalFee } = await this.networkInfos();
+    return minimalFee;
+  }
 
-    if (nonPersistentExecution) {
-      return this.readSc(
-        contractAddress,
-        functionName,
-        parameter,
-        amount,
-        fee,
-        maxGas,
-      );
-    }
+  public async callSC(params: CallSCParams): Promise<Operation> {
+    // await this.connect();
 
+    const args = params.parameter ?? new Uint8Array();
     const unsafeParameters =
-      parameter instanceof Uint8Array
-        ? parameter
-        : Uint8Array.from(parameter.serialize());
-    let operationId;
+      args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
+
+    const fee = params?.fee ?? (await this.minimalFee());
+
     try {
-      operationId = await web3.contract.call({
-        maxGas: Number(maxGas),
-        coins: Number(amount),
+      const operationId = await web3.contract.call({
+        // TODO: add bigint support in bearby.js
+        // TODO add gas estimation here
+        maxGas: Number(params.maxGas || MAX_GAS_CALL),
+        coins: Number(params.coins || 0),
         fee: Number(fee),
-        targetAddress: contractAddress,
-        functionName: functionName,
+        targetAddress: params.target,
+        functionName: params.func,
         unsafeParameters,
       });
+      return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.CallSC, error);
     }
-    return { operationId };
   }
 
-  public async readSc(
-    contractAddress: string,
-    functionName: string,
-    parameters: Uint8Array | Args,
-    amount: bigint,
-    fee: bigint,
-    maxGas: bigint,
-  ): Promise<IContractReadOperationResponse> {
-    if (maxGas > MAX_GAS_CALL) {
+  public async readSC(params: ReadSCParams): Promise<ReadSCData> {
+    if (params?.maxGas > MAX_GAS_CALL) {
       throw new Error(
-        `Gas amount ${maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
+        `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
       );
     }
 
-    const args =
-      parameters instanceof Uint8Array
-        ? Array.from(parameters)
-        : Array.from(parameters.serialize());
+    const args = params.parameter ?? new Uint8Array();
+    const unsafeParameters =
+      args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-    const requestBody = [
-      {
-        jsonrpc: '2.0',
-        method: 'execute_read_only_call',
-        params: [
-          [
-            {
-              max_gas: Number(maxGas),
-              target_address: contractAddress,
-              target_function: functionName,
-              parameter: args,
-              caller_address: this._address,
-              coins: amount.toString(),
-              fee: fee.toString(),
-            },
-          ],
-        ],
-        id: 0,
-      },
-    ];
+    const fee = params?.fee ?? (await this.minimalFee());
+    const caller = params.caller ?? this.address;
 
-    // TODO error if nodeUrl not available
-    const response = await postRequest<Array<IContractReadOperationData>>(
-      await bearbyNodeUrl(),
-      requestBody,
-    );
+    try {
+      // const res = await web3.contract.readSmartContract({
+      //   // TODO: add bigint support in bearby.js
+      //   maxGas: Number(params.maxGas),
+      //   coins: Number(params.coins),
+      //   fee: Number(fee),
+      //   targetAddress: params.target,
+      //   targetFunction: params.func,
+      //   // TODO: add unsafeParameters to bearby.js
+      //   // https://github.com/bearby-wallet/bearby-web3/pull/18
+      //   parameter: unsafeParameters as any,
+      // });
 
-    if (response.isError) throw response.error;
+      // console.log('bearby readSC res', res[0]);
+      // const data = res[0].result[0];
 
-    const operationResult = response.result[0];
+      // return {
+      //   value: data.result.Ok ? Uint8Array.from(data.result.Ok): new Uint8Array(),
+      //   info: {
+      //     error: data.result.Error,
+      //     events: data.output_events.map((event: SCEvent) => ({
+      //       data: event.data,
+      //       context: event.context,
+      //     })),
+      //     gasCost: data.gas_cost,
+      //   },
+      // };
 
-    return {
-      returnValue: new Uint8Array(operationResult.result[0].result.Ok),
-      info: operationResult,
+      // Temp implementation to remove when bearby.js is fixed
+      const network = await this.networkInfos();
+      const client =
+        network.name === 'mainnet'
+          ? JsonRPCClient.mainnet()
+          : JsonRPCClient.buildnet();
+      const readOnlyParams = {
+        ...params,
+        caller,
+        fee,
+        parameter: unsafeParameters,
+      };
+      return client.executeReadOnlyCall(readOnlyParams);
+    } catch (error) {
+      throw new Error(
+        `An error occurred while reading the smart contract: ${error.message}`,
+      );
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
+    // TODO: Implement deploySC using web3.contract.deploy
+    throw new Error('Method not implemented.');
+  }
+
+  public async getOperationStatus(opId: string): Promise<OperationStatus> {
+    try {
+      const res = await web3.massa.getOperations(opId);
+
+      if (res.error) {
+        throw new Error(res.error?.message || 'Bearby getOperations error');
+      }
+      const op = res.result[0] as any; // cast to remove when bearby.js typings are fixed
+      if (op.op_exec_status === null) {
+        if (op.is_operation_final === null) {
+          return OperationStatus.NotFound;
+        }
+        throw new Error('unexpected status');
+      }
+
+      if (op.in_pool) {
+        return OperationStatus.PendingInclusion;
+      }
+
+      if (!op.is_operation_final) {
+        return op.op_exec_status
+          ? OperationStatus.SpeculativeSuccess
+          : OperationStatus.SpeculativeError;
+      }
+
+      return op.op_exec_status
+        ? OperationStatus.Success
+        : OperationStatus.Error;
+    } catch (error) {
+      throw new Error(
+        `An error occurred while fetching the operation status: ${error.message}`,
+      );
+    }
+  }
+
+  public async getEvents(filter: EventFilter): Promise<SCEvent[]> {
+    const formattedFilter: EventFilterParam = {
+      start: filter.start,
+      end: filter.end,
+      emitter_address: filter.smartContractAddress,
+      original_caller_address: filter.callerAddress,
+      original_operation_id: filter.operationId,
+      is_final: filter.isFinal,
+      is_error: filter.isError,
     };
+
+    try {
+      const res = await web3.contract.getFilteredSCOutputEvent(formattedFilter);
+
+      return (res as any).result; // TODO: to remove when bearby.js typings are fixed
+    } catch (error) {
+      throw new Error(
+        `An error occurred while fetching the operation status: ${error.message}`,
+      );
+    }
+  }
+
+  public async getNodeStatus(): Promise<NodeStatusInfo> {
+    const status = await web3.massa.getNodesStatus();
+    return formatNodeStatusObject(status.result);
+  }
+
+  public async getStorageKeys(
+    address: string,
+    filter: Uint8Array | string = new Uint8Array(),
+    final = true,
+  ): Promise<Uint8Array[]> {
+    const addressInfo = (await web3.massa.getAddresses(address)).result[0];
+    const keys = final
+      ? addressInfo.final_datastore_keys
+      : addressInfo.candidate_datastore_keys;
+
+    const filterBytes: Uint8Array =
+      typeof filter === 'string' ? strToBytes(filter) : filter;
+
+    return keys
+      .filter(
+        (key) =>
+          !filter.length ||
+          isEqual(
+            Uint8Array.from(key.slice(0, filterBytes.length)),
+            filterBytes,
+          ),
+      )
+      .map((d) => Uint8Array.from(d));
+  }
+
+  public async readStorage(
+    address: string,
+    keys: Uint8Array[] | string[],
+    final = true,
+  ): Promise<Uint8Array[]> {
+    const input: DatastoreEntryInputParam[] = keys.map((key) => ({
+      key,
+      address,
+    }));
+    const data = await web3.contract.getDatastoreEntries(...input);
+
+    return final
+      ? data.map((d) => Uint8Array.from(d.final_value))
+      : data.map((d) => Uint8Array.from(d.candidate_value));
   }
 }

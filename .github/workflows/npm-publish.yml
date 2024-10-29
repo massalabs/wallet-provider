@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org
+          cache: 'npm'
 
       - name: Extract tag
         id: get_tag
@@ -36,6 +37,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: 'npm'
       
       - name: Generate doc
         run: |
@@ -52,5 +54,6 @@ jobs:
         with:
           source: "./wallet-provider"
           target: "/var/www/type-doc"
+          port: 22000
 
 

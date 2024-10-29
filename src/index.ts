@@ -1,16 +1,9 @@
 /** Polyfills */
-import { Buffer } from 'buffer';
 
 declare global {
   interface Window {
-    Buffer: typeof Buffer;
     bearby?: unknown;
   }
-}
-
-// Check if we are on browser
-if (typeof window !== 'undefined') {
-  window.Buffer = Buffer;
 }
 
 export enum AvailableCommands {
@@ -29,45 +22,15 @@ export enum AvailableCommands {
   AccountCallSC = 'ACCOUNT_CALL_SC',
 }
 
-export interface ITransactionDetails {
-  operationId: string;
-}
-
-export { AllowedRequests, AllowedResponses } from './connector';
-
-export {
-  IAccountDetails,
-  IAccountBalanceRequest,
-  IAccountBalanceResponse,
-  IAccountSignRequest,
-  IAccountSignResponse,
-  IAccount,
-  Account,
-  IAccountRollsRequest,
-  IAccountSendTransactionRequest,
-  IAccountCallSCRequest,
-} from './account';
-
-export {
-  EAccountDeletionResponse,
-  EAccountImportResponse,
-  IAccountDeletionRequest,
-  IAccountDeletionResponse,
-  IAccountImportRequest,
-  IAccountImportResponse,
-  IProvider,
-  Provider,
-} from './provider';
-
 export * from './errors';
 
-export { IMassaStationWallet } from './massaStation/MassaStationProvider';
+export { MassaStationWallet } from './massaStation/MassaStationWallet';
 
 export { MassaStationAccount } from './massaStation/MassaStationAccount';
 
-export { providers, ProvidersListener } from './providersManager';
+export { getWallets, getWallet, WalletsListener } from './walletsManager';
 
-export { connectBearby, disconnectBearby } from './bearbyWallet/BearbyConnect';
+export * from './wallet';
 
 export {
   isMassaStationAvailable,
