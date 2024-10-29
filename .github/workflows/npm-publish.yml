@@ -54,5 +54,6 @@ jobs:
         with:
           source: "./wallet-provider"
           target: "/var/www/type-doc"
+          port: 22000
 
 
