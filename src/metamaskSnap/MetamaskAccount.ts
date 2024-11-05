@@ -7,7 +7,6 @@ import {
   DeploySCParams,
   EventFilter,
   formatNodeStatusObject,
-  JsonRPCClient,
   MAX_GAS_CALL,
   Network,
   NodeStatusInfo,
@@ -22,13 +21,18 @@ import {
   SmartContract,
   strToBytes,
 } from '@massalabs/massa-web3';
-
 import { WalletName } from '../wallet';
 import { getClient, networkInfos } from '../massaStation/utils/network';
 import { MetaMaskInpageProvider } from '@metamask/providers';
-import { MASSA_SNAP_ID } from './config';
 import { web3 } from '@hicaru/bearby.js';
-import { AccountBalanceResponse } from './types/snap';
+import {
+  buyRolls,
+  callSC,
+  getBalance,
+  readSC,
+  sellRolls,
+  transfer,
+} from './services';
 
 export class MetamaskAccount implements Provider {
   public constructor(
@@ -49,16 +53,7 @@ export class MetamaskAccount implements Provider {
       address: this.address,
     };
 
-    const res = await this.provider.request<AccountBalanceResponse>({
-      method: 'wallet_invokeSnap',
-      params: {
-        snapId: MASSA_SNAP_ID,
-        request: {
-          method: 'account.balance',
-          params,
-        },
-      },
-    });
+    const res = await getBalance(this.provider, params);
 
     return final ? BigInt(res.finalBalance) : BigInt(res.candidateBalance);
   }
@@ -95,10 +90,11 @@ export class MetamaskAccount implements Provider {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _opts?: OperationOptions,
   ): Promise<Operation> {
-    // TODO: update to use snap
-
     try {
-      const operationId = await web3.massa.buyRolls(amount.toString());
+      const { operationId } = await buyRolls(this.provider, {
+        amount: amount.toString(),
+        fee: '0',
+      });
       return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.BuyRolls, error);
@@ -110,10 +106,11 @@ export class MetamaskAccount implements Provider {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _opts?: OperationOptions,
   ): Promise<Operation> {
-    // TODO: update to use snap
-
     try {
-      const operationId = await web3.massa.sellRolls(amount.toString());
+      const { operationId } = await sellRolls(this.provider, {
+        amount: amount.toString(),
+        fee: '0',
+      });
       return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.SellRolls, error);
@@ -126,13 +123,12 @@ export class MetamaskAccount implements Provider {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _opts?: OperationOptions,
   ): Promise<Operation> {
-    // TODO: update to use snap
-
     try {
-      const operationId = await web3.massa.payment(
-        amount.toString(),
-        to.toString(),
-      );
+      const { operationId } = await transfer(this.provider, {
+        amount: amount.toString(),
+        fee: '0',
+        recipientAddress: to.toString(),
+      });
 
       return new Operation(this, operationId);
     } catch (error) {
@@ -141,14 +137,11 @@ export class MetamaskAccount implements Provider {
   }
 
   private async minimalFee(): Promise<bigint> {
-    // TODO: update to use snap
     const { minimalFee } = await this.networkInfos();
     return minimalFee;
   }
 
   public async callSC(params: CallSCParams): Promise<Operation> {
-    // TODO: update to use snap
-
     const args = params.parameter ?? new Uint8Array();
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
@@ -156,16 +149,15 @@ export class MetamaskAccount implements Provider {
     const fee = params?.fee ?? (await this.minimalFee());
 
     try {
-      const operationId = await web3.contract.call({
-        // TODO: add bigint support in bearby.js
-        // TODO add gas estimation here
-        maxGas: Number(params.maxGas || MAX_GAS_CALL),
-        coins: Number(params.coins || 0),
-        fee: Number(fee),
-        targetAddress: params.target,
+      const { operationId } = await callSC(this.provider, {
         functionName: params.func,
-        unsafeParameters,
+        at: params.target,
+        args: Array.from(unsafeParameters),
+        coins: params.coins.toString(),
+        fee: fee.toString(),
+        maxGas: params.maxGas.toString(),
       });
+
       return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.CallSC, error);
@@ -173,7 +165,6 @@ export class MetamaskAccount implements Provider {
   }
 
   public async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    // TODO: update to use snap
     if (params?.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
@@ -188,18 +179,24 @@ export class MetamaskAccount implements Provider {
     const caller = params.caller ?? this.address;
 
     try {
-      const network = await this.networkInfos();
-      const client =
-        network.name === 'mainnet'
-          ? JsonRPCClient.mainnet()
-          : JsonRPCClient.buildnet();
-      const readOnlyParams = {
-        ...params,
-        caller,
-        fee,
-        parameter: unsafeParameters,
+      const res = await readSC(this.provider, {
+        fee: fee.toString(),
+        functionName: params.func,
+        at: params.target,
+        args: Array.from(unsafeParameters),
+        coins: params.coins.toString(),
+        maxGas: params.maxGas.toString(),
+        caller: caller,
+      });
+      return {
+        value: new Uint8Array(res.data),
+        info: {
+          gasCost: res.infos.gasCost,
+          // TODO: update snap to return those values
+          events: [],
+          error: '',
+        },
       };
-      return client.executeReadOnlyCall(readOnlyParams);
     } catch (error) {
       throw new Error(
         `An error occurred while reading the smart contract: ${error.message}`,

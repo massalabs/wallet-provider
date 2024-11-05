@@ -8,10 +8,9 @@ import {
 import { WalletName } from '../wallet';
 import { getMetamaskProvider } from './metamask';
 import { connectSnap, getMassaSnapInfo } from './snap';
-import { MASSA_SNAP_ID } from './config';
 import { MetamaskAccount } from './MetamaskAccount';
 import { MetaMaskInpageProvider } from '@metamask/providers';
-import { ActiveAccountResponse, NetworkResponse } from './types/snap';
+import { getActiveAccount, getNetwork } from './services';
 
 export class MetamaskWallet implements Wallet {
   private walletName = WalletName.Metamask;
@@ -42,16 +41,7 @@ export class MetamaskWallet implements Wallet {
   }
 
   public async accounts(): Promise<MetamaskAccount[]> {
-    const res = await this.metamaskProvider.request<ActiveAccountResponse>({
-      method: 'wallet_invokeSnap',
-      params: {
-        snapId: MASSA_SNAP_ID,
-        request: {
-          method: 'account.getActive',
-        },
-      },
-    });
-
+    const res = await getActiveAccount(this.metamaskProvider);
     return [new MetamaskAccount(res.address, this.metamaskProvider)];
   }
 
@@ -70,15 +60,7 @@ export class MetamaskWallet implements Wallet {
   }
 
   public async networkInfos(): Promise<Network> {
-    const res = await this.metamaskProvider.request<NetworkResponse>({
-      method: 'wallet_invokeSnap',
-      params: {
-        snapId: MASSA_SNAP_ID,
-        request: {
-          method: 'Provider.getNetwork',
-        },
-      },
-    });
+    const res = await getNetwork(this.metamaskProvider);
 
     return {
       name: getNetworkNameByChainId(BigInt(res.chainId)),
