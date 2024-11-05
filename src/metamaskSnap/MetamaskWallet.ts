@@ -1,30 +1,58 @@
 import { web3 } from '@hicaru/bearby.js';
-import { BearbyAccount } from './BearbyAccount';
 import { Wallet } from '../wallet/interface';
-import { Network, Provider } from '@massalabs/massa-web3';
-import { networkInfos } from './utils/network';
+import {
+  getNetworkNameByChainId,
+  Network,
+  Provider,
+} from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
+import { getMetamaskProvider } from './metamask';
+import { connectSnap, getMassaSnapInfo } from './snap';
+import { MASSA_SNAP_ID } from './config';
+import { MetamaskAccount } from './MetamaskAccount';
+import { MetaMaskInpageProvider } from '@metamask/providers';
+import { ActiveAccountResponse, NetworkResponse } from './types/snap';
 
-export class BearbyWallet implements Wallet {
-  private walletName = WalletName.Bearby;
+export class MetamaskWallet implements Wallet {
+  private walletName = WalletName.Metamask;
+  private metamaskProvider: MetaMaskInpageProvider;
 
   public name(): WalletName {
     return this.walletName;
   }
 
-  static async createIfInstalled(): Promise<Wallet | null> {
-    if (web3.wallet.installed) {
-      return new BearbyWallet();
-    }
-    return null;
+  public constructor(provider: MetaMaskInpageProvider) {
+    this.metamaskProvider = provider;
   }
 
-  public async accounts(): Promise<BearbyAccount[]> {
-    // check if bearby is unlocked
-    if (!web3.wallet.connected) {
-      await web3.wallet.connect();
+  static async createIfInstalled(): Promise<Wallet | null> {
+    try {
+      const metamask = await getMetamaskProvider();
+      if (!metamask) return null;
+
+      const snap = await getMassaSnapInfo(metamask);
+      if (!snap) {
+        await connectSnap(metamask);
+      }
+
+      return new MetamaskWallet(metamask);
+    } catch (error) {
+      return null;
     }
-    return [new BearbyAccount(await web3.wallet.account.base58)];
+  }
+
+  public async accounts(): Promise<MetamaskAccount[]> {
+    const res = await this.metamaskProvider.request<ActiveAccountResponse>({
+      method: 'wallet_invokeSnap',
+      params: {
+        snapId: MASSA_SNAP_ID,
+        request: {
+          method: 'account.getActive',
+        },
+      },
+    });
+
+    return [new MetamaskAccount(res.address, this.metamaskProvider)];
   }
 
   public async importAccount(
@@ -42,10 +70,22 @@ export class BearbyWallet implements Wallet {
   }
 
   public async networkInfos(): Promise<Network> {
-    if (!web3.wallet.connected) {
-      await web3.wallet.connect();
-    }
-    return networkInfos();
+    const res = await this.metamaskProvider.request<NetworkResponse>({
+      method: 'wallet_invokeSnap',
+      params: {
+        snapId: MASSA_SNAP_ID,
+        request: {
+          method: 'Provider.getNetwork',
+        },
+      },
+    });
+
+    return {
+      name: getNetworkNameByChainId(BigInt(res.chainId)),
+      chainId: BigInt(res.chainId),
+      url: res.network,
+      minimalFee: BigInt(res.minimalFees),
+    };
   }
 
   public async generateNewAccount(): Promise<Provider> {
@@ -76,6 +116,7 @@ export class BearbyWallet implements Wallet {
   public listenAccountChanges(callback: (address: string) => void): {
     unsubscribe: () => void;
   } {
+    // TODO
     return web3.wallet.account.subscribe((address) => callback(address));
   }
 
@@ -100,13 +141,10 @@ export class BearbyWallet implements Wallet {
    * observer.unsubscribe();
    * ```
    */
-  public listenNetworkChanges(callback: (network: Network) => void): {
+  public listenNetworkChanges(callback: (network: string) => void): {
     unsubscribe: () => void;
   } {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return web3.wallet.network.subscribe((_) =>
-      networkInfos().then((network) => callback(network)),
-    );
+    return web3.wallet.network.subscribe((network) => callback(network));
   }
 
   /**
@@ -117,7 +155,13 @@ export class BearbyWallet implements Wallet {
    * If the connection fails, it will log the error message.
    */
   public async connect() {
-    return web3.wallet.connect();
+    try {
+      // TODO: This ask to install the snap every time even if it is already installed
+      await connectSnap(this.metamaskProvider);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
@@ -128,6 +172,7 @@ export class BearbyWallet implements Wallet {
    * If the disconnection fails, it will log the error message.
    */
   public async disconnect() {
+    // TODO
     return web3.wallet.disconnect();
   }
 
@@ -137,7 +182,11 @@ export class BearbyWallet implements Wallet {
    * @returns a boolean indicating whether the wallet is connected.
    */
   public connected(): boolean {
-    return web3.wallet.connected;
+    // TODO: Put provider on the global scope
+    // const provider = await getMetaMaskEIP6963Provider();
+
+    // return provider.isConnected();
+    return true;
   }
 
   /**
