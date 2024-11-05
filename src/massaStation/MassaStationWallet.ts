@@ -43,8 +43,11 @@ export class MassaStationWallet implements Wallet {
     return this.walletName;
   }
 
-  static async checkInstalled(): Promise<boolean> {
-    return isMassaWalletEnabled();
+  static async createIfInstalled(): Promise<Wallet | null> {
+    if (isMassaWalletEnabled()) {
+      return new MassaStationWallet();
+    }
+    return null;
   }
 
   public async accounts(): Promise<MassaStationAccount[]> {
