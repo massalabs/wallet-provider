@@ -16,6 +16,6 @@ export interface Wallet {
     callback: (address: string) => void,
   ): ListenerCtrl | undefined;
   listenNetworkChanges(
-    callback: (network: string) => void,
+    callback: (network: Network) => void,
   ): ListenerCtrl | undefined;
 }

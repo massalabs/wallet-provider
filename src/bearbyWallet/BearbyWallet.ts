@@ -97,10 +97,13 @@ export class BearbyWallet implements Wallet {
    * observer.unsubscribe();
    * ```
    */
-  public listenNetworkChanges(callback: (network: string) => void): {
+  public listenNetworkChanges(callback: (network: Network) => void): {
     unsubscribe: () => void;
   } {
-    return web3.wallet.network.subscribe((network) => callback(network));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return web3.wallet.network.subscribe((_) =>
+      networkInfos().then((network) => callback(network)),
+    );
   }
 
   /**
