@@ -131,7 +131,7 @@ export class MassaStationWallet implements Wallet {
   }
 
   public listenNetworkChanges(
-    callback: (network: string) => void,
+    callback: (network: Network) => void,
   ): { unsubscribe: () => void } | undefined {
     this.eventsListener.on(MASSA_STATION_NETWORK_CHANGED, (evt) =>
       callback(evt),
