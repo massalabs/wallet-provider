@@ -107,6 +107,13 @@ export class MassaStationWallet implements Wallet {
     return networkInfos();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async setRpcUrl(url: string): Promise<void> {
+    throw new Error(
+      'setRpcUrl is not yet implemented for the current provider.',
+    );
+  }
+
   /**
    * This method sends an http call to the MassaStation server to create a new random account.
    *
