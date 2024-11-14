@@ -48,6 +48,13 @@ export class BearbyWallet implements Wallet {
     return networkInfos();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async setRpcUrl(url: string): Promise<void> {
+    throw new Error(
+      'setRpcUrl is not yet implemented for the current provider.',
+    );
+  }
+
   public async generateNewAccount(): Promise<Provider> {
     throw new Error('Method not implemented.');
   }

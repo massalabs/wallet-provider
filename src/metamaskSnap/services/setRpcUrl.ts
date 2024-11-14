@@ -1,24 +1,24 @@
 import { MetaMaskInpageProvider } from '@metamask/providers';
 import { MASSA_SNAP_ID } from '../config';
 
-export type SetNetworkParams = {
+export type SetRpcUrlParams = {
   network: string; // url
 };
 
-export type SetNetworkResponse = {
+export type SetRpcUrlResponse = {
   network: string; // url
 };
 
 /**
- * Function that calls the MetaMask provider to set the current network
+ * Function that calls the MetaMask provider to set a new rpc url
  * @param provider - The MetaMask provider
  * @param params - The set network parameters (network id to set as a string)
  * @returns The response of the operation
  */
-export const setNetwork = async (
+export const setRpcUrl = async (
   provider: MetaMaskInpageProvider,
-  params: SetNetworkParams,
-): Promise<SetNetworkResponse | undefined> => {
+  params: SetRpcUrlParams,
+): Promise<SetRpcUrlResponse | undefined> => {
   return provider.request({
     method: 'wallet_invokeSnap',
     params: {
@@ -28,5 +28,5 @@ export const setNetwork = async (
         params,
       },
     },
-  }) as Promise<SetNetworkResponse>;
+  }) as Promise<SetRpcUrlResponse>;
 };

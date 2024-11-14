@@ -1,5 +1,4 @@
-import { errorHandler } from '../errors/utils/errorHandler';
-import { operationType } from '../utils/constants';
+import { MetaMaskInpageProvider } from '@metamask/providers';
 import {
   Address,
   CallSCParams,
@@ -22,22 +21,29 @@ import {
   strToBytes,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
+import { errorHandler } from '../errors/utils/errorHandler';
+import { operationType } from '../utils/constants';
 import { getClient, networkInfos } from '../massaStation/utils/network';
-import { MetaMaskInpageProvider } from '@metamask/providers';
-import { web3 } from '@hicaru/bearby.js';
 import {
   buyRolls,
   callSC,
   getBalance,
   readSC,
   sellRolls,
+  signMessage,
   transfer,
 } from './services';
+import { getMinimalFees } from './services/getMinimalFees';
 
 export class MetamaskAccount implements Provider {
-  public constructor(
-    public address: string,
-    private provider: MetaMaskInpageProvider,
+  /**
+   * Creates a new MetamaskAccount instance
+   * @param address - The account address
+   * @param provider - The MetaMask provider instance
+   */
+  constructor(
+    public readonly address: string,
+    private readonly provider: MetaMaskInpageProvider,
   ) {}
 
   get accountName(): string {
@@ -48,85 +54,95 @@ export class MetamaskAccount implements Provider {
     return WalletName.Metamask;
   }
 
-  public async balance(final = false): Promise<bigint> {
-    const params = {
+  /**
+   * Gets the account balance
+   * @param final - Whether to get the final or candidate balance
+   * @returns Promise resolving to the balance as a BigInt
+   */
+  async balance(final = false): Promise<bigint> {
+    const { finalBalance, candidateBalance } = await getBalance(this.provider, {
       address: this.address,
-    };
-
-    const res = await getBalance(this.provider, params);
-
-    return final ? BigInt(res.finalBalance) : BigInt(res.candidateBalance);
+    });
+    return BigInt(final ? finalBalance : candidateBalance);
   }
 
-  public async networkInfos(): Promise<Network> {
-    // TODO: update to use snap
+  async networkInfos(): Promise<Network> {
     return networkInfos();
   }
 
-  public async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
-    // TODO: update to use snap
-
-    let strData: string;
-    if (data instanceof Uint8Array) {
-      strData = new TextDecoder().decode(data);
-    }
-    if (data instanceof Buffer) {
-      strData = data.toString();
-    }
+  /**
+   * Signs data with the account's private key
+   * @param data - Data to sign as Buffer, Uint8Array or string
+   */
+  async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
     try {
-      const signature = await web3.wallet.signMessage(strData);
+      const dataArray =
+        typeof data === 'string'
+          ? Array.from(strToBytes(data))
+          : Array.from(data);
+
+      const { publicKey, signature } = await signMessage(this.provider, {
+        data: dataArray,
+      });
 
       return {
-        publicKey: signature.publicKey,
-        signature: signature.signature,
+        publicKey,
+        signature: signature.toString(),
       };
     } catch (error) {
       throw errorHandler(operationType.Sign, error);
     }
   }
 
-  public async buyRolls(
+  /**
+   * Handles roll operations (buy/sell)
+   * @param operation - Operation type (buy/sell)
+   * @param amount - Amount of rolls
+   * @param opts - Operation options
+   */
+  private async handleRollOperation(
+    operation: 'buy' | 'sell',
     amount: bigint,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _opts?: OperationOptions,
+    opts?: OperationOptions,
   ): Promise<Operation> {
     try {
-      const { operationId } = await buyRolls(this.provider, {
+      const fee = opts?.fee ?? (await getMinimalFees(this.provider));
+      const params = {
         amount: amount.toString(),
-        fee: '0',
-      });
+        fee: fee.toString(),
+      };
+
+      const { operationId } = await (operation === 'buy'
+        ? buyRolls(this.provider, params)
+        : sellRolls(this.provider, params));
+
       return new Operation(this, operationId);
     } catch (error) {
-      throw errorHandler(operationType.BuyRolls, error);
+      throw errorHandler(
+        operation === 'buy' ? operationType.BuyRolls : operationType.SellRolls,
+        error,
+      );
     }
   }
 
-  public async sellRolls(
-    amount: bigint,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _opts?: OperationOptions,
-  ): Promise<Operation> {
-    try {
-      const { operationId } = await sellRolls(this.provider, {
-        amount: amount.toString(),
-        fee: '0',
-      });
-      return new Operation(this, operationId);
-    } catch (error) {
-      throw errorHandler(operationType.SellRolls, error);
-    }
+  async buyRolls(amount: bigint, opts?: OperationOptions): Promise<Operation> {
+    return this.handleRollOperation('buy', amount, opts);
   }
 
-  public async transfer(
+  async sellRolls(amount: bigint, opts?: OperationOptions): Promise<Operation> {
+    return this.handleRollOperation('sell', amount, opts);
+  }
+
+  async transfer(
     to: Address | string,
     amount: bigint,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _opts?: OperationOptions,
+    opts?: OperationOptions,
   ): Promise<Operation> {
     try {
+      const fee = opts?.fee ?? (await getMinimalFees(this.provider));
       const { operationId } = await transfer(this.provider, {
         amount: amount.toString(),
-        fee: '0',
+        fee: fee.toString(),
         recipientAddress: to.toString(),
       });
 
@@ -136,26 +152,20 @@ export class MetamaskAccount implements Provider {
     }
   }
 
-  private async minimalFee(): Promise<bigint> {
-    const { minimalFee } = await this.networkInfos();
-    return minimalFee;
-  }
-
-  public async callSC(params: CallSCParams): Promise<Operation> {
-    const args = params.parameter ?? new Uint8Array();
-    const unsafeParameters =
-      args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
-
-    const fee = params?.fee ?? (await this.minimalFee());
-
+  async callSC(params: CallSCParams): Promise<Operation> {
     try {
+      const args = params.parameter ?? new Uint8Array();
+      const unsafeParameters =
+        args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
+
+      const fee = params.fee ?? (await getMinimalFees(this.provider));
       const { operationId } = await callSC(this.provider, {
         functionName: params.func,
         at: params.target,
         args: Array.from(unsafeParameters),
-        coins: params.coins.toString(),
+        coins: (params.coins ?? 0n).toString(),
         fee: fee.toString(),
-        maxGas: params.maxGas.toString(),
+        maxGas: (params.maxGas ?? MAX_GAS_CALL).toString(),
       });
 
       return new Operation(this, operationId);
@@ -164,84 +174,77 @@ export class MetamaskAccount implements Provider {
     }
   }
 
-  public async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    if (params?.maxGas > MAX_GAS_CALL) {
+  async readSC(params: ReadSCParams): Promise<ReadSCData> {
+    if (params.maxGas > MAX_GAS_CALL) {
       throw new Error(
-        `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
+        `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}`,
       );
     }
 
-    const args = params.parameter ?? new Uint8Array();
-    const unsafeParameters =
-      args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
-
-    const fee = params?.fee ?? (await this.minimalFee());
-    const caller = params.caller ?? this.address;
-
     try {
+      const args = params.parameter ?? new Uint8Array();
+      const unsafeParameters =
+        args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
+
+      const fee = params.fee ?? (await getMinimalFees(this.provider));
       const res = await readSC(this.provider, {
         fee: fee.toString(),
         functionName: params.func,
         at: params.target,
         args: Array.from(unsafeParameters),
-        coins: params.coins.toString(),
-        maxGas: params.maxGas.toString(),
-        caller: caller,
+        coins: (params.coins ?? 0n).toString(),
+        maxGas: (params.maxGas ?? MAX_GAS_CALL).toString(),
+        caller: params.caller ?? this.address,
       });
+
       return {
         value: new Uint8Array(res.data),
         info: {
           gasCost: res.infos.gasCost,
-          // TODO: update snap to return those values
           events: [],
           error: '',
         },
       };
     } catch (error) {
-      throw new Error(
-        `An error occurred while reading the smart contract: ${error.message}`,
-      );
+      throw new Error(`Smart contract read failed: ${error.message}`);
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
-    // TODO: Check if snap has deploy method
-    throw new Error('Method not implemented.');
+  async deploySC(_params: DeploySCParams): Promise<SmartContract> {
+    throw new Error(
+      'Smart contract deployment not yet implemented in MetaMask snap',
+    );
   }
 
-  public async getOperationStatus(opId: string): Promise<OperationStatus> {
+  async getOperationStatus(opId: string): Promise<OperationStatus> {
     const client = await getClient();
-    // This implementation is wrong. We should use metamask snap instead of targeting the node directly.
     return client.getOperationStatus(opId);
   }
 
-  public async getEvents(filter: EventFilter): Promise<SCEvent[]> {
+  async getEvents(filter: EventFilter): Promise<SCEvent[]> {
     const client = await getClient();
-    // This implementation is wrong. We should use metamask snap instead of targeting the node directly.
     return client.getEvents(filter);
   }
 
-  public async getNodeStatus(): Promise<NodeStatusInfo> {
+  async getNodeStatus(): Promise<NodeStatusInfo> {
     const client = await getClient();
-    // This implementation is wrong. We should use metamask snap instead of targeting the node directly.
     const status = await client.status();
     return formatNodeStatusObject(status);
   }
 
-  public async getStorageKeys(
+  async getStorageKeys(
     address: string,
     filter: Uint8Array | string = new Uint8Array(),
     final = true,
   ): Promise<Uint8Array[]> {
     const client = await getClient();
-    const filterBytes: Uint8Array =
+    const filterBytes =
       typeof filter === 'string' ? strToBytes(filter) : filter;
-    // This implementation is wrong. We should use metamask snap instead of targeting the node directly.
     return client.getDataStoreKeys(address, filterBytes, final);
   }
 
-  public async readStorage(
+  async readStorage(
     address: string,
     keys: Uint8Array[] | string[],
     final = true,
@@ -251,7 +254,6 @@ export class MetamaskAccount implements Provider {
       key,
       address,
     }));
-    // This implementation is wrong. We should use metamask snap instead of targeting the node directly.
     return client.getDatastoreEntries(entries, final);
   }
 }
