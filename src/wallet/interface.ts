@@ -7,6 +7,7 @@ export interface Wallet {
   importAccount(publicKey: string, privateKey: string): Promise<void>;
   deleteAccount(address: string): Promise<void>;
   networkInfos(): Promise<Network>;
+  setRpcUrl(url: string): Promise<void>;
   generateNewAccount(name: string): Promise<Provider>;
   connect(): Promise<boolean>;
   disconnect(): Promise<boolean>;

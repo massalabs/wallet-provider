@@ -10,7 +10,7 @@ export * from './getNodeUrls';
 export * from './getOperations';
 export * from './readSC';
 export * from './sellRolls';
-export * from './setNetwork';
+export * from './setRpcUrl';
 export * from './showCredentials';
 export * from './signMessage';
 export * from './getTokens';

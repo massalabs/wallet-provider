@@ -14,7 +14,6 @@ export type ShowCredentialsParams = {
  */
 export const showCredentials = async (
   provider: MetaMaskInpageProvider,
-  params: ShowCredentialsParams,
 ): Promise<void> => {
   return provider.request<void>({
     method: 'wallet_invokeSnap',
@@ -22,7 +21,6 @@ export const showCredentials = async (
       snapId: MASSA_SNAP_ID,
       request: {
         method: 'account.showCredentials',
-        params,
       },
     },
   });
