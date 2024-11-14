@@ -10,12 +10,7 @@ import { getMetamaskProvider } from './metamask';
 import { connectSnap, getMassaSnapInfo } from './snap';
 import { MetamaskAccount } from './MetamaskAccount';
 import { MetaMaskInpageProvider } from '@metamask/providers';
-import {
-  getActiveAccount,
-  getNetwork,
-  setRpcUrl,
-  showCredentials,
-} from './services';
+import { getActiveAccount, getNetwork, setRpcUrl } from './services';
 import EventEmitter from 'events';
 
 const METAMASK_NETWORK_CHANGED = 'METAMASK_NETWORK_CHANGED';
@@ -51,7 +46,7 @@ export class MetamaskWallet implements Wallet {
   }
 
   public async importAccount(): Promise<void> {
-    showCredentials(this.metamaskProvider);
+    throw new Error('Method not implemented.');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
