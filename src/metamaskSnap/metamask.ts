@@ -124,3 +124,74 @@ export async function getMetamaskProvider(): Promise<MetaMaskInpageProvider | nu
 
   return null;
 }
+
+export async function isMetaMaskUnlocked() {
+  if (!isMetamaskInstalled()) {
+    return false;
+  }
+
+  const accounts: string[] = await window.ethereum.request({
+    method: 'eth_accounts',
+  });
+  return accounts.length > 0;
+}
+
+export function isMetamaskInstalled() {
+  return Boolean(window.ethereum);
+}
+
+export async function promptAndWaitForWalletUnlock(): Promise<string[]> {
+  if (typeof window.ethereum === 'undefined') {
+    throw new Error(
+      'MetaMask is not installed. Please install it and try again.',
+    );
+  }
+
+  const ethereum = window.ethereum;
+
+  try {
+    // Prompt the user to unlock the wallet
+    await ethereum.request({ method: 'eth_requestAccounts' });
+
+    // Wait for accounts to become available
+    return new Promise((resolve, reject) => {
+      const checkAccounts = async () => {
+        try {
+          const accounts: string[] = await ethereum.request({
+            method: 'eth_accounts',
+          });
+          if (accounts && accounts.length > 0) {
+            resolve(accounts); // Wallet is unlocked
+          }
+        } catch (error) {
+          reject(
+            new Error('Error checking accounts: ' + (error as Error).message),
+          );
+        }
+      };
+
+      // Initial check for accounts
+      checkAccounts();
+
+      ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (accounts.length > 0) {
+          console.log('Wallet unlocked:', accounts);
+          resolve(accounts);
+        } else {
+          console.warn('Accounts changed, but no accounts are available.');
+        }
+      });
+      ethereum.on('disconnect', () => {
+        reject(new Error('MetaMask disconnected.'));
+      });
+    });
+  } catch (error: any) {
+    if (error.code === 4001) {
+      throw new Error('User rejected the request.');
+    } else if (error.message.includes('User closed popup')) {
+      throw new Error('MetaMask popup was closed without connecting.');
+    } else {
+      throw new Error('Wallet unlocking failed.');
+    }
+  }
+}

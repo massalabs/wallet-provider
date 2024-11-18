@@ -44,7 +44,7 @@ export class MassaStationWallet implements Wallet {
   }
 
   static async createIfInstalled(): Promise<Wallet | null> {
-    if (isMassaWalletEnabled()) {
+    if (await isMassaWalletEnabled()) {
       return new MassaStationWallet();
     }
     return null;
