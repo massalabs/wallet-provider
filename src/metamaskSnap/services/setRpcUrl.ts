@@ -9,12 +9,6 @@ export type SetRpcUrlResponse = {
   network: string; // url
 };
 
-/**
- * Function that calls the MetaMask provider to set a new rpc url
- * @param provider - The MetaMask provider
- * @param params - The set network parameters (network id to set as a string)
- * @returns The response of the operation
- */
 export const setRpcUrl = async (
   provider: MetaMaskInpageProvider,
   params: SetRpcUrlParams,

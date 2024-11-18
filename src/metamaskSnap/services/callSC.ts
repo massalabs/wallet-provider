@@ -14,12 +14,6 @@ export type CallSCResponse = {
   operationId: string;
 };
 
-/**
- * Function that calls the MetaMask provider to call a smart contract
- * @param provider - The MetaMask provider
- * @param params - The call smart contract parameters (see massa standard)
- * @returns The response of the operation
- */
 export const callSC = async (
   provider: MetaMaskInpageProvider,
   params: CallSCParams,
