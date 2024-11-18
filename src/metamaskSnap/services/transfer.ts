@@ -11,13 +11,6 @@ export type TransferResponse = {
   operationId: string;
 };
 
-/**
- * Function that calls the MetaMask provider to transfer funds
- * @param provider - The MetaMask provider
- * @param params - The transfer parameters (recipient address, amount, and fee)
- * @returns The operation id of the transfer operation
- * @throws If the user denies the transaction
- */
 export const transfer = async (
   provider: MetaMaskInpageProvider,
   params: TransferParams,

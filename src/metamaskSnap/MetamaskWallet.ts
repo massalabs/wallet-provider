@@ -54,8 +54,7 @@ export class MetamaskWallet implements Wallet {
     throw new Error('Method not implemented.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deleteAccount(address: string): Promise<void> {
+  public async deleteAccount(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
@@ -70,6 +69,12 @@ export class MetamaskWallet implements Wallet {
     };
   }
 
+  /**
+   * Sets the RPC URL for the MetaMask provider.
+   *
+   * @param url - The new RPC URL.
+   * @returns A promise that resolves when the RPC URL is updated.
+   */
   public async setRpcUrl(url: string): Promise<void> {
     await setRpcUrl(this.metamaskProvider, { network: url });
   }
@@ -87,21 +92,15 @@ export class MetamaskWallet implements Wallet {
   /**
    * Subscribes to network changes.
    *
-   * @param callback - Callback to be called when the network changes.
-   *
-   * @returns A promise that resolves to a function that can be called to unsubscribe.
-   *
-   * @remarks
-   * Don't forget to unsubscribe to avoid memory leaks.
+   * @param callback - Callback function called when the network changes.
+   * @returns An object with an `unsubscribe` method to stop listening.
+   * @remarks Periodically checks for network changes every 500ms.
    *
    * @example
    * ```typescript
-   * // Subscribe
    * const observer = await provider.listenNetworkChanges((network) => {
-   *  console.log(network);
+   *   console.log(network);
    * });
-   *
-   * // Unsubscribe
    * observer.unsubscribe();
    * ```
    */
@@ -110,7 +109,6 @@ export class MetamaskWallet implements Wallet {
   ): { unsubscribe: () => void } | undefined {
     this.eventsListener.on(METAMASK_NETWORK_CHANGED, (evt) => callback(evt));
 
-    // check periodically if network changed
     const intervalId = setInterval(async () => {
       const network = await this.networkInfos();
       if (!this.currentNetwork) {
@@ -135,6 +133,11 @@ export class MetamaskWallet implements Wallet {
     };
   }
 
+  /**
+   * Connects to MetaMask and ensures it is unlocked and ready.
+   *
+   * @returns A promise that resolves to `true` if connected successfully, otherwise `false`.
+   */
   public async connect() {
     try {
       const isUnlocked = await isMetaMaskUnlocked();

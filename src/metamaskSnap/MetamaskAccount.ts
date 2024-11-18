@@ -36,11 +36,6 @@ import {
 import { getMinimalFees } from './services/getMinimalFees';
 
 export class MetamaskAccount implements Provider {
-  /**
-   * Creates a new MetamaskAccount instance
-   * @param address - The account address
-   * @param provider - The MetaMask provider instance
-   */
   constructor(
     public readonly address: string,
     private readonly provider: MetaMaskInpageProvider,
@@ -54,11 +49,6 @@ export class MetamaskAccount implements Provider {
     return WalletName.Metamask;
   }
 
-  /**
-   * Gets the account balance
-   * @param final - Whether to get the final or candidate balance
-   * @returns Promise resolving to the balance as a BigInt
-   */
   async balance(final = false): Promise<bigint> {
     const { finalBalance, candidateBalance } = await getBalance(this.provider, {
       address: this.address,
@@ -70,10 +60,6 @@ export class MetamaskAccount implements Provider {
     return networkInfos();
   }
 
-  /**
-   * Signs data with the account's private key
-   * @param data - Data to sign as Buffer, Uint8Array or string
-   */
   async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
     try {
       const dataArray =
@@ -94,12 +80,6 @@ export class MetamaskAccount implements Provider {
     }
   }
 
-  /**
-   * Handles roll operations (buy/sell)
-   * @param operation - Operation type (buy/sell)
-   * @param amount - Amount of rolls
-   * @param opts - Operation options
-   */
   private async handleRollOperation(
     operation: 'buy' | 'sell',
     amount: bigint,

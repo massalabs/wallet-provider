@@ -10,12 +10,6 @@ export type SignMessageResponse = {
   publicKey: string;
 };
 
-/**
- * Function that calls the MetaMask provider to sign a message
- * @param provider - The MetaMask provider
- * @param params - The sign message parameters (serialized data message as bytes)
- * @returns The signature and public key used to sign the message
- */
 export const signMessage = async (
   provider: MetaMaskInpageProvider,
   params: SignMessageParams,
