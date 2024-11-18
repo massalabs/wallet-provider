@@ -5,9 +5,6 @@ import { wait } from '../utils/time';
 import { MassaStationWallet } from '../massaStation/MassaStationWallet';
 import { WalletName } from '../wallet/types';
 import { MetamaskWallet } from '../metamaskSnap/MetamaskWallet';
-import log from 'loglevel';
-
-log.setLevel('error');
 
 export const supportedWallets: WalletInterfaces = [
   BearbyWallet,
@@ -22,7 +19,7 @@ export async function getWallets(delay = 200): Promise<Wallet[]> {
     try {
       return await WalletClass.createIfInstalled();
     } catch (error) {
-      log.error(`Error initializing wallet ${WalletClass.name}:`, error);
+      console.error(`Error initializing wallet ${WalletClass.name}:`, error);
     }
     return null;
   });

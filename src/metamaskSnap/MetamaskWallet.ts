@@ -6,7 +6,11 @@ import {
   Provider,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
-import { getMetamaskProvider } from './metamask';
+import {
+  getMetamaskProvider,
+  isMetaMaskUnlocked,
+  promptAndWaitForWalletUnlock,
+} from './metamask';
 import { connectSnap, getMassaSnapInfo } from './snap';
 import { MetamaskAccount } from './MetamaskAccount';
 import { MetaMaskInpageProvider } from '@metamask/providers';
@@ -32,6 +36,7 @@ export class MetamaskWallet implements Wallet {
   static async createIfInstalled(): Promise<Wallet | null> {
     try {
       const metamask = await getMetamaskProvider();
+
       if (!metamask) return null;
 
       return new MetamaskWallet(metamask);
@@ -132,7 +137,14 @@ export class MetamaskWallet implements Wallet {
 
   public async connect() {
     try {
+      const isUnlocked = await isMetaMaskUnlocked();
+
+      if (!isUnlocked) {
+        await promptAndWaitForWalletUnlock();
+      }
+
       const snap = await getMassaSnapInfo(this.metamaskProvider);
+
       if (!snap) {
         await connectSnap(this.metamaskProvider);
       }

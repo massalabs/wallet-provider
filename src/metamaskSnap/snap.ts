@@ -2,14 +2,11 @@ import type { MetaMaskInpageProvider } from '@metamask/providers';
 
 import { MASSA_SNAP_ID } from './config';
 import type { GetSnapsResponse, Snap } from './types';
-import log from 'loglevel';
-
-log.setLevel('error');
 
 const getInstalledSnaps = async (
   provider: MetaMaskInpageProvider,
 ): Promise<GetSnapsResponse> =>
-  await provider.request({
+  provider.request({
     method: 'wallet_getSnaps',
   });
 
@@ -25,7 +22,7 @@ export const connectSnap = async (
   snapId: string = MASSA_SNAP_ID,
   params: Record<'version' | string, unknown> = {},
 ) => {
-  await provider.request({
+  provider.request({
     method: 'wallet_requestSnaps',
     params: {
       [snapId]: params,
@@ -45,7 +42,7 @@ export const getMassaSnapInfo = async (
         snap.id === MASSA_SNAP_ID && (!version || snap.version === version),
     );
   } catch (error) {
-    log.error('Failed to obtain installed snap', error);
+    console.error('Failed to obtain installed snap', error);
     return undefined;
   }
 };
@@ -58,3 +55,40 @@ export const showPrivateKey = async (provider: MetaMaskInpageProvider) => {
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
+
+export async function isDappConnectedToSnap(snapId: string): Promise<boolean> {
+  if (typeof window.ethereum === 'undefined') {
+    console.error('MetaMask is not installed.');
+    return false;
+  }
+
+  try {
+    // Request all installed snaps
+    const installedSnaps = await window.ethereum.request({
+      method: 'wallet_getSnaps',
+    });
+
+    // Check if the specific Snap is installed
+    const snap = installedSnaps[snapId];
+    if (!snap) {
+      console.log(`Snap with ID ${snapId} is not installed.`);
+      return false;
+    }
+
+    // Check if the current dApp is allowed
+    const currentOrigin = window.location.origin;
+    const allowedOrigins =
+      snap.permissions?.snap_allowedOrigins?.caveats?.[0]?.value || [];
+
+    if (allowedOrigins.includes(currentOrigin)) {
+      console.log(`DApp ${currentOrigin} is already connected to the Snap.`);
+      return true;
+    } else {
+      console.log(`DApp ${currentOrigin} is NOT connected to the Snap.`);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error checking Snap connection:', error);
+    return false;
+  }
+}
