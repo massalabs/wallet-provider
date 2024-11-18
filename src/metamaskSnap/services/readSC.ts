@@ -18,12 +18,6 @@ export type ReadSCResponse = {
   };
 };
 
-/**
- * Function that calls the MetaMask provider to read a smart contract
- * @param provider - The MetaMask provider
- * @param params - The read smart contract parameters (see massa standard)
- * @returns The response of the operation
- */
 export const readSC = async (
   provider: MetaMaskInpageProvider,
   params: ReadSCParameters,

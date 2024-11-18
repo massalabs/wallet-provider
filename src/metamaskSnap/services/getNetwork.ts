@@ -7,11 +7,6 @@ export type NetworkResponse = {
   minimalFees: string;
 };
 
-/**
- * Function that calls the MetaMask provider to get the current network
- * @param provider - The MetaMask provider
- * @returns The current network details
- */
 export const getNetwork = async (
   provider: MetaMaskInpageProvider,
 ): Promise<NetworkResponse | undefined> => {

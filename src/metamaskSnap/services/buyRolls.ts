@@ -10,12 +10,6 @@ export type BuyRollsResponse = {
   operationId: string;
 };
 
-/**
- * Function that calls the MetaMask provider to buy rolls
- * @param provider - The MetaMask provider
- * @param params - The buy rolls parameters (fee and amount)
- * @returns The operationId of the operation
- */
 export const buyRolls = async (
   provider: MetaMaskInpageProvider,
   params: BuyRollsParams,

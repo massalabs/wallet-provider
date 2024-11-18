@@ -27,17 +27,11 @@ export class BearbyWallet implements Wallet {
     return [new BearbyAccount(await web3.wallet.account.base58)];
   }
 
-  public async importAccount(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    publicKey: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    privateKey: string,
-  ): Promise<void> {
+  public async importAccount(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deleteAccount(address: string): Promise<void> {
+  public async deleteAccount(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
@@ -48,8 +42,7 @@ export class BearbyWallet implements Wallet {
     return networkInfos();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async setRpcUrl(url: string): Promise<void> {
+  public async setRpcUrl(): Promise<void> {
     throw new Error(
       'setRpcUrl is not yet implemented for the current provider.',
     );

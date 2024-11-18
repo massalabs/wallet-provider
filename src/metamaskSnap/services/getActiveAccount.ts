@@ -5,11 +5,6 @@ export type ActiveAccountResponse = {
   address: string;
 };
 
-/**
- * Function that calls the MetaMask provider to get the active account
- * @param provider - The MetaMask provider
- * @returns The active account address
- */
 export const getActiveAccount = async (
   provider: MetaMaskInpageProvider,
 ): Promise<ActiveAccountResponse | undefined> => {
