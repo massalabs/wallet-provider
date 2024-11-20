@@ -14,6 +14,7 @@ import {
   JsonRPCClient,
   Mas,
   MAX_GAS_CALL,
+  MAX_GAS_DEPLOYMENT,
   Network,
   NodeStatusInfo,
   Operation,
@@ -30,6 +31,9 @@ import {
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
+import { uint8ArrayToBase64 } from '../utils/argsToBase64';
+import { DEPLOYER_BYTECODE } from '@massalabs/massa-web3/dist/esm/generated/deployer-bytecode';
+import * as StorageCost from '@massalabs/massa-web3/dist/esm/basicElements/storage';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -236,10 +240,31 @@ export class BearbyAccount implements Provider {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
-    // TODO: Implement deploySC using web3.contract.deploy
-    throw new Error('Method not implemented.');
+  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+    const minimalFee = await this.minimalFee();
+    const totalCost =
+      StorageCost.smartContract(params.byteCode.length) + params.coins;
+
+    const args = {
+      ...params,
+      maxCoins: Number(totalCost),
+      maxGas: Number(params.maxGas || MAX_GAS_DEPLOYMENT),
+      coins: Number(params.coins),
+      fee: Number(minimalFee),
+      gasPrice: 10000n,
+      contractDataBase64: uint8ArrayToBase64(params.byteCode),
+      deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
+    };
+
+    const operationId = await web3.contract.deploy(args);
+
+    const operation = new Operation(this, operationId);
+
+    const deployedAddress = await operation.getDeployedAddress(
+      params.waitFinalExecution,
+    );
+
+    return new SmartContract(this, deployedAddress);
   }
 
   executeSC(): Promise<Operation> {
