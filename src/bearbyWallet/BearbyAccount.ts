@@ -16,6 +16,7 @@ import {
   Mas,
   MAX_GAS_CALL,
   MAX_GAS_DEPLOYMENT,
+  MAX_GAS_DEPLOYMENT,
   Network,
   NodeStatusInfo,
   Operation,
@@ -34,6 +35,8 @@ import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
 import { uint8ArrayToBase64 } from '../utils/argsToBase64';
+import { DEPLOYER_BYTECODE } from '@massalabs/massa-web3/dist/esm/generated/deployer-bytecode';
+import * as StorageCost from '@massalabs/massa-web3/dist/esm/basicElements/storage';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
