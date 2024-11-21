@@ -238,6 +238,10 @@ export class MassaStationAccount implements Provider {
     throw new Error('Method not implemented.');
   }
 
+  executeSC(): Promise<Operation> {
+    throw new Error('Method not implemented.');
+  }
+
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
     const client = await getClient();
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
