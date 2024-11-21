@@ -244,6 +244,10 @@ export class BearbyAccount implements Provider {
     throw new Error('Method not implemented.');
   }
 
+  executeSC(): Promise<Operation> {
+    throw new Error('Method not implemented.');
+  }
+
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
     try {
       const res = await web3.massa.getOperations(opId);
