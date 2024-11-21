@@ -79,14 +79,20 @@ export class BearbyAccount implements Provider {
     return networkInfos();
   }
 
-  public async sign(data: Uint8Array | string): Promise<SignedData> {
+  public async executeSC(): Promise<Operation> {
+    throw new Error('Method not implemented.');
+  }
+
+  public async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
     // await this.connect();
 
     let strData: string;
     if (data instanceof Uint8Array) {
       strData = new TextDecoder().decode(data);
     }
-
+    if (data instanceof Buffer) {
+      strData = data.toString();
+    }
     try {
       const signature = await web3.wallet.signMessage(strData);
 
