@@ -8,6 +8,7 @@ import { operationType } from '../utils/constants';
 import {
   Address,
   CallSCParams,
+  DEPLOYER_BYTECODE,
   DeploySCParams,
   EventFilter,
   formatNodeStatusObject,
@@ -25,6 +26,7 @@ import {
   ReadSCParams,
   SignedData,
   SmartContract,
+  StorageCost,
   strToBytes,
   rpcTypes,
 } from '@massalabs/massa-web3';
@@ -32,8 +34,6 @@ import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
 import { uint8ArrayToBase64 } from '../utils/argsToBase64';
-import { DEPLOYER_BYTECODE } from '@massalabs/massa-web3/dist/esm/generated/deployer-bytecode';
-import * as StorageCost from '@massalabs/massa-web3/dist/esm/basicElements/storage';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}

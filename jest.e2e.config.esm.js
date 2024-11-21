@@ -7,7 +7,7 @@ module.exports = {
     '^.+\\.jsx?$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@massalabs/wallet-provider|@hicaru/bearby.js|big-varint|@massalabs/massa-web3)/)',
+    'node_modules/(?!(@massalabs/wallet-provider|@hicaru/bearby.js|big-varint)/)',
   ],
   moduleNameMapper: {
     '^@massalabs/wallet-provider$': '<rootDir>/dist/esm/index.js',
