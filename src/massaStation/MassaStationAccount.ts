@@ -208,6 +208,10 @@ export class MassaStationAccount implements Provider {
     return new Operation(this, res.result.operationId);
   }
 
+  public async executeSC(): Promise<Operation> {
+    throw new Error('Method not implemented.');
+  }
+
   public async networkInfos(): Promise<Network> {
     return networkInfos();
   }
