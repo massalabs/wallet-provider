@@ -253,11 +253,10 @@ export class BearbyAccount implements Provider {
 
     const args = {
       ...params,
-      maxCoins: Number(totalCost),
-      maxGas: Number(params.maxGas || MAX_GAS_DEPLOYMENT),
-      coins: Number(params.coins),
+      maxCoins: totalCost,
+      maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
+      coins: params.coins,
       fee: fee,
-      gasPrice: 10000n,
       contractDataBase64: uint8ArrayToBase64(params.byteCode),
       deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
     };
