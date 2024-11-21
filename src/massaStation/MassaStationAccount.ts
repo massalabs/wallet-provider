@@ -243,8 +243,18 @@ export class MassaStationAccount implements Provider {
     return client.executeReadOnlyCall(readOnlyParams);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
+  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+    console.log(params);
+    // const body: DeploySCFunctionBody = {
+    //   nickname: this.accountName,
+    //   smartContract: params.byteCode
+    // };
+
+    // const res = await postRequest<MSSendOperationResp>(
+    //   `${MASSA_STATION_URL}cmd/deploySC`,
+    //   body,
+    // );
+
     throw new Error('Method not implemented.');
   }
 
