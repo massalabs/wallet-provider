@@ -273,10 +273,6 @@ export class BearbyAccount implements Provider {
     return new SmartContract(this, deployedAddress);
   }
 
-  executeSC(): Promise<Operation> {
-    throw new Error('Method not implemented.');
-  }
-
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
     try {
       const res = await web3.massa.getOperations(opId);
