@@ -70,7 +70,6 @@ export class MassaStationWallet implements Wallet {
       publicKey,
       privateKey,
     });
-    console.log('importAccount res ', res);
     if (res.isError) {
       throw res.error;
     }
@@ -163,26 +162,18 @@ export class MassaStationWallet implements Wallet {
   }
 
   public async connect(): Promise<boolean> {
-    throw new Error(
-      'connect functionality is not yet implemented for the current provider.',
-    );
+    return true;
   }
 
   public async disconnect(): Promise<boolean> {
-    throw new Error(
-      'disconnect functionality is not yet implemented for the current provider.',
-    );
+    return true;
   }
 
   public connected(): boolean {
-    throw new Error(
-      'connected functionality is not yet implemented for the current provider.',
-    );
+    return true;
   }
 
   public enabled(): boolean {
-    throw new Error(
-      'enabled functionality is not yet implemented for the current provider.',
-    );
+    return true;
   }
 }
