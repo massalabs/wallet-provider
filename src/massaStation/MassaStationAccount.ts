@@ -4,7 +4,6 @@ import {
   MASSA_STATION_ACCOUNTS_URL,
 } from './MassaStationWallet';
 import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
-import bs58check from 'bs58check';
 import {
   ExecuteFunctionBody,
   MSAccountSignPayload,
@@ -33,11 +32,13 @@ import {
   ReadSCParams,
   SCEvent,
   SignedData,
+  SignOptions,
   SmartContract,
   strToBytes,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
+import bs58check from 'bs58check';
 
 /**
  * This module contains the MassaStationAccount class. It is responsible for representing an account in
@@ -71,14 +72,14 @@ export class MassaStationAccount implements Provider {
     return Mas.fromString(final ? balances.final : balances.pending);
   }
 
-  public async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
-    // TODO: Massa Station has 2 endpoints sign (to sign operation) and signMessage (to sign a message).
-    // To fix the current implementation we provide a dumb description and set DisplayData to true but it
-    // must this feature must be implemented in the future.
+  public async sign(
+    data: Uint8Array | string,
+    opts?: SignOptions,
+  ): Promise<SignedData> {
     const signData: MSAccountSignPayload = {
-      description: '',
-      message: data.toString(),
-      DisplayData: true,
+      description: opts?.description ?? '',
+      message: typeof data === 'string' ? data : new TextDecoder().decode(data),
+      DisplayData: opts?.displayData ?? true,
     };
 
     const res = await postRequest<MSAccountSignResp>(
@@ -90,6 +91,7 @@ export class MassaStationAccount implements Provider {
       throw errorHandler(operationType.Sign, res.error);
     }
 
+    // MS Wallet encodes signature in base64... so we need to decode it en re-encode it in base58
     const signature = bs58check.encode(
       Buffer.from(res.result.signature, 'base64'),
     );
