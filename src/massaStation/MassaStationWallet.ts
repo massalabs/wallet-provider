@@ -162,18 +162,30 @@ export class MassaStationWallet implements Wallet {
   }
 
   public async connect(): Promise<boolean> {
+    console.warn(
+      "Warning: 'connect' is not implemented. Returning true because the station is always connected.",
+    );
     return true;
   }
 
   public async disconnect(): Promise<boolean> {
+    console.warn(
+      "Warning: 'disconnect' is not implemented. Returning true because the station cannot be disconnected.",
+    );
     return true;
   }
 
   public connected(): boolean {
+    console.warn(
+      "Warning: 'connected' is not implemented. Returning true because the station is always connected when running.",
+    );
     return true;
   }
 
   public enabled(): boolean {
+    console.warn(
+      "Warning: 'enabled' is not implemented. Returning true because the station is always enabled.",
+    );
     return true;
   }
 }
