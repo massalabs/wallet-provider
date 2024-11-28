@@ -161,31 +161,35 @@ export class MassaStationWallet implements Wallet {
     };
   }
 
+  /**
+   * Simulates connecting to the station.
+   * This method always returns `true` because the station is inherently connected.
+   */
   public async connect(): Promise<boolean> {
-    console.warn(
-      "Warning: 'connect' is not implemented. Returning true because the station is always connected.",
-    );
     return true;
   }
 
+  /**
+   * Simulates disconnecting from the station.
+   * This method always returns `true` because the station cannot be disconnected.
+   */
   public async disconnect(): Promise<boolean> {
-    console.warn(
-      "Warning: 'disconnect' is not implemented. Returning true because the station cannot be disconnected.",
-    );
     return true;
   }
 
+  /**
+   * Indicates if the station is connected.
+   * Always returns `true` because the station is always connected when running.
+   */
   public connected(): boolean {
-    console.warn(
-      "Warning: 'connected' is not implemented. Returning true because the station is always connected when running.",
-    );
     return true;
   }
 
+  /**
+   * Indicates if the station is enabled.
+   * Always returns `true` because the station is always enabled by default.
+   */
   public enabled(): boolean {
-    console.warn(
-      "Warning: 'enabled' is not implemented. Returning true because the station is always enabled.",
-    );
     return true;
   }
 }
