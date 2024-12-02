@@ -33,7 +33,7 @@ import {
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
-import { uint8ArrayToBase64 } from '../utils/argsToBase64';
+import { uint8ArrayToBase64 } from 'src/utils/base64';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
