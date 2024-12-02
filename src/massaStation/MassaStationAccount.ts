@@ -9,6 +9,7 @@ import {
   uint8ArrayToBase64,
 } from '../utils/base64';
 import {
+  DeploySCFunctionBody,
   ExecuteFunctionBody,
   MSAccountSignPayload,
   MSAccountSignResp,
@@ -37,6 +38,7 @@ import {
   SignedData,
   SignOptions,
   SmartContract,
+  StorageCost,
   strToBytes,
   rpcTypes,
 } from '@massalabs/massa-web3';
@@ -244,18 +246,30 @@ export class MassaStationAccount implements Provider {
   }
 
   public async deploySC(params: DeploySCParams): Promise<SmartContract> {
-    console.log(params);
-    // const body: DeploySCFunctionBody = {
-    //   nickname: this.accountName,
-    //   smartContract: params.byteCode
-    // };
+    const parameters = params.parameter as Uint8Array; // Args to based64 is not supported
+    const totalCost =
+      StorageCost.smartContract(params.byteCode.length) + params.coins;
 
-    // const res = await postRequest<MSSendOperationResp>(
-    //   `${MASSA_STATION_URL}cmd/deploySC`,
-    //   body,
-    // );
+    const body: DeploySCFunctionBody = {
+      nickname: this.accountName,
+      smartContract: uint8ArrayToBase64(params.byteCode),
+      maxCoins: Number(totalCost),
+      coins: Number(params.coins), // SmartContract deployment costs
+      parameters: uint8ArrayToBase64(parameters),
+      fee: Number(params.fee || (await this.minimalFee())),
+    };
 
-    throw new Error('Method not implemented.');
+    const res = await postRequest<MSSendOperationResp>(
+      `${MASSA_STATION_URL}cmd/deploySC`,
+      body,
+    );
+    const operationId = res.result?.operationId;
+    const operation = new Operation(this, operationId);
+    const deployedAddress = await operation.getDeployedAddress(
+      params.waitFinalExecution,
+    );
+
+    return new SmartContract(this, deployedAddress);
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {

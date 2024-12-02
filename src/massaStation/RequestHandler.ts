@@ -72,7 +72,6 @@ export async function postRequest<T>(
     const resp = await axios.post<unknown, AxiosResponse, object>(url, body, {
       headers: requestHeaders,
     });
-
     return { isError: false, result: resp.data };
   } catch (error) {
     return {

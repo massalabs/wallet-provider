@@ -255,6 +255,7 @@ export class BearbyAccount implements Provider {
       const totalCost =
         StorageCost.smartContract(params.byteCode.length) + params.coins;
 
+<<<<<<< HEAD
       const args = {
         ...params,
         maxCoins: totalCost,
@@ -265,6 +266,18 @@ export class BearbyAccount implements Provider {
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
         deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
       };
+=======
+    const args = {
+      ...params,
+      maxCoins: totalCost,
+      maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
+      coins: params.coins,
+      fee: fee,
+      gasPrice: 10000n,
+      contractDataBase64: uint8ArrayToBase64(params.byteCode),
+      deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
+    };
+>>>>>>> 16fba9f (add MS deploySc)
 
       const operationId = await web3.contract.deploy(args);
 

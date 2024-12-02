@@ -13,12 +13,11 @@ export type ExecuteFunctionBody = {
 
 export type DeploySCFunctionBody = {
   nickname: string;
-  smartContract: File;
-  gasLimit: number;
+  smartContract: string;
+  maxCoins: number;
   coins: number;
-  expiry: number;
+  parameters: string;
   fee: number;
-  datastore: string;
 };
 
 export type PluginInfo = {
@@ -95,4 +94,5 @@ export type MSAccountSignResp = {
 
 export type MSSendOperationResp = {
   operationId: string;
+  events: any[];
 };
