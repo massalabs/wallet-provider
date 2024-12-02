@@ -58,9 +58,7 @@
         "bs58check": "^4.0.0",
         "buffer": "^6.0.3",
         "eventemitter3": "^5.0.1",
-        "i": "^0.3.7",
-        "lodash.isequal": "^4.5.0",
-        "npm": "^10.9.1"
+        "lodash.isequal": "^4.5.0"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.22.14",
