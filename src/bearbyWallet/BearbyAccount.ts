@@ -22,10 +22,10 @@ import {
   Provider,
   ReadSCData,
   ReadSCParams,
-  SCEvent,
   SignedData,
   SmartContract,
   strToBytes,
+  rpcTypes,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -281,7 +281,7 @@ export class BearbyAccount implements Provider {
     }
   }
 
-  public async getEvents(filter: EventFilter): Promise<SCEvent[]> {
+  public async getEvents(filter: EventFilter): Promise<rpcTypes.OutputEvents> {
     const formattedFilter: EventFilterParam = {
       start: filter.start,
       end: filter.end,
