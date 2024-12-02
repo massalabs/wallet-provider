@@ -8,14 +8,12 @@ import { operationType } from '../utils/constants';
 import {
   Address,
   CallSCParams,
-  DEPLOYER_BYTECODE,
   DeploySCParams,
   EventFilter,
   formatNodeStatusObject,
   JsonRPCClient,
   Mas,
   MAX_GAS_CALL,
-  MAX_GAS_DEPLOYMENT,
   MAX_GAS_DEPLOYMENT,
   Network,
   NodeStatusInfo,
@@ -36,7 +34,6 @@ import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
 import { uint8ArrayToBase64 } from '../utils/argsToBase64';
 import { DEPLOYER_BYTECODE } from '@massalabs/massa-web3/dist/esm/generated/deployer-bytecode';
-import * as StorageCost from '@massalabs/massa-web3/dist/esm/basicElements/storage';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -255,7 +252,6 @@ export class BearbyAccount implements Provider {
       const totalCost =
         StorageCost.smartContract(params.byteCode.length) + params.coins;
 
-<<<<<<< HEAD
       const args = {
         ...params,
         maxCoins: totalCost,
@@ -266,18 +262,6 @@ export class BearbyAccount implements Provider {
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
         deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
       };
-=======
-    const args = {
-      ...params,
-      maxCoins: totalCost,
-      maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
-      coins: params.coins,
-      fee: fee,
-      gasPrice: 10000n,
-      contractDataBase64: uint8ArrayToBase64(params.byteCode),
-      deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
-    };
->>>>>>> 16fba9f (add MS deploySc)
 
       const operationId = await web3.contract.deploy(args);
 

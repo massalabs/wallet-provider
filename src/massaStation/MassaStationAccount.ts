@@ -246,30 +246,38 @@ export class MassaStationAccount implements Provider {
   }
 
   public async deploySC(params: DeploySCParams): Promise<SmartContract> {
-    const parameters = params.parameter as Uint8Array; // Args to based64 is not supported
-    const totalCost =
-      StorageCost.smartContract(params.byteCode.length) + params.coins;
+    try {
+      const args = params.parameter ?? new Uint8Array();
+      const parameters = args instanceof Uint8Array ? args : args.serialize();
+      const totalCost =
+        StorageCost.smartContract(params.byteCode.length) + params.coins;
 
-    const body: DeploySCFunctionBody = {
-      nickname: this.accountName,
-      smartContract: uint8ArrayToBase64(params.byteCode),
-      maxCoins: Number(totalCost),
-      coins: Number(params.coins), // SmartContract deployment costs
-      parameters: uint8ArrayToBase64(parameters),
-      fee: Number(params.fee || (await this.minimalFee())),
-    };
+      const body: DeploySCFunctionBody = {
+        nickname: this.accountName,
+        smartContract: uint8ArrayToBase64(params.byteCode),
+        maxCoins: Number(totalCost),
+        coins: Number(params.coins), // SmartContract deployment costs
+        parameters: uint8ArrayToBase64(parameters),
+        fee: Number(params.fee || (await this.minimalFee())),
+      };
 
-    const res = await postRequest<MSSendOperationResp>(
-      `${MASSA_STATION_URL}cmd/deploySC`,
-      body,
-    );
-    const operationId = res.result?.operationId;
-    const operation = new Operation(this, operationId);
-    const deployedAddress = await operation.getDeployedAddress(
-      params.waitFinalExecution,
-    );
+      const res = await postRequest<MSSendOperationResp>(
+        `${MASSA_STATION_URL}cmd/deploySC`,
+        body,
+      );
+      const operationId = res.result?.operationId;
 
-    return new SmartContract(this, deployedAddress);
+      if (!operationId) throw new Error('Operation ID not found');
+
+      const operation = new Operation(this, operationId);
+      const deployedAddress = await operation.getDeployedAddress(
+        params.waitFinalExecution,
+      );
+
+      return new SmartContract(this, deployedAddress);
+    } catch (error) {
+      throw new Error(`Error during smart contract deployment: ${error}`);
+    }
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
