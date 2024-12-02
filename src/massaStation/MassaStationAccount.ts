@@ -3,7 +3,11 @@ import {
   MASSA_STATION_URL,
   MASSA_STATION_ACCOUNTS_URL,
 } from './MassaStationWallet';
-import { argsToBase64, uint8ArrayToBase64 } from '../utils/argsToBase64';
+import {
+  argsToBase64,
+  base64ToByteArray,
+  uint8ArrayToBase64,
+} from '../utils/base64';
 import {
   ExecuteFunctionBody,
   MSAccountSignPayload,
@@ -30,11 +34,11 @@ import {
   Provider,
   ReadSCData,
   ReadSCParams,
-  SCEvent,
   SignedData,
   SignOptions,
   SmartContract,
   strToBytes,
+  rpcTypes,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -93,7 +97,7 @@ export class MassaStationAccount implements Provider {
 
     // MS Wallet encodes signature in base64... so we need to decode it en re-encode it in base58
     const signature = bs58check.encode(
-      Buffer.from(res.result.signature, 'base64'),
+      await base64ToByteArray(res.result.signature),
     );
 
     return {
@@ -250,7 +254,7 @@ export class MassaStationAccount implements Provider {
     return client.getOperationStatus(opId);
   }
 
-  public async getEvents(filter: EventFilter): Promise<SCEvent[]> {
+  public async getEvents(filter: EventFilter): Promise<rpcTypes.OutputEvents> {
     const client = await getClient();
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
     return client.getEvents(filter);
