@@ -239,10 +239,6 @@ export class BearbyAccount implements Provider {
     }
   }
 
-  public async executeSC(): Promise<Operation> {
-    throw new Error('Method not implemented.');
-  }
-
   public async deploySC(params: DeploySCParams): Promise<SmartContract> {
     try {
       const fee = Number(params.fee ?? (await this.minimalFee()));
@@ -273,6 +269,10 @@ export class BearbyAccount implements Provider {
       console.error('Error deploying smart contract:', error);
       throw new Error(`Failed to deploy smart contract: ${error.message}`);
     }
+  }
+
+  executeSC(): Promise<Operation> {
+    throw new Error('Method not implemented.');
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
