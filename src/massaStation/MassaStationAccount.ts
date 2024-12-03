@@ -239,9 +239,39 @@ export class MassaStationAccount implements Provider {
     return client.executeReadOnlyCall(readOnlyParams);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
-    throw new Error('Method not implemented.');
+  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+    try {
+      const args = params.parameter ?? new Uint8Array();
+      const parameters = args instanceof Uint8Array ? args : args.serialize();
+      const totalCost =
+        StorageCost.smartContract(params.byteCode.length) + params.coins;
+
+      const body: DeploySCFunctionBody = {
+        nickname: this.accountName,
+        smartContract: uint8ArrayToBase64(params.byteCode),
+        maxCoins: Number(totalCost),
+        coins: Number(params.coins), // SmartContract deployment costs
+        parameters: uint8ArrayToBase64(parameters),
+        fee: Number(params.fee || (await this.minimalFee())),
+      };
+
+      const res = await postRequest<MSSendOperationResp>(
+        `${MASSA_STATION_URL}cmd/deploySC`,
+        body,
+      );
+      const operationId = res.result?.operationId;
+
+      if (!operationId) throw new Error('Operation ID not found');
+
+      const operation = new Operation(this, operationId);
+      const deployedAddress = await operation.getDeployedAddress(
+        params.waitFinalExecution,
+      );
+
+      return new SmartContract(this, deployedAddress);
+    } catch (error) {
+      throw new Error(`Error during smart contract deployment: ${error}`);
+    }
   }
 
   executeSC(): Promise<Operation> {
