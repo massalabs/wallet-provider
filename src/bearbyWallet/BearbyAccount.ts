@@ -8,12 +8,14 @@ import { operationType } from '../utils/constants';
 import {
   Address,
   CallSCParams,
+  DEPLOYER_BYTECODE,
   DeploySCParams,
   EventFilter,
   formatNodeStatusObject,
   JsonRPCClient,
   Mas,
   MAX_GAS_CALL,
+  MAX_GAS_DEPLOYMENT,
   Network,
   NodeStatusInfo,
   Operation,
@@ -24,12 +26,14 @@ import {
   ReadSCParams,
   SignedData,
   SmartContract,
+  StorageCost,
   strToBytes,
   rpcTypes,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
+import { uint8ArrayToBase64 } from '../utils/base64';
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -82,7 +86,6 @@ export class BearbyAccount implements Provider {
     if (data instanceof Uint8Array) {
       strData = new TextDecoder().decode(data);
     }
-
     try {
       const signature = await web3.wallet.signMessage(strData);
 
@@ -236,14 +239,40 @@ export class BearbyAccount implements Provider {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
-    // TODO: Implement deploySC using web3.contract.deploy
+  public async executeSC(): Promise<Operation> {
     throw new Error('Method not implemented.');
   }
 
-  executeSC(): Promise<Operation> {
-    throw new Error('Method not implemented.');
+  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+    try {
+      const fee = Number(params.fee ?? (await this.minimalFee()));
+      const totalCost =
+        StorageCost.smartContract(params.byteCode.length) + params.coins;
+
+      const args = {
+        ...params,
+        maxCoins: totalCost,
+        maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
+        coins: params.coins,
+        fee: fee,
+        gasPrice: 10000n, // dummy value waiting for (https://github.com/bearby-wallet/bearby-web3/pull/25)
+        contractDataBase64: uint8ArrayToBase64(params.byteCode),
+        deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
+      };
+
+      const operationId = await web3.contract.deploy(args);
+
+      const operation = new Operation(this, operationId);
+
+      const deployedAddress = await operation.getDeployedAddress(
+        params.waitFinalExecution,
+      );
+
+      return new SmartContract(this, deployedAddress);
+    } catch (error) {
+      console.error('Error deploying smart contract:', error);
+      throw new Error(`Failed to deploy smart contract: ${error.message}`);
+    }
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
