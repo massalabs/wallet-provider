@@ -9,6 +9,7 @@ import {
   uint8ArrayToBase64,
 } from '../utils/base64';
 import {
+  DeploySCFunctionBody,
   ExecuteFunctionBody,
   MSAccountSignPayload,
   MSAccountSignResp,
@@ -39,6 +40,7 @@ import {
   SmartContract,
   strToBytes,
   rpcTypes,
+  StorageCost,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
