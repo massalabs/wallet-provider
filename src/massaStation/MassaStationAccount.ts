@@ -247,14 +247,15 @@ export class MassaStationAccount implements Provider {
       const parameters = args instanceof Uint8Array ? args : args.serialize();
       const totalCost =
         StorageCost.smartContract(params.byteCode.length) + params.coins;
+      const fee = params.fee || (await this.minimalFee());
 
       const body: DeploySCFunctionBody = {
         nickname: this.accountName,
         smartContract: uint8ArrayToBase64(params.byteCode),
-        maxCoins: Number(totalCost),
-        coins: Number(params.coins), // SmartContract deployment costs
+        maxCoins: totalCost.toString(),
+        coins: params.maxCoins.toString(), // SmartContract deployment costs
         parameters: uint8ArrayToBase64(parameters),
-        fee: Number(params.fee || (await this.minimalFee())),
+        fee: fee.toString(),
       };
 
       const res = await postRequest<MSSendOperationResp>(

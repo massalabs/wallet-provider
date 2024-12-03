@@ -14,10 +14,10 @@ export type ExecuteFunctionBody = {
 export type DeploySCFunctionBody = {
   nickname: string;
   smartContract: string;
-  maxCoins: number;
-  coins: number;
+  maxCoins: string;
+  coins: string;
   parameters: string;
-  fee: number;
+  fee: string;
 };
 
 export type PluginInfo = {
