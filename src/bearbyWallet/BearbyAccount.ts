@@ -79,19 +79,12 @@ export class BearbyAccount implements Provider {
     return networkInfos();
   }
 
-  public async executeSC(): Promise<Operation> {
-    throw new Error('Method not implemented.');
-  }
-
-  public async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
+  public async sign(data: Uint8Array | string): Promise<SignedData> {
     // await this.connect();
 
     let strData: string;
     if (data instanceof Uint8Array) {
       strData = new TextDecoder().decode(data);
-    }
-    if (data instanceof Buffer) {
-      strData = data.toString();
     }
     try {
       const signature = await web3.wallet.signMessage(strData);
@@ -244,6 +237,10 @@ export class BearbyAccount implements Provider {
         `An error occurred while reading the smart contract: ${error.message}`,
       );
     }
+  }
+
+  public async executeSC(): Promise<Operation> {
+    throw new Error('Method not implemented.');
   }
 
   public async deploySC(params: DeploySCParams): Promise<SmartContract> {
