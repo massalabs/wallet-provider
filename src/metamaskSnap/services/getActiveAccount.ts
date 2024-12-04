@@ -1,13 +1,10 @@
-import { MetaMaskInpageProvider } from '@metamask/providers';
+import type { MetaMaskInpageProvider } from '@metamask/providers';
 import { MASSA_SNAP_ID } from '../config';
-
-export type ActiveAccountResponse = {
-  address: string;
-};
+import type { ActiveAccountResponse } from '@massalabs/metamask-snap';
 
 export const getActiveAccount = async (
   provider: MetaMaskInpageProvider,
-): Promise<ActiveAccountResponse | undefined> => {
+): Promise<ActiveAccountResponse> => {
   return provider.request({
     method: 'wallet_invokeSnap',
     params: {
@@ -16,5 +13,5 @@ export const getActiveAccount = async (
         method: 'account.getActive',
       },
     },
-  }) as Promise<ActiveAccountResponse>;
+  });
 };
