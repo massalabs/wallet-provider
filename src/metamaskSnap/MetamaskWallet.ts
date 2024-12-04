@@ -105,7 +105,7 @@ export class MetamaskWallet implements Wallet {
    * ```
    */
   public listenNetworkChanges(
-    callback: (network: string) => void,
+    callback: (network: Network) => void,
   ): { unsubscribe: () => void } | undefined {
     this.eventsListener.on(METAMASK_NETWORK_CHANGED, (evt) => callback(evt));
 

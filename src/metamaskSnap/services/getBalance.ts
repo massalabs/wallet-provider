@@ -1,19 +1,14 @@
-import { MetaMaskInpageProvider } from '@metamask/providers';
+import type { MetaMaskInpageProvider } from '@metamask/providers';
 import { MASSA_SNAP_ID } from '../config';
-
-export type AccountBalanceParams = {
-  address?: string;
-};
-
-export type AccountBalanceResponse = {
-  finalBalance: string;
-  candidateBalance: string;
-};
+import type {
+  AccountBalanceParams,
+  AccountBalanceResponse,
+} from '@massalabs/metamask-snap';
 
 export const getBalance = (
   provider: MetaMaskInpageProvider,
   params: AccountBalanceParams,
-) => {
+): Promise<AccountBalanceResponse> => {
   return provider.request({
     method: 'wallet_invokeSnap',
     params: {
@@ -23,5 +18,5 @@ export const getBalance = (
         params,
       },
     },
-  }) as Promise<AccountBalanceResponse>;
+  });
 };

@@ -15,10 +15,10 @@ import {
   Provider,
   ReadSCData,
   ReadSCParams,
-  SCEvent,
   SignedData,
   SmartContract,
   strToBytes,
+  rpcTypes,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
 import { errorHandler } from '../errors/utils/errorHandler';
@@ -27,13 +27,19 @@ import { getClient, networkInfos } from '../massaStation/utils/network';
 import {
   buyRolls,
   callSC,
+  deploySC,
   getBalance,
-  readSC,
   sellRolls,
   signMessage,
   transfer,
 } from './services';
-import { getMinimalFees } from './services/getMinimalFees';
+import type {
+  BuyRollsParams,
+  SellRollsParams,
+  TransferParams,
+  CallSCParams as MMCallSCParams,
+  DeploySCParams as MMDeploySCParams,
+} from '@massalabs/metamask-snap';
 
 export class MetamaskAccount implements Provider {
   constructor(
@@ -60,20 +66,16 @@ export class MetamaskAccount implements Provider {
     return networkInfos();
   }
 
-  async sign(data: Buffer | Uint8Array | string): Promise<SignedData> {
+  async sign(inData: Uint8Array | string): Promise<SignedData> {
     try {
-      const dataArray =
-        typeof data === 'string'
-          ? Array.from(strToBytes(data))
-          : Array.from(data);
-
+      const data = typeof inData === 'string' ? inData : Array.from(inData);
       const { publicKey, signature } = await signMessage(this.provider, {
-        data: dataArray,
+        data,
       });
 
       return {
         publicKey,
-        signature: signature.toString(),
+        signature,
       };
     } catch (error) {
       throw errorHandler(operationType.Sign, error);
@@ -86,11 +88,12 @@ export class MetamaskAccount implements Provider {
     opts?: OperationOptions,
   ): Promise<Operation> {
     try {
-      const fee = opts?.fee ?? (await getMinimalFees(this.provider));
-      const params = {
+      const params: BuyRollsParams | SellRollsParams = {
         amount: amount.toString(),
-        fee: fee.toString(),
       };
+      if (opts?.fee) {
+        params.fee = opts?.fee.toString();
+      }
 
       const { operationId } = await (operation === 'buy'
         ? buyRolls(this.provider, params)
@@ -119,12 +122,14 @@ export class MetamaskAccount implements Provider {
     opts?: OperationOptions,
   ): Promise<Operation> {
     try {
-      const fee = opts?.fee ?? (await getMinimalFees(this.provider));
-      const { operationId } = await transfer(this.provider, {
+      const params: TransferParams = {
         amount: amount.toString(),
-        fee: fee.toString(),
         recipientAddress: to.toString(),
-      });
+      };
+      if (opts?.fee) {
+        params.fee = opts?.fee.toString();
+      }
+      const { operationId } = await transfer(this.provider, params);
 
       return new Operation(this, operationId);
     } catch (error) {
@@ -134,19 +139,27 @@ export class MetamaskAccount implements Provider {
 
   async callSC(params: CallSCParams): Promise<Operation> {
     try {
-      const args = params.parameter ?? new Uint8Array();
-      const unsafeParameters =
-        args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
-
-      const fee = params.fee ?? (await getMinimalFees(this.provider));
-      const { operationId } = await callSC(this.provider, {
+      const callSCparams: MMCallSCParams = {
         functionName: params.func,
         at: params.target,
-        args: Array.from(unsafeParameters),
-        coins: (params.coins ?? 0n).toString(),
-        fee: fee.toString(),
-        maxGas: (params.maxGas ?? MAX_GAS_CALL).toString(),
-      });
+      };
+      if (params.parameter) {
+        callSCparams.args =
+          params.parameter instanceof Uint8Array
+            ? Array.from(params.parameter)
+            : Array.from(params.parameter.serialize());
+      }
+      if (params.coins) {
+        callSCparams.coins = params.coins.toString();
+      }
+      if (params.maxGas) {
+        callSCparams.maxGas = params.maxGas.toString();
+      }
+      if (params.fee) {
+        callSCparams.fee = params.fee.toString();
+      }
+
+      const { operationId } = await callSC(this.provider, callSCparams);
 
       return new Operation(this, operationId);
     } catch (error) {
@@ -155,46 +168,64 @@ export class MetamaskAccount implements Provider {
   }
 
   async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    if (params.maxGas > MAX_GAS_CALL) {
+    if (params?.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}`,
       );
     }
-
     try {
       const args = params.parameter ?? new Uint8Array();
-      const unsafeParameters =
+      const parameter =
         args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-      const fee = params.fee ?? (await getMinimalFees(this.provider));
-      const res = await readSC(this.provider, {
-        fee: fee.toString(),
-        functionName: params.func,
-        at: params.target,
-        args: Array.from(unsafeParameters),
-        coins: (params.coins ?? 0n).toString(),
-        maxGas: (params.maxGas ?? MAX_GAS_CALL).toString(),
+      const client = await getClient();
+      const readOnlyParams = {
+        ...params,
         caller: params.caller ?? this.address,
-      });
-
-      return {
-        value: new Uint8Array(res.data),
-        info: {
-          gasCost: res.infos.gasCost,
-          events: [],
-          error: '',
-        },
+        parameter,
       };
+      return client.executeReadOnlyCall(readOnlyParams);
     } catch (error) {
       throw new Error(`Smart contract read failed: ${error.message}`);
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async deploySC(_params: DeploySCParams): Promise<SmartContract> {
-    throw new Error(
-      'Smart contract deployment not yet implemented in MetaMask snap',
-    );
+  async deploySC(params: DeploySCParams): Promise<SmartContract> {
+    try {
+      const deployParams: MMDeploySCParams = {
+        bytecode: Array.from(params.byteCode),
+      };
+      if (params.parameter) {
+        deployParams.args = Array.from(
+          params.parameter instanceof Uint8Array
+            ? params.parameter
+            : params.parameter.serialize(),
+        );
+      }
+      if (params.coins) {
+        deployParams.coins = params.coins.toString();
+      }
+      if (params.maxGas) {
+        deployParams.maxGas = params.maxGas.toString();
+      }
+      if (params.fee) {
+        deployParams.fee = params.fee.toString();
+      }
+      if (params.maxCoins) {
+        deployParams.fee = params.maxCoins.toString();
+      }
+
+      const { operationId } = await deploySC(this.provider, deployParams);
+      const op = new Operation(this, operationId);
+      const deployedAddress = await op.getDeployedAddress(
+        params.waitFinalExecution,
+      );
+
+      return new SmartContract(this, deployedAddress);
+    } catch (error) {
+      throw errorHandler(operationType.DeploySC, error);
+    }
   }
 
   async getOperationStatus(opId: string): Promise<OperationStatus> {
@@ -202,7 +233,7 @@ export class MetamaskAccount implements Provider {
     return client.getOperationStatus(opId);
   }
 
-  async getEvents(filter: EventFilter): Promise<SCEvent[]> {
+  async getEvents(filter: EventFilter): Promise<rpcTypes.OutputEvents> {
     const client = await getClient();
     return client.getEvents(filter);
   }
@@ -235,5 +266,9 @@ export class MetamaskAccount implements Provider {
       address,
     }));
     return client.getDatastoreEntries(entries, final);
+  }
+
+  executeSC(): Promise<Operation> {
+    throw new Error('Method not implemented.');
   }
 }

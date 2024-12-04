@@ -1,19 +1,14 @@
-import { MetaMaskInpageProvider } from '@metamask/providers';
+import type { MetaMaskInpageProvider } from '@metamask/providers';
 import { MASSA_SNAP_ID } from '../config';
-
-export type SellRollsParams = {
-  fee: string;
-  amount: string;
-};
-
-export type SellRollsResponse = {
-  operationId: string;
-};
+import type {
+  SellRollsParams,
+  SellRollsResponse,
+} from '@massalabs/metamask-snap';
 
 export const sellRolls = async (
   provider: MetaMaskInpageProvider,
   params: SellRollsParams,
-): Promise<SellRollsResponse | undefined> => {
+): Promise<SellRollsResponse> => {
   return provider.request({
     method: 'wallet_invokeSnap',
     params: {
@@ -23,5 +18,5 @@ export const sellRolls = async (
         params,
       },
     },
-  }) as Promise<SellRollsResponse>;
+  });
 };
