@@ -1,18 +1,14 @@
-import { MetaMaskInpageProvider } from '@metamask/providers';
+import type { MetaMaskInpageProvider } from '@metamask/providers';
 import { MASSA_SNAP_ID } from '../config';
-
-export type SetRpcUrlParams = {
-  network: string; // url
-};
-
-export type SetRpcUrlResponse = {
-  network: string; // url
-};
+import type {
+  SetRpcUrlParams,
+  SetRpcUrlResponse,
+} from '@massalabs/metamask-snap';
 
 export const setRpcUrl = async (
   provider: MetaMaskInpageProvider,
   params: SetRpcUrlParams,
-): Promise<SetRpcUrlResponse | undefined> => {
+): Promise<SetRpcUrlResponse> => {
   return provider.request({
     method: 'wallet_invokeSnap',
     params: {
@@ -22,5 +18,5 @@ export const setRpcUrl = async (
         params,
       },
     },
-  }) as Promise<SetRpcUrlResponse>;
+  });
 };

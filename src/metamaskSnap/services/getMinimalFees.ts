@@ -1,10 +1,9 @@
-import { MetaMaskInpageProvider } from '@metamask/providers';
+import type { MetaMaskInpageProvider } from '@metamask/providers';
 import { getNetwork } from './getNetwork';
-import { Mas } from '@massalabs/massa-web3';
 
 export const getMinimalFees = async (
   provider: MetaMaskInpageProvider,
 ): Promise<bigint> => {
-  const network = await getNetwork(provider);
-  return Mas.fromString(network.minimalFees);
+  const { minimalFees } = await getNetwork(provider);
+  return BigInt(minimalFees);
 };

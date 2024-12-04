@@ -63,6 +63,7 @@
         "lodash.isequal": "^4.5.0"
     },
     "devDependencies": {
+        "@massalabs/metamask-snap": "^1.1.0",
         "@babel/preset-env": "^7.22.14",
         "@massalabs/eslint-config": "^0.0.9",
         "@playwright/test": "^1.36.2",

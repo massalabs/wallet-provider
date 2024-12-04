@@ -1,15 +1,10 @@
-import { MetaMaskInpageProvider } from '@metamask/providers';
+import type { MetaMaskInpageProvider } from '@metamask/providers';
 import { MASSA_SNAP_ID } from '../config';
-
-export type NetworkResponse = {
-  network: string;
-  chainId: string;
-  minimalFees: string;
-};
+import type { NetworkResponse } from '@massalabs/metamask-snap';
 
 export const getNetwork = async (
   provider: MetaMaskInpageProvider,
-): Promise<NetworkResponse | undefined> => {
+): Promise<NetworkResponse> => {
   return provider.request({
     method: 'wallet_invokeSnap',
     params: {
@@ -18,5 +13,5 @@ export const getNetwork = async (
         method: 'Provider.getNetwork',
       },
     },
-  }) as Promise<NetworkResponse>;
+  });
 };
