@@ -43,8 +43,11 @@ export class MassaStationWallet implements Wallet {
     return this.walletName;
   }
 
-  static async checkInstalled(): Promise<boolean> {
-    return isMassaWalletEnabled();
+  static async createIfInstalled(): Promise<Wallet | null> {
+    if (await isMassaWalletEnabled()) {
+      return new MassaStationWallet();
+    }
+    return null;
   }
 
   public async accounts(): Promise<MassaStationAccount[]> {
@@ -102,6 +105,13 @@ export class MassaStationWallet implements Wallet {
 
   public async networkInfos(): Promise<Network> {
     return networkInfos();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async setRpcUrl(url: string): Promise<void> {
+    throw new Error(
+      'setRpcUrl is not yet implemented for the current provider.',
+    );
   }
 
   /**

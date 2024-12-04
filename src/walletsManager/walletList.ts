@@ -4,10 +4,12 @@ import { Wallet } from '../wallet/interface';
 import { wait } from '../utils/time';
 import { MassaStationWallet } from '../massaStation/MassaStationWallet';
 import { WalletName } from '../wallet/types';
+import { MetamaskWallet } from '../metamaskSnap/MetamaskWallet';
 
 export const supportedWallets: WalletInterfaces = [
   BearbyWallet,
   MassaStationWallet,
+  MetamaskWallet,
 ];
 
 export async function getWallets(delay = 200): Promise<Wallet[]> {
@@ -15,9 +17,7 @@ export async function getWallets(delay = 200): Promise<Wallet[]> {
 
   const walletPromises = supportedWallets.map(async (WalletClass) => {
     try {
-      if (await WalletClass.checkInstalled()) {
-        return new WalletClass();
-      }
+      return await WalletClass.createIfInstalled();
     } catch (error) {
       console.error(`Error initializing wallet ${WalletClass.name}:`, error);
     }

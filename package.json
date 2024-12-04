@@ -12,6 +12,7 @@
         "upgrade": "npm run up && npm run check && npm run build",
         "clean": "rimraf dist/*",
         "build": "npm-run-all clean build:esm",
+        "build:watch": "tsc --project tsconfig.esm.json --watch",
         "build:esm": "tsc --project tsconfig.esm.json",
         "test": "jest",
         "test:serve-dapp": "cd test-extension/dapp-vite && npm run preview",
@@ -54,6 +55,7 @@
     "dependencies": {
         "@hicaru/bearby.js": "^0.5.9",
         "@massalabs/massa-web3": "^5.0.1-dev",
+        "@metamask/providers": "^18.1.1",
         "axios": "^0.28.0",
         "bs58check": "^4.0.0",
         "buffer": "^6.0.3",
@@ -61,6 +63,7 @@
         "lodash.isequal": "^4.5.0"
     },
     "devDependencies": {
+        "@massalabs/metamask-snap": "^1.1.0",
         "@babel/preset-env": "^7.22.14",
         "@massalabs/eslint-config": "^0.0.9",
         "@playwright/test": "^1.36.2",

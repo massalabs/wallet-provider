@@ -12,8 +12,11 @@ export class BearbyWallet implements Wallet {
     return this.walletName;
   }
 
-  static async checkInstalled(): Promise<boolean> {
-    return web3.wallet.installed;
+  static async createIfInstalled(): Promise<Wallet | null> {
+    if (web3.wallet.installed) {
+      return new BearbyWallet();
+    }
+    return null;
   }
 
   public async accounts(): Promise<BearbyAccount[]> {
@@ -24,17 +27,11 @@ export class BearbyWallet implements Wallet {
     return [new BearbyAccount(await web3.wallet.account.base58)];
   }
 
-  public async importAccount(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    publicKey: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    privateKey: string,
-  ): Promise<void> {
+  public async importAccount(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deleteAccount(address: string): Promise<void> {
+  public async deleteAccount(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
@@ -43,6 +40,12 @@ export class BearbyWallet implements Wallet {
       await web3.wallet.connect();
     }
     return networkInfos();
+  }
+
+  public async setRpcUrl(): Promise<void> {
+    throw new Error(
+      'setRpcUrl is not yet implemented for the current provider.',
+    );
   }
 
   public async generateNewAccount(): Promise<Provider> {
