@@ -18,6 +18,7 @@ export type DeploySCFunctionBody = {
   coins: string;
   parameters: string;
   fee: string;
+  description: string;
 };
 
 export type PluginInfo = {
