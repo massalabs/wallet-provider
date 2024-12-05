@@ -11,6 +11,16 @@ export type ExecuteFunctionBody = {
   async?: boolean;
 };
 
+export type DeploySCFunctionBody = {
+  nickname: string;
+  smartContract: string;
+  maxCoins: string;
+  coins: string;
+  parameters: string;
+  fee: string;
+  description: string;
+};
+
 export type PluginInfo = {
   author: string;
   description: string;
