@@ -41,6 +41,7 @@ import {
   strToBytes,
   rpcTypes,
   StorageCost,
+  formatMas,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -253,15 +254,21 @@ export class MassaStationAccount implements Provider {
         nickname: this.accountName,
         smartContract: uint8ArrayToBase64(params.byteCode),
         maxCoins: totalCost.toString(),
-        coins: params.maxCoins.toString(), // SmartContract deployment costs
-        parameters: uint8ArrayToBase64(parameters),
+        coins: params.coins.toString(), // SmartContract deployment costs
         fee: fee.toString(),
+        parameters: uint8ArrayToBase64(parameters),
+        description: `${formatMas(
+          params.coins,
+        )} $MAS coins allocated to datastore + ${formatMas(
+          fee,
+        )} $MAS fee for operation`,
       };
 
       const res = await postRequest<MSSendOperationResp>(
         `${MASSA_STATION_URL}cmd/deploySC`,
         body,
       );
+
       const operationId = res.result?.operationId;
 
       if (!operationId) throw new Error('Operation ID not found');
