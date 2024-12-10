@@ -9,6 +9,7 @@ import {
   uint8ArrayToBase64,
 } from '../utils/base64';
 import {
+  DeploySCFunctionBody,
   ExecuteFunctionBody,
   MSAccountSignPayload,
   MSAccountSignResp,
@@ -39,6 +40,8 @@ import {
   SmartContract,
   strToBytes,
   rpcTypes,
+  StorageCost,
+  formatMas,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -239,9 +242,46 @@ export class MassaStationAccount implements Provider {
     return client.executeReadOnlyCall(readOnlyParams);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async deploySC(_params: DeploySCParams): Promise<SmartContract> {
-    throw new Error('Method not implemented.');
+  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+    try {
+      const args = params.parameter ?? new Uint8Array();
+      const parameters = args instanceof Uint8Array ? args : args.serialize();
+      const totalCost =
+        StorageCost.smartContract(params.byteCode.length) + params.coins;
+      const fee = params.fee || (await this.minimalFee());
+
+      const body: DeploySCFunctionBody = {
+        nickname: this.accountName,
+        smartContract: uint8ArrayToBase64(params.byteCode),
+        maxCoins: totalCost.toString(),
+        coins: params.coins.toString(), // SmartContract deployment costs
+        fee: fee.toString(),
+        parameters: uint8ArrayToBase64(parameters),
+        description: `${formatMas(
+          params.coins,
+        )} $MAS coins allocated to datastore + ${formatMas(
+          fee,
+        )} $MAS fee for operation`,
+      };
+
+      const res = await postRequest<MSSendOperationResp>(
+        `${MASSA_STATION_URL}cmd/deploySC`,
+        body,
+      );
+
+      const operationId = res.result?.operationId;
+
+      if (!operationId) throw new Error('Operation ID not found');
+
+      const operation = new Operation(this, operationId);
+      const deployedAddress = await operation.getDeployedAddress(
+        params.waitFinalExecution,
+      );
+
+      return new SmartContract(this, deployedAddress);
+    } catch (error) {
+      throw new Error(`Error during smart contract deployment: ${error}`);
+    }
   }
 
   executeSC(): Promise<Operation> {
