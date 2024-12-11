@@ -367,14 +367,21 @@ export class BearbyAccount implements Provider {
     keys: Uint8Array[] | string[],
     final = true,
   ): Promise<Uint8Array[]> {
-    const input: DatastoreEntryInputParam[] = keys.map((key) => ({
-      key,
-      address,
-    }));
-    const data = await web3.contract.getDatastoreEntries(...input);
-
-    return final
-      ? data.map((d) => Uint8Array.from(d.final_value))
-      : data.map((d) => Uint8Array.from(d.candidate_value));
+    try {
+      const input: DatastoreEntryInputParam[] = keys.map((key) => ({
+        key,
+        address,
+      }));
+      const data = await web3.contract.getDatastoreEntries(...input);
+      const resultArray = data[0]['result'];
+      const dataArray = final
+        ? resultArray.map((d) => Uint8Array.from(d.final_value))
+        : resultArray.map((d) => Uint8Array.from(d.candidate_value));
+      return dataArray;
+    } catch (error) {
+      throw new Error(
+        `An error occurred while reading the storage: ${error.message}`,
+      );
+    }
   }
 }
