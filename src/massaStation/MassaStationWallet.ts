@@ -191,7 +191,7 @@ export class MassaStationWallet implements Wallet {
    * Indicates if the station is connected.
    * Always returns `true` because the station is always connected when running.
    */
-  public connected(): boolean {
+  public async connected(): Promise<boolean> {
     return true;
   }
 

@@ -1,5 +1,8 @@
 import { MassaStationWallet } from '../src';
 import { getMassaStationWallet } from './massaStation/utils/utils';
+import { TextEncoder, TextDecoder } from 'util';
+
+Object.assign(global, { TextDecoder, TextEncoder });
 
 export let msWallet: MassaStationWallet;
 
