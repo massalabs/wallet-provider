@@ -6,12 +6,8 @@ import {
   Provider,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
-import {
-  getMetamaskProvider,
-  isMetaMaskUnlocked,
-  promptAndWaitForWalletUnlock,
-} from './metamask';
-import { connectSnap, getMassaSnapInfo } from './snap';
+import { getMetamaskProvider } from './metamask';
+import { connectSnap, isConnected } from './snap';
 import { MetamaskAccount } from './MetamaskAccount';
 import { MetaMaskInpageProvider } from '@metamask/providers';
 import { getActiveAccount, getNetwork, setRpcUrl } from './services';
@@ -140,15 +136,9 @@ export class MetamaskWallet implements Wallet {
    */
   public async connect() {
     try {
-      const isUnlocked = await isMetaMaskUnlocked();
+      const connected = await isConnected(this.metamaskProvider);
 
-      if (!isUnlocked) {
-        await promptAndWaitForWalletUnlock();
-      }
-
-      const snap = await getMassaSnapInfo(this.metamaskProvider);
-
-      if (!snap) {
+      if (!connected) {
         await connectSnap(this.metamaskProvider);
       }
       return true;
@@ -161,8 +151,8 @@ export class MetamaskWallet implements Wallet {
     throw new Error('Method not implemented.');
   }
 
-  public connected(): boolean {
-    return this.metamaskProvider.isConnected();
+  public connected(): Promise<boolean> {
+    return isConnected(this.metamaskProvider);
   }
 
   public enabled(): boolean {

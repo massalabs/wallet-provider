@@ -16,4 +16,7 @@ module.exports = {
   testEnvironmentOptions: {
     url: 'https://station.massa',
   },
+  globals: {
+    window: {},
+  },
 };

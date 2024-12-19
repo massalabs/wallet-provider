@@ -136,7 +136,7 @@ export class BearbyWallet implements Wallet {
    *
    * @returns a boolean indicating whether the wallet is connected.
    */
-  public connected(): boolean {
+  public async connected(): Promise<boolean> {
     return web3.wallet.connected;
   }
 

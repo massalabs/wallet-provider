@@ -11,7 +11,7 @@ export interface Wallet {
   generateNewAccount(name: string): Promise<Provider>;
   connect(): Promise<boolean>;
   disconnect(): Promise<boolean>;
-  connected(): boolean;
+  connected(): Promise<boolean>;
   enabled(): boolean;
   listenAccountChanges(
     callback: (address: string) => void,

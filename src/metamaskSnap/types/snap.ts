@@ -6,3 +6,8 @@ export type Snap = {
   version: string;
   initialPermissions: Record<string, unknown>;
 };
+
+export interface MetaMaskProvider {
+  isMetaMask: boolean;
+  request(options: { method: string }): Promise<void>;
+}
