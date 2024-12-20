@@ -27,12 +27,6 @@ export const getMassaSnapInfo = async (
   }
 };
 
-/**
- * Connect a snap to MetaMask.
- *
- * @param provider - The MetaMask inpage provider.
- * @param snapId - The ID of the snap.
- */
 export const isConnected = async (
   provider: MetaMaskInpageProvider,
 ): Promise<boolean> => {
@@ -40,17 +34,11 @@ export const isConnected = async (
   return !!snap;
 };
 
-/**
- * Connect a snap to MetaMask.
- *
- * @param provider - The MetaMask inpage provider.
- * @param params - The params to pass with the snap to connect.
- */
 export const connectSnap = async (
   provider: MetaMaskInpageProvider,
   params: Record<'version' | string, unknown> = {},
 ) => {
-  provider.request({
+  return provider.request({
     method: 'wallet_requestSnaps',
     params: {
       [MASSA_SNAP_ID]: params,
