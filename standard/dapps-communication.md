@@ -448,29 +448,39 @@ massaWallets[0]
 
 ---
 
-#### **`account.balance`**
+#### **`account.balanceOf`**
 
-- **Description**: Retrieves the account's balance, including both final and candidate balances.
-- **Parameters**: None
+- **Description**: Retrieves the balance of provided addresses, including both final and candidate balances.
+- **Parameters**:
+
+```typescript
+type AccountBalanceParams = {
+  addresses: string[]; // The addresses to fetch balances for.
+};
+
 - **Returns**:
 
 ```typescript
 type AccountBalance = {
+  address: string; // The address of the account.
   final: string; // The final balance of the account.
   candidate: string; // The candidate balance of the account.
 };
 
-Promise<AccountBalance>;
+Promise<AccountBalance[]>;
 ```
 
 #### Example:
 
 ```javascript
 massaWallets[0]
-  .request({ method: "account.balance", params: {} })
-  .then((balance) => {
-    console.log("Final balance:", balance.final);
-    console.log("Candidate balance:", balance.candidate);
+  .request({ method: "account.balanceOf", params: {} })
+  .then((result) => {
+    for (const balance of result) {
+      console.log("Address:", balance.address);
+      console.log("Final balance:", balance.final);
+      console.log("Candidate balance:", balance.candidate);
+    }
   })
   .catch((error) => {
     console.error("Error fetching balance:", error);
