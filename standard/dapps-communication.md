@@ -124,20 +124,23 @@ massaWallets[0].provider.off("accountChanged", callback);
 ### **Account Methods**
 
 - [account.address](#accountaddress) - Get the account's address.
-- [account.balance](#accountbalance) - Retrieve the account's balance.
 - [account.sign](#accountsign) - Sign data using the account's private key.
 - [account.buyRolls](#accountbuyrolls) - Purchase staking rolls for the account.
 - [account.sellRolls](#accountsellrolls) - Sell staking rolls for the account.
 - [account.transfer](#accounttransfer) - Transfer coins to another address.
 - [account.callSC](#accountcallsc) - Call a smart contract method.
-- [account.readSC](#accountreadsc) - Read data from a smart contract.
 - [account.deploySC](#accountdeploysc) - Deploy a new smart contract.
 - [account.executeSC](#accountexecutesc) - Execute a smart contract bytecode.
+
+### **General Query Methods**
+- [account.balanceOf](#accountbalanceOf) - Retrieve the balance of provided addresses.
+- [account.readSC](#accountreadsc) - Read data from a smart contract.
 - [account.getOperationStatus](#accountgetoperationstatus) - Check the status of an operation.
 - [account.getEvents](#accountgetevents) - Retrieve events emitted by smart contracts.
 - [account.getNodeStatus](#accountgetnodestatus) - Get the current status of the Massa node.
 - [account.getStorageKeys](#accountgetstoragekeys) - Retrieve storage keys from a smart contract.
 - [account.readStorage](#accountreadstorage) - Read values from a smart contract's storage.
+
 
 #### **`wallet.accounts`**
 
@@ -448,47 +451,6 @@ massaWallets[0]
 
 ---
 
-#### **`account.balanceOf`**
-
-- **Description**: Retrieves the balance of provided addresses, including both final and candidate balances.
-- **Parameters**:
-
-```typescript
-type AccountBalanceParams = {
-  addresses: string[]; // The addresses to fetch balances for.
-};
-
-- **Returns**:
-
-```typescript
-type AccountBalance = {
-  address: string; // The address of the account.
-  final: string; // The final balance of the account.
-  candidate: string; // The candidate balance of the account.
-};
-
-Promise<AccountBalance[]>;
-```
-
-#### Example:
-
-```javascript
-massaWallets[0]
-  .request({ method: "account.balanceOf", params: {} })
-  .then((result) => {
-    for (const balance of result) {
-      console.log("Address:", balance.address);
-      console.log("Final balance:", balance.final);
-      console.log("Candidate balance:", balance.candidate);
-    }
-  })
-  .catch((error) => {
-    console.error("Error fetching balance:", error);
-  });
-```
-
----
-
 #### **`account.sign`**
 
 - **Description**: Signs data using the account's private key.
@@ -704,60 +666,6 @@ massaWallets[0]
 
 ---
 
-#### **`account.readSC`**
-
-- **Description**: Reads data from a smart contract.
-- **Parameters**:
-
-```typescript
-type ReadSCParams = {
-  targetAddress: string; // The address of the smart contract.
-  functionName: string; // The name of the function to read.
-  parameters: Uint8Array | Args; // The parameters for the function. The Args object is defined in massa-web3 library.
-  caller?: string; // The address of the caller (optional).
-  coins?: string;
-  fee?: string;
-  maxGas?: string;
-};
-```
-
-- **Returns**:
-
-```typescript
-export type ReadSCData = {
-  value: Uint8Array;
-  info: {
-    error?: string;
-    events: SCEvent[];
-    gasCost: number;
-  };
-};
-
-Promise<ReadSCData>;
-```
-
-#### Example:
-
-```javascript
-massaWallets[0]
-  .request({
-    method: "account.readSC",
-    params: {
-      targetAddress: "contract_address",
-      functionName: "balanceOf",
-      parameters: [],
-    },
-  })
-  .then((result) => {
-    console.log("Smart contract returned:", result);
-  })
-  .catch((error) => {
-    console.error("Error reading smart contract:", error);
-  });
-```
-
----
-
 #### **`account.deploySC`**
 
 - **Description**: Deploys a new smart contract.
@@ -854,7 +762,104 @@ massaWallets[0]
 
 ---
 
-#### **`account.getOperationStatus`**
+## **General Query Methods**
+
+#### **`query.balanceOf`**
+
+- **Description**: Retrieves the balance of provided addresses, including both final and candidate balances.
+- **Parameters**:
+
+```typescript
+type AccountBalanceParams = {
+  addresses: string[]; // The addresses to fetch balances for.
+};
+
+- **Returns**:
+
+```typescript
+type AccountBalance = {
+  address: string; // The address of the account.
+  final: string; // The final balance of the account.
+  candidate: string; // The candidate balance of the account.
+};
+
+Promise<AccountBalance[]>;
+```
+
+#### Example:
+
+```javascript
+massaWallets[0]
+  .request({ method: "query.balanceOf", params: {} })
+  .then((result) => {
+    for (const balance of result) {
+      console.log("Address:", balance.address);
+      console.log("Final balance:", balance.final);
+      console.log("Candidate balance:", balance.candidate);
+    }
+  })
+  .catch((error) => {
+    console.error("Error fetching balance:", error);
+  });
+```
+
+---
+
+#### **`query.readSC`**
+
+- **Description**: Reads data from a smart contract.
+- **Parameters**:
+
+```typescript
+type ReadSCParams = {
+  targetAddress: string; // The address of the smart contract.
+  functionName: string; // The name of the function to read.
+  parameters: Uint8Array | Args; // The parameters for the function. The Args object is defined in massa-web3 library.
+  caller?: string; // The address of the caller (optional).
+  coins?: string;
+  fee?: string;
+  maxGas?: string;
+};
+```
+
+- **Returns**:
+
+```typescript
+export type ReadSCData = {
+  value: Uint8Array;
+  info: {
+    error?: string;
+    events: SCEvent[];
+    gasCost: number;
+  };
+};
+
+Promise<ReadSCData>;
+```
+
+#### Example:
+
+```javascript
+massaWallets[0]
+  .request({
+    method: "query.readSC",
+    params: {
+      targetAddress: "contract_address",
+      functionName: "balanceOf",
+      parameters: [],
+    },
+  })
+  .then((result) => {
+    console.log("Smart contract returned:", result);
+  })
+  .catch((error) => {
+    console.error("Error reading smart contract:", error);
+  });
+```
+
+---
+
+#### **`query.getOperationStatus`**
 
 - **Description**: Retrieves the status of an operation.
 - **Parameters**:
@@ -888,7 +893,7 @@ Promise<OperationStatus>;
 ```javascript
 massaWallets[0]
   .request({
-    method: "account.getOperationStatus",
+    method: "query.getOperationStatus",
     params: {
       opId: "operation_id",
     },
@@ -903,7 +908,7 @@ massaWallets[0]
 
 ---
 
-#### **`account.getEvents`**
+#### **`query.getEvents`**
 
 - **Description**: Retrieves events emitted by smart contracts.
 - **Parameters**:
@@ -927,7 +932,7 @@ Promise<SCEvent[]>;
 ```javascript
 massaWallets[0]
   .request({
-    method: "account.getEvents",
+    method: "query.getEvents",
     params: {
       contractAddress: "contract_address",
     },
@@ -942,7 +947,7 @@ massaWallets[0]
 
 ---
 
-#### **`account.getNodeStatus`**
+#### **`query.getNodeStatus`**
 
 - **Description**: Retrieves the current status of the Massa node.
 - **Parameters**: None
@@ -1014,7 +1019,7 @@ Promise<NodeStatusInfo>;
 
 ```javascript
 massaWallets[0]
-  .request({ method: "account.getNodeStatus", params: {} })
+  .request({ method: "query.getNodeStatus", params: {} })
   .then((status) => {
     console.log("Node status:", status);
   })
@@ -1025,7 +1030,7 @@ massaWallets[0]
 
 ---
 
-#### **`account.getStorageKeys`**
+#### **`query.getStorageKeys`**
 
 - **Description**: Retrieves the keys from a smart contract's storage.
 - **Parameters**:
@@ -1049,7 +1054,7 @@ Promise<Uint8Array[]>;
 ```javascript
 massaWallets[0]
   .request({
-    method: "account.getStorageKeys",
+    method: "query.getStorageKeys",
     params: {
       address: "contract_address",
       filter: "key_filter",
@@ -1065,7 +1070,7 @@ massaWallets[0]
 
 ---
 
-#### **`account.readStorage`**
+#### **`query.readStorage`**
 
 - **Description**: Reads values from a smart contract's storage.
 - **Parameters**:
@@ -1089,7 +1094,7 @@ Promise<Uint8Array[]>;
 ```javascript
 massaWallets[0]
   .request({
-    method: "account.readStorage",
+    method: "query.readStorage",
     params: {
       address: "contract_address",
       keys: ["key1", "key2"],
@@ -1102,6 +1107,8 @@ massaWallets[0]
     console.error("Error reading storage:", error);
   });
 ```
+
+---
 
 ## **Error Management**
 
