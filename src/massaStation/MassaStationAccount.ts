@@ -56,7 +56,7 @@ import bs58check from 'bs58check';
  *
  */
 export class MassaStationAccount implements Provider {
-  private _providerName = WalletName.MassaStation;
+  private _providerName = WalletName.MassaWallet;
 
   constructor(
     public address: string,

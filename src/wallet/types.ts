@@ -4,6 +4,6 @@ export type ListenerCtrl = {
 
 export enum WalletName {
   Bearby = 'BEARBY',
-  MassaStation = 'MASSASTATION',
+  MassaWallet = 'MASSA WALLET',
   Metamask = 'METAMASK',
 }

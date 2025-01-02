@@ -34,7 +34,7 @@ const MASSA_STATION_NETWORK_CHANGED = 'MASSA_STATION_NETWORK_CHANGED';
  * This class is used as a proxy to the MassaStation server for exchanging message over https calls.
  */
 export class MassaStationWallet implements Wallet {
-  private walletName = WalletName.MassaStation;
+  private walletName = WalletName.MassaWallet;
 
   private eventsListener = new EventEmitter();
   private currentNetwork: Network;

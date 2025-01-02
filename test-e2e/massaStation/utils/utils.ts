@@ -3,7 +3,7 @@ import { MassaStationWallet } from '../../../src/massaStation/MassaStationWallet
 import { getWallet } from '../../../src/walletsManager/walletList';
 
 export async function getMassaStationWallet(): Promise<MassaStationWallet> {
-  const massaStationWallet = await getWallet(WalletName.MassaStation);
+  const massaStationWallet = await getWallet(WalletName.MassaWallet);
 
   // stop the test if the wallet is not available
   if (!massaStationWallet) throw new Error('Massa Station wallet not found');
