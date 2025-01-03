@@ -75,6 +75,24 @@ export class BearbyAccount implements Provider {
     }
   }
 
+  public async balanceOf(
+    addresses: string[],
+    final?: boolean,
+  ): Promise<{ address: string; balance: bigint }[]> {
+    const res = await web3.massa.getAddresses(...addresses);
+    if (res.error) {
+      throw new Error(res.error?.message || 'Bearby getAddresses error');
+    }
+
+    return res.result.map((addressInfo) => {
+      const { final_balance, candidate_balance } = addressInfo;
+      return {
+        address: addressInfo.address,
+        balance: Mas.fromString(final ? final_balance : candidate_balance),
+      };
+    });
+  }
+
   public async networkInfos(): Promise<Network> {
     return networkInfos();
   }

@@ -19,6 +19,7 @@ import {
   SmartContract,
   strToBytes,
   rpcTypes,
+  Mas,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
 import { errorHandler } from '../errors/utils/errorHandler';
@@ -60,6 +61,21 @@ export class MetamaskAccount implements Provider {
       address: this.address,
     });
     return BigInt(final ? finalBalance : candidateBalance);
+  }
+
+  async balanceOf(
+    addresses: string[],
+    final = false,
+  ): Promise<{ address: string; balance: bigint }[]> {
+    const client = await getClient();
+    const addressesInfo = await client.getMultipleAddressInfo(addresses);
+
+    return addressesInfo.map((addressInfo) => ({
+      address: addressInfo.address,
+      balance: final
+        ? Mas.fromString(addressInfo.final_balance)
+        : Mas.fromString(addressInfo.candidate_balance),
+    }));
   }
 
   async networkInfos(): Promise<Network> {

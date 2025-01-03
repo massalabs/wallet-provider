@@ -79,6 +79,33 @@ export class MassaStationAccount implements Provider {
     return Mas.fromString(final ? balances.final : balances.pending);
   }
 
+  async balanceOf(
+    addresses: string[],
+    final = false,
+  ): Promise<{ address: string; balance: bigint }[]> {
+    const queryParams = new URLSearchParams();
+
+    queryParams.append('attributes', 'balance');
+    addresses.forEach((address) => {
+      queryParams.append('addresses', address);
+    });
+
+    const res = await getRequest<MSBalancesResp>(
+      `${MASSA_STATION_URL}massa/addresses?${queryParams.toString()}`,
+    );
+
+    if (res.isError) throw res.error;
+
+    return addresses.map((address) => {
+      const balance = res.result.addressesAttributes[address].balance;
+
+      return {
+        address,
+        balance: Mas.fromString(final ? balance.final : balance.pending),
+      };
+    });
+  }
+
   public async sign(
     data: Uint8Array | string,
     opts?: SignOptions,
