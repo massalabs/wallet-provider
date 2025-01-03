@@ -14,6 +14,8 @@ import { getActiveAccount, getNetwork, setRpcUrl } from './services';
 import EventEmitter from 'events';
 
 const METAMASK_NETWORK_CHANGED = 'METAMASK_NETWORK_CHANGED';
+const METAMASK_FLASK_INSTALL_LINK =
+  'https://docs.metamask.io/snaps/get-started/install-flask/';
 
 export class MetamaskWallet implements Wallet {
   private walletName = WalletName.Metamask;
@@ -23,6 +25,10 @@ export class MetamaskWallet implements Wallet {
 
   public name(): WalletName {
     return this.walletName;
+  }
+
+  public installLink(): string {
+    return METAMASK_FLASK_INSTALL_LINK;
   }
 
   public constructor(provider: MetaMaskInpageProvider) {
