@@ -27,7 +27,6 @@ export const MASSA_STATION_ACCOUNTS_URL = `${MASSA_STATION_URL}plugin/massa-labs
  * Events emitted by MassaStation
  */
 const MASSA_STATION_NETWORK_CHANGED = 'MASSA_STATION_NETWORK_CHANGED';
-const MASSA_WALLET_INSTALL_LINK = 'https://station.massa.net/';
 
 /**
  * This class provides an implementation for communicating with the MassaStation wallet.
@@ -42,10 +41,6 @@ export class MassaStationWallet implements Wallet {
 
   public name(): WalletName {
     return this.walletName;
-  }
-
-  public installLink(): string {
-    return MASSA_WALLET_INSTALL_LINK;
   }
 
   static async createIfInstalled(): Promise<Wallet | null> {

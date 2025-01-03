@@ -5,17 +5,11 @@ import { Network, Provider } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 
-const BEARBY_INSTALL_LINK = 'https://bearby.io/';
-
 export class BearbyWallet implements Wallet {
   private walletName = WalletName.Bearby;
 
   public name(): WalletName {
     return this.walletName;
-  }
-
-  public installLink(): string {
-    return BEARBY_INSTALL_LINK;
   }
 
   static async createIfInstalled(): Promise<Wallet | null> {

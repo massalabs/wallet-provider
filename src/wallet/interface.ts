@@ -3,7 +3,6 @@ import { ListenerCtrl, WalletName } from './types';
 
 export interface Wallet {
   name(): WalletName;
-  installLink(): string;
   accounts(): Promise<Provider[]>;
   importAccount(publicKey: string, privateKey: string): Promise<void>;
   deleteAccount(address: string): Promise<void>;
