@@ -11,7 +11,7 @@ import { connectSnap, isConnected } from './snap';
 import { MetamaskAccount } from './MetamaskAccount';
 import { MetaMaskInpageProvider } from '@metamask/providers';
 import { getActiveAccount, getNetwork, setRpcUrl } from './services';
-import EventEmitter from 'events';
+import EventEmitter from 'eventemitter3';
 
 const METAMASK_NETWORK_CHANGED = 'METAMASK_NETWORK_CHANGED';
 
