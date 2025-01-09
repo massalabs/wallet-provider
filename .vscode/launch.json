@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        { // Test the 'npm run test' command
+            "type": "node",
+            "request": "launch",
+            "name": "Run unit tests",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": []
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "test:e2e:local",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": [
+                "--config",
+                "jest.e2e.config.esm.js",
+                "--maxWorkers=1",
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "NODE_EXTRA_CA_CERTS": "/etc/massastation/certs/rootCA.pem",
+            },
+        }
+    ]
+}

@@ -273,19 +273,21 @@ export class MassaStationAccount implements Provider {
     try {
       const args = params.parameter ?? new Uint8Array();
       const parameters = args instanceof Uint8Array ? args : args.serialize();
-      const totalCost =
-        StorageCost.smartContract(params.byteCode.length) + params.coins;
+      const coins = params.coins || 0n; // If coins is undefined, some vesions of station will have a panic
+      const maxCoins =
+        params.maxCoins ||
+        StorageCost.smartContract(params.byteCode.length) + coins;
       const fee = params.fee || (await this.minimalFee());
 
       const body: DeploySCFunctionBody = {
         nickname: this.accountName,
         smartContract: uint8ArrayToBase64(params.byteCode),
-        maxCoins: totalCost.toString(),
-        coins: params.coins.toString(), // SmartContract deployment costs
+        maxCoins: maxCoins.toString(), // SmartContract deployment costs
+        coins: coins.toString(),
         fee: fee.toString(),
         parameters: uint8ArrayToBase64(parameters),
         description: `${formatMas(
-          params.coins,
+          coins,
         )} $MAS coins allocated to datastore + ${formatMas(
           fee,
         )} $MAS fee for operation`,

@@ -260,12 +260,13 @@ export class BearbyAccount implements Provider {
   public async deploySC(params: DeploySCParams): Promise<SmartContract> {
     try {
       const fee = Number(params.fee ?? (await this.minimalFee()));
-      const totalCost =
+      const maxCoins =
+        params.maxCoins ||
         StorageCost.smartContract(params.byteCode.length) + params.coins;
 
       const args = {
         ...params,
-        maxCoins: totalCost,
+        maxCoins: maxCoins,
         maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
         coins: params.coins,
         fee: fee,
