@@ -2,6 +2,9 @@ import { WalletName } from '../../../src';
 import { MassaStationWallet } from '../../../src/massaStation/MassaStationWallet';
 import { getWallet } from '../../../src/walletsManager/walletList';
 
+import { readFileSync } from 'fs';
+import * as path from 'path';
+
 export async function getMassaStationWallet(): Promise<MassaStationWallet> {
   const massaStationWallet = await getWallet(WalletName.MassaWallet);
 
@@ -36,4 +39,8 @@ export async function deleteStationAccountFromNickname(
   if (account) {
     throw new Error(`Account with nickname ${nickname} was not deleted`);
   }
+}
+
+export function getScByteCode(fileName: string): Buffer {
+  return readFileSync(path.join(__dirname, '..', '..', fileName));
 }

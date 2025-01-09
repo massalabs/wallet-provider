@@ -11,7 +11,7 @@
         "allowJs": true,
         "importHelpers": true,
         "alwaysStrict": true,
-        "sourceMap": false,
+        "sourceMap": true,
         "declaration": true,
         "declarationMap": true,
         "forceConsistentCasingInFileNames": true,
@@ -50,7 +50,7 @@
         "paths": {
             "@massalabs/wallet-provider": [
                 "./dist/esm/index.js"
-            ],
+            ]
         }
     },
     "lib": [

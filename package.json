@@ -60,12 +60,13 @@
         "bs58check": "^4.0.0",
         "buffer": "^6.0.3",
         "eventemitter3": "^5.0.1",
-        "lodash.isequal": "^4.5.0"
+        "lodash.isequal": "^4.5.0",
+        "path": "^0.12.7"
     },
     "devDependencies": {
-        "@massalabs/metamask-snap": "^1.1.0",
         "@babel/preset-env": "^7.22.14",
         "@massalabs/eslint-config": "^0.0.9",
+        "@massalabs/metamask-snap": "^1.1.0",
         "@playwright/test": "^1.36.2",
         "@types/jest": "^29.5.4",
         "@types/node": "^18.13.0",

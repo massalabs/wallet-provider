@@ -1,5 +1,6 @@
 import {
   Args,
+  bytesToStr,
   Mas,
   MRC20,
   NetworkName,
@@ -8,7 +9,7 @@ import {
 } from '@massalabs/massa-web3';
 import { MassaStationAccount } from '../../src';
 import { msWallet } from '../setup';
-import { deleteStationAccountFromNickname } from './utils/utils';
+import { deleteStationAccountFromNickname, getScByteCode } from './utils/utils';
 
 let account: MassaStationAccount;
 
@@ -109,6 +110,35 @@ describe('MassaStation wallet tests', () => {
         .addString('AS12k8viVmqPtRuXzCm6rKXjLgpQWqbuMjc37YHhB452KSUUb9FgL'),
     );
     expect(new Args(newAllowance.value).nextU256()).toEqual(allowance + amount);
+  });
+
+  it('deploySC: deploy random bytecode -> expect to fail', async () => {
+    const byteCode = new Uint8Array([1, 2, 3, 4]);
+    expect(SmartContract.deploy(account, byteCode)).rejects.toThrow();
+  });
+
+  it('deploySC: deploy correct smart contract bytecode', async () => {
+    // deploy the hello world smart contract
+    const byteCode = getScByteCode('helloWorldSC.wasm');
+    const helloWorldName = 'John Doe';
+    const NAME_KEY = 'name_key';
+    const smartContract = await SmartContract.deploy(
+      account,
+      byteCode,
+      new Args().addString(helloWorldName),
+      {
+        coins: Mas.fromMilliMas(30n),
+      },
+    );
+    expect(smartContract.address).toBeDefined();
+    const storageName = await account.readStorage(
+      smartContract.address,
+      [NAME_KEY],
+      false,
+    );
+    const newName = bytesToStr(storageName[0]);
+
+    expect(newName).toEqual(helloWorldName);
   });
 
   // TODO investigate why fees are deducted 2 times
