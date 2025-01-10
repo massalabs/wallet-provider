@@ -229,7 +229,7 @@ export class MetamaskAccount implements Provider {
         deployParams.fee = params.fee.toString();
       }
       if (params.maxCoins) {
-        deployParams.maxCoins = params.maxCoins?.toString();
+        deployParams.maxCoins = params.maxCoins.toString();
       }
 
       const { operationId } = await deploySC(this.provider, deployParams);
