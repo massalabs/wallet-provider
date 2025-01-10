@@ -78,6 +78,4 @@ docs
 # Playwright tests results
 test-extension/playwright-tests/playwright-report
 
-test-extension/runner.js  // TODO must implement MassaStationAccount.executeSC first
-  it.skip('executeSC', async () => {
-  });
+test-extension/runner.js

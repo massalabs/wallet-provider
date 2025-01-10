@@ -261,7 +261,7 @@ export class BearbyAccount implements Provider {
     try {
       const fee = Number(params.fee ?? (await this.minimalFee()));
       const maxCoins =
-        params.maxCoins ||
+        params.maxCoins ??
         StorageCost.smartContract(params.byteCode.length) + params.coins;
 
       const args = {

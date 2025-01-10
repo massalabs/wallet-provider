@@ -273,9 +273,9 @@ export class MassaStationAccount implements Provider {
     try {
       const args = params.parameter ?? new Uint8Array();
       const parameters = args instanceof Uint8Array ? args : args.serialize();
-      const coins = params.coins || 0n; // If coins is undefined, some vesions of station will have a panic
+      const coins = params.coins ?? 0n; // If coins is undefined, some vesions of station will have a panic
       const maxCoins =
-        params.maxCoins ||
+        params.maxCoins ??
         StorageCost.smartContract(params.byteCode.length) + coins;
       const fee = params.fee || (await this.minimalFee());
 
