@@ -1,7 +1,6 @@
 import { Wallet } from '../wallet/interface';
 import {
   getNetworkNameByChainId,
-  Mas,
   Network,
   Provider,
 } from '@massalabs/massa-web3';
@@ -61,7 +60,7 @@ export class MetamaskWallet implements Wallet {
       name: getNetworkNameByChainId(BigInt(res.chainId)),
       chainId: BigInt(res.chainId),
       url: res.network,
-      minimalFee: Mas.fromString(res.minimalFees),
+      minimalFee: BigInt(res.minimalFees),
     };
   }
 
