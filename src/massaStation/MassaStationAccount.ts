@@ -299,7 +299,9 @@ export class MassaStationAccount implements Provider {
       );
 
       const operationId = res.result?.operationId;
-
+      console.log('res:', res);
+      console.log('res.result:', res.result);
+      console.log('Operation ID:', operationId);
       if (!operationId) throw new Error('Operation ID not found');
 
       const operation = new Operation(this, operationId);

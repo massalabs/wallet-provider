@@ -128,6 +128,7 @@ describe('MassaStation wallet tests', () => {
       new Args().addString(helloWorldName),
       {
         coins: Mas.fromMilliMas(30n),
+        fee: Mas.fromString('0.1'),
       },
     );
     expect(smartContract.address).toBeDefined();

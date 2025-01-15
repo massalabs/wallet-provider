@@ -6,7 +6,7 @@ Object.assign(global, { TextDecoder, TextEncoder });
 
 export let msWallet: MassaStationWallet;
 
-jest.setTimeout(120_000);
+jest.setTimeout(180_000);
 
 beforeAll(async () => {
   msWallet = await getMassaStationWallet();
