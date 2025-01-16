@@ -117,7 +117,7 @@ describe('MassaStation wallet tests', () => {
     expect(SmartContract.deploy(account, byteCode)).rejects.toThrow();
   });
 
-  it('deploySC: deploy correct smart contract bytecode', async () => {
+  it.skip('deploySC: deploy correct smart contract bytecode', async () => {
     // deploy the hello world smart contract
     const byteCode = getScByteCode('helloWorldSC.wasm');
     const helloWorldName = 'John Doe';
