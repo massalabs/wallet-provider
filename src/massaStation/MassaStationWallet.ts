@@ -12,6 +12,7 @@ import { Network } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import { isMassaWalletEnabled } from './MassaStationDiscovery';
+import { isStandalone } from './utils/standalone';
 
 /**
  * MassaStation url
@@ -24,8 +25,7 @@ export const MASSA_STATION_URL = 'https://station.massa/';
 
 export function walletApiUrl(): string {
   // This is a hack to detect that MS wallet is working in standalone mode
-  // dev only usage
-  if (typeof window !== 'undefined' && window.massaWallet?.standalone) {
+  if (isStandalone()) {
     return `http://localhost:8080/api`;
   }
   return `${MASSA_STATION_URL}plugin/massa-labs/massa-wallet/api`;
@@ -51,7 +51,7 @@ export class MassaStationWallet implements Wallet {
   }
 
   static async createIfInstalled(): Promise<Wallet | null> {
-    if (await isMassaWalletEnabled()) {
+    if (isStandalone() || (await isMassaWalletEnabled())) {
       return new MassaStationWallet();
     }
     return null;
