@@ -27,21 +27,20 @@ export async function networkInfos(): Promise<Network> {
     };
   }
 
-  const nodesResponse = await getRequest<MSNetworksResp>(
+  const { result } = await getRequest<MSNetworksResp>(
     `${MASSA_STATION_URL}massa/node`,
   );
-  if (nodesResponse.isError) throw nodesResponse.error.message;
 
-  const url = nodesResponse.result.url;
+  const url = result.url;
   if (!client || rpcUrl !== url) {
     client = new JsonRPCClient(url);
     rpcUrl = url;
   }
 
   return {
-    name: nodesResponse.result.network,
+    name: result.network,
     url,
-    chainId: BigInt(nodesResponse.result.chainId),
+    chainId: BigInt(result.chainId),
     minimalFee: await client.getMinimalFee(),
   };
 }

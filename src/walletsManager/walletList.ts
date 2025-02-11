@@ -19,6 +19,7 @@ export async function getWallets(delay = 200): Promise<Wallet[]> {
     try {
       return await WalletClass.createIfInstalled();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error initializing wallet ${WalletClass.name}:`, error);
     }
     return null;

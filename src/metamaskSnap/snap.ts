@@ -22,7 +22,8 @@ export const getMassaSnapInfo = async (
         snap.id === MASSA_SNAP_ID && (!version || snap.version === version),
     );
   } catch (error) {
-    console.error('Failed to obtain installed snap', error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to get installed snap', error);
     return undefined;
   }
 };

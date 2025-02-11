@@ -65,13 +65,11 @@ export class MassaStationAccount implements Provider {
   }
 
   public async balance(final = false): Promise<bigint> {
-    const res = await getRequest<MSBalancesResp>(
+    const { result } = await getRequest<MSBalancesResp>(
       `${MASSA_STATION_URL}massa/addresses?attributes=balance&addresses=${this.address}`,
     );
 
-    if (res.isError) throw res.error;
-
-    const balances = res.result.addressesAttributes[this.address].balance;
+    const balances = result.addressesAttributes[this.address].balance;
 
     return Mas.fromString(final ? balances.final : balances.pending);
   }
@@ -87,14 +85,12 @@ export class MassaStationAccount implements Provider {
       queryParams.append('addresses', address);
     });
 
-    const res = await getRequest<MSBalancesResp>(
+    const { result } = await getRequest<MSBalancesResp>(
       `${MASSA_STATION_URL}massa/addresses?${queryParams.toString()}`,
     );
 
-    if (res.isError) throw res.error;
-
     return addresses.map((address) => {
-      const balance = res.result.addressesAttributes[address].balance;
+      const balance = result.addressesAttributes[address].balance;
 
       return {
         address,
@@ -113,24 +109,24 @@ export class MassaStationAccount implements Provider {
       DisplayData: opts?.displayData ?? true,
     };
 
-    const res = await postRequest<MSAccountSignResp>(
-      `${walletApiUrl()}/accounts/${this.accountName}/signMessage`,
-      signData,
-    );
+    try {
+      const { result } = await postRequest<MSAccountSignResp>(
+        `${walletApiUrl()}/accounts/${this.accountName}/signMessage`,
+        signData,
+      );
 
-    if (res.isError) {
-      throw errorHandler(operationType.Sign, res.error);
+      // MS Wallet encodes signature in base64... so we need to decode it en re-encode it in base58
+      const signature = bs58check.encode(
+        await base64ToByteArray(result.signature),
+      );
+
+      return {
+        publicKey: result.publicKey,
+        signature,
+      };
+    } catch (error) {
+      throw errorHandler(operationType.Sign, error);
     }
-
-    // MS Wallet encodes signature in base64... so we need to decode it en re-encode it in base58
-    const signature = bs58check.encode(
-      await base64ToByteArray(res.result.signature),
-    );
-
-    return {
-      publicKey: res.result.publicKey,
-      signature,
-    };
   }
 
   private async minimalFee(): Promise<bigint> {
@@ -150,16 +146,16 @@ export class MassaStationAccount implements Provider {
       amount: amount.toString(),
       side: type === operationType.BuyRolls ? 'buy' : 'sell',
     };
+    try {
+      const { result } = await postRequest<MSSendOperationResp>(
+        `${walletApiUrl()}/accounts/${this.accountName}/rolls`,
+        body,
+      );
 
-    const res = await postRequest<MSSendOperationResp>(
-      `${walletApiUrl()}/accounts/${this.accountName}/rolls`,
-      body,
-    );
-
-    if (res.isError) {
-      throw errorHandler(type, res.error);
+      return new Operation(this, result.operationId);
+    } catch (error) {
+      throw errorHandler(type, error);
     }
-    return new Operation(this, res.result.operationId);
   }
 
   public async buyRolls(
@@ -189,16 +185,16 @@ export class MassaStationAccount implements Provider {
       recipientAddress: to.toString(),
     };
 
-    const res = await postRequest<MSSendOperationResp>(
-      `${walletApiUrl()}/accounts/${this.accountName}/transfer`,
-      body,
-    );
+    try {
+      const { result } = await postRequest<MSSendOperationResp>(
+        `${walletApiUrl()}/accounts/${this.accountName}/transfer`,
+        body,
+      );
 
-    if (res.isError) {
-      throw errorHandler(operationType.SendTransaction, res.error);
+      return new Operation(this, result.operationId);
+    } catch (error) {
+      throw errorHandler(operationType.SendTransaction, error);
     }
-
-    return new Operation(this, res.result.operationId);
   }
 
   public async callSC(params: CallSCParams): Promise<Operation> {
@@ -224,15 +220,16 @@ export class MassaStationAccount implements Provider {
       async: true,
     };
 
-    const res = await postRequest<MSSendOperationResp>(
-      `${MASSA_STATION_URL}cmd/executeFunction`,
-      body,
-    );
+    try {
+      const { result } = await postRequest<MSSendOperationResp>(
+        `${MASSA_STATION_URL}cmd/executeFunction`,
+        body,
+      );
 
-    if (res.isError) {
-      throw errorHandler('callSmartContract', res.error);
+      return new Operation(this, result.operationId);
+    } catch (error) {
+      throw errorHandler('callSmartContract', error);
     }
-    return new Operation(this, res.result.operationId);
   }
 
   public async networkInfos(): Promise<Network> {
@@ -290,12 +287,12 @@ export class MassaStationAccount implements Provider {
         )} $MAS fee for operation`,
       };
 
-      const res = await postRequest<MSSendOperationResp>(
+      const { result } = await postRequest<MSSendOperationResp>(
         `${MASSA_STATION_URL}cmd/deploySC`,
         body,
       );
 
-      const operationId = res.result?.operationId;
+      const operationId = result?.operationId;
 
       if (!operationId) throw new Error('Operation ID not found');
 

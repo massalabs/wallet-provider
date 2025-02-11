@@ -67,9 +67,6 @@ export class MassaStationWallet implements Wallet {
   public async accounts(): Promise<MassaStationAccount[]> {
     const res = await getRequest<MSAccountsResp>(walletApiUrl() + '/accounts');
 
-    if (res.isError) {
-      throw res.error;
-    }
     return res.result
       .filter((account) => {
         return account.status === MassaStationAccountStatus.OK;
@@ -83,13 +80,10 @@ export class MassaStationWallet implements Wallet {
     publicKey: string,
     privateKey: string,
   ): Promise<void> {
-    const res = await putRequest(walletApiUrl() + '/accounts', {
+    await putRequest(walletApiUrl() + '/accounts', {
       publicKey,
       privateKey,
     });
-    if (res.isError) {
-      throw res.error;
-    }
   }
 
   public async deleteAccount(address: string): Promise<void> {
@@ -97,8 +91,6 @@ export class MassaStationWallet implements Wallet {
     const allAccounts = await getRequest<MSAccountsResp>(
       walletApiUrl() + '/accounts',
     );
-
-    if (allAccounts.isError) throw allAccounts.error;
 
     const accountToDelete = allAccounts.result.find(
       (account) => account.address === address,
@@ -108,13 +100,9 @@ export class MassaStationWallet implements Wallet {
       throw new Error('Account not found');
     }
 
-    const res = await deleteRequest<unknown>(
+    await deleteRequest<unknown>(
       `${walletApiUrl()}/accounts/${accountToDelete.nickname}`,
     );
-
-    if (res.isError) {
-      throw res.error;
-    }
   }
 
   public async networkInfos(): Promise<Network> {
@@ -138,8 +126,6 @@ export class MassaStationWallet implements Wallet {
       walletApiUrl() + '/accounts/' + name,
       {},
     );
-
-    if (response.isError) throw response.error;
 
     return new MassaStationAccount(
       response.result.address,
@@ -222,11 +208,8 @@ export class MassaStationWallet implements Wallet {
    * @returns The configuration of MS wallet.
    */
   public async getConfig(): Promise<Config> {
-    const res = await getRequest<Config>(walletApiUrl() + '/config');
-    if (res.isError) {
-      throw res.error;
-    }
-    return res.result;
+    const { result } = await getRequest<Config>(walletApiUrl() + '/config');
+    return result;
   }
 
   /**
@@ -242,7 +225,7 @@ export class MassaStationWallet implements Wallet {
     rule: SignRule,
     desc?: string,
   ): Promise<AddUpdateSignRuleResponse> {
-    const res = await postRequest<AddUpdateSignRuleResponse>(
+    const { result } = await postRequest<AddUpdateSignRuleResponse>(
       walletApiUrl() + '/accounts/' + accountName + '/signrules',
       {
         description: desc,
@@ -252,10 +235,7 @@ export class MassaStationWallet implements Wallet {
         enabled: rule.enabled,
       },
     );
-    if (res.isError) {
-      throw res.error;
-    }
-    return res.result;
+    return result;
   }
 
   /**
@@ -272,7 +252,7 @@ export class MassaStationWallet implements Wallet {
     rule: SignRule,
     desc?: string,
   ): Promise<AddUpdateSignRuleResponse> {
-    const res = await putRequest<AddUpdateSignRuleResponse>(
+    const { result } = await putRequest<AddUpdateSignRuleResponse>(
       walletApiUrl() + '/accounts/' + accountName + '/signrules/' + rule.id,
       {
         description: desc,
@@ -282,11 +262,8 @@ export class MassaStationWallet implements Wallet {
         enabled: rule.enabled,
       },
     );
-    if (res.isError) {
-      console.log('error', res);
-      throw res.error;
-    }
-    return res.result;
+
+    return result;
   }
 
   /**
@@ -300,11 +277,8 @@ export class MassaStationWallet implements Wallet {
     accountName: string,
     ruleId: string,
   ): Promise<void> {
-    const res = await deleteRequest(
+    await deleteRequest(
       walletApiUrl() + '/accounts/' + accountName + '/signrules/' + ruleId,
     );
-    if (res.isError) {
-      throw res.error;
-    }
   }
 }

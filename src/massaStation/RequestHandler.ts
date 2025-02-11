@@ -17,17 +17,23 @@ const requestHeaders = {
 /**
  * This interface represents a payload returned by making an http call
  */
-export type JsonRpcResponseData<T> =
-  | {
-      isError: false;
-      result: T;
-      error?: never;
-    }
-  | {
-      isError: true;
-      result?: never;
-      error: Error;
-    };
+export type JsonRpcResponseData<T> = {
+  result: T;
+};
+
+/**
+ * Handles errors from Axios requests.
+ *
+ * @param error - The error object thrown by Axios.
+ * @throws a formatted error message.
+ */
+function handleAxiosError(error: any): never {
+  const err = error.response?.data?.message
+    ? new Error(String(error.response.data.message))
+    : new Error('Axios error: ' + String(error));
+  throw err;
+}
+
 /**
  * This method makes a GET request to an http rest point.
  *
@@ -46,12 +52,9 @@ export async function getRequest<T>(
       headers: requestHeaders,
       timeout,
     });
-    return { isError: false, result: resp.data };
-  } catch (ex) {
-    return {
-      isError: true,
-      error: new Error('Axios Error: ' + String(ex)),
-    };
+    return { result: resp.data };
+  } catch (error) {
+    handleAxiosError(error);
   }
 }
 
@@ -73,14 +76,9 @@ export async function postRequest<T>(
       headers: requestHeaders,
     });
 
-    return { isError: false, result: resp.data };
+    return { result: resp.data };
   } catch (error) {
-    return {
-      isError: true,
-      error: error.response?.data?.message
-        ? new Error(String(error.response.data.message))
-        : new Error('Axios error: ' + String(error)),
-    };
+    handleAxiosError(error);
   }
 }
 
@@ -101,12 +99,9 @@ export async function deleteRequest<T>(
       headers: requestHeaders,
     });
 
-    return { isError: false, result: resp.data };
-  } catch (ex) {
-    return {
-      isError: true,
-      error: new Error('Axios Error: ' + String(ex)),
-    };
+    return { result: resp.data };
+  } catch (error) {
+    handleAxiosError(error);
   }
 }
 
@@ -129,11 +124,8 @@ export async function putRequest<T>(
       headers: requestHeaders,
     });
 
-    return { isError: false, result: resp.data };
-  } catch (ex) {
-    return {
-      isError: true,
-      error: new Error('Axios error: ' + String(ex)),
-    };
+    return { result: resp.data };
+  } catch (error) {
+    handleAxiosError(error);
   }
 }
