@@ -8,14 +8,10 @@ import {
   SmartContract,
 } from '@massalabs/massa-web3';
 import { MassaStationAccount } from '../../src';
-import { msWallet } from '../setup';
+import { accountName, msWallet, publicKey } from '../setup';
 import { deleteStationAccountFromNickname, getScByteCode } from './utils/utils';
 
 let account: MassaStationAccount;
-
-// Wallet YML is imported in CI
-const publicKey = 'P1xphUEkJfqnkpA9g2NTTkyTA1ojUrJ8K66ywR7PSfRjkvpr7ic';
-const accountName = 'wallet-provider-tests';
 
 describe('MassaStation wallet tests', () => {
   beforeAll(async () => {

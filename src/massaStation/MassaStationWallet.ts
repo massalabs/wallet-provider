@@ -5,7 +5,14 @@ import {
   putRequest,
 } from './RequestHandler';
 import { MassaStationAccount } from './MassaStationAccount';
-import { MassaStationAccountStatus, MSAccount, MSAccountsResp } from './types';
+import {
+  AddUpdateSignRuleResponse,
+  Config,
+  MassaStationAccountStatus,
+  MSAccount,
+  MSAccountsResp,
+  SignRule,
+} from './types';
 import { EventEmitter } from 'eventemitter3';
 import { Wallet } from '../wallet/interface';
 import { Network } from '@massalabs/massa-web3';
@@ -208,5 +215,96 @@ export class MassaStationWallet implements Wallet {
    */
   public enabled(): boolean {
     return true;
+  }
+  /**
+   * Retrieves the configuration from the MS Wallet api.
+   *
+   * @returns The configuration of MS wallet.
+   */
+  public async getConfig(): Promise<Config> {
+    const res = await getRequest<Config>(walletApiUrl() + '/config');
+    if (res.isError) {
+      throw res.error;
+    }
+    return res.result;
+  }
+
+  /**
+   * Adds a new signing rule to the MassaStation wallet.
+   *
+   * @param accountName - The name of the account.
+   * @param rule - The signing rule to add.
+   * @param desc - Custom description of the new rule creation.
+   * @returns A Promise that resolves when the rule is successfully added.
+   */
+  public async addSignRule(
+    accountName: string,
+    rule: SignRule,
+    desc?: string,
+  ): Promise<AddUpdateSignRuleResponse> {
+    const res = await postRequest<AddUpdateSignRuleResponse>(
+      walletApiUrl() + '/accounts/' + accountName + '/signrules',
+      {
+        description: desc,
+        name: rule.name,
+        ruleType: rule.ruleType,
+        contract: rule.contract,
+        enabled: rule.enabled,
+      },
+    );
+    if (res.isError) {
+      throw res.error;
+    }
+    return res.result;
+  }
+
+  /**
+   * Edits an existing signing rule in the MassaStation wallet.
+   * Modifying the contract or ruleType will result in a new rule being created with a new Id.
+   *
+   * @param accountName - The name of the account.
+   * @param rule - The updated signing rule.
+   * @param desc - Custom description of the rule update.
+   * @returns A Promise that resolves when the rule is successfully edited.
+   */
+  public async editSignRule(
+    accountName: string,
+    rule: SignRule,
+    desc?: string,
+  ): Promise<AddUpdateSignRuleResponse> {
+    const res = await putRequest<AddUpdateSignRuleResponse>(
+      walletApiUrl() + '/accounts/' + accountName + '/signrules/' + rule.id,
+      {
+        description: desc,
+        name: rule.name,
+        ruleType: rule.ruleType,
+        contract: rule.contract,
+        enabled: rule.enabled,
+      },
+    );
+    if (res.isError) {
+      console.log('error', res);
+      throw res.error;
+    }
+    return res.result;
+  }
+
+  /**
+   * Deletes a signing rule from the MassaStation wallet.
+   *
+   * @param accountName - The name of the account.
+   * @param ruleId - The Id of the sign rule.
+   * @returns A Promise that resolves when the rule is successfully deleted.
+   */
+  public async deleteSignRule(
+    accountName: string,
+    ruleId: string,
+  ): Promise<void> {
+    const res = await deleteRequest(
+      walletApiUrl() + '/accounts/' + accountName + '/signrules/' + ruleId,
+    );
+    if (res.isError) {
+      throw res.error;
+    }
   }
 }
