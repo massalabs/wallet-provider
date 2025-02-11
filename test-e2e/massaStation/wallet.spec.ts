@@ -22,6 +22,7 @@ describe('MassaStation wallet tests', () => {
     }
     account = acc;
     const balance = await account.balance();
+    // eslint-disable-next-line no-console
     console.log(
       `Using account ${account.accountName} with address ${
         account.address

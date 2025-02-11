@@ -1,14 +1,17 @@
+import { MASSA_STATION_URL } from './MassaStationWallet';
 import { JsonRpcResponseData, getRequest } from './RequestHandler';
 import { PluginInfo } from './types';
 
 // Constants for URLs and plugin information
-const MASSA_STATION_URL = 'https://station.massa/plugin-manager';
 const PLUGIN_NAME = 'Massa Wallet';
 const PLUGIN_AUTHOR = 'Massa Labs';
 const TIMEOUT = 4000;
 
 async function fetchPluginData(): Promise<JsonRpcResponseData<PluginInfo[]>> {
-  return getRequest<PluginInfo[]>(MASSA_STATION_URL, TIMEOUT);
+  return getRequest<PluginInfo[]>(
+    MASSA_STATION_URL + 'plugin-manager',
+    TIMEOUT,
+  );
 }
 
 function findWalletPlugin(plugins: PluginInfo[]): PluginInfo | undefined {
@@ -18,18 +21,20 @@ function findWalletPlugin(plugins: PluginInfo[]): PluginInfo | undefined {
 }
 
 export async function isMassaStationAvailable(): Promise<boolean> {
-  const response = await fetchPluginData();
-  return !response.isError;
+  try {
+    await fetchPluginData();
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 export async function isMassaWalletEnabled(): Promise<boolean> {
-  const response = await fetchPluginData();
-
-  if (response.isError) {
-    console.warn('Error fetching plugin data:', response.error);
+  try {
+    const { result } = await fetchPluginData();
+    const walletPlugin = findWalletPlugin(result);
+    return walletPlugin && walletPlugin.status === 'Up';
+  } catch (_) {
     return false;
   }
-
-  const walletPlugin = findWalletPlugin(response.result);
-  return walletPlugin && walletPlugin.status === 'Up';
 }

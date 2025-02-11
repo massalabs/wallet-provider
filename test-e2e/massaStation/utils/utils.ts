@@ -27,6 +27,7 @@ export async function deleteStationAccountFromNickname(
   let account = accounts.find((account) => account.accountName === nickname);
 
   if (!account) {
+    // eslint-disable-next-line no-console
     console.log(`Account with nickname ${nickname} not found`);
     return;
   }

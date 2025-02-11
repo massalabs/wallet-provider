@@ -17,6 +17,7 @@ export class WalletsListener {
         callback(newWallets);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error checking wallet list changes:', error);
     }
   }
