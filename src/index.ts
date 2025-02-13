@@ -38,7 +38,7 @@ export { MassaStationWallet } from './massaStation/MassaStationWallet';
 
 export { MassaStationAccount } from './massaStation/MassaStationAccount';
 
-export { getWallets, getWallet, WalletsListener } from './walletsManager';
+export { getWallet, getWallets, WalletsListener } from './walletsManager';
 
 export * from './wallet';
 
@@ -46,3 +46,11 @@ export {
   isMassaStationAvailable,
   isMassaWalletEnabled,
 } from './massaStation/MassaStationDiscovery';
+
+export {
+  AccountConfig,
+  AddUpdateSignRuleResponse,
+  Config,
+  RuleType,
+  SignRule,
+} from './massaStation/types';
