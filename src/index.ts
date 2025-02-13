@@ -44,11 +44,13 @@ export * from './wallet';
 
 export {
   isMassaStationAvailable,
-  isMassaWalletEnabled
+  isMassaWalletEnabled,
 } from './massaStation/MassaStationDiscovery';
 
 export {
-  AccountConfig, AddUpdateSignRuleResponse, Config,
+  AccountConfig,
+  AddUpdateSignRuleResponse,
+  Config,
   RuleType,
-  SignRule
+  SignRule,
 } from './massaStation/types';
