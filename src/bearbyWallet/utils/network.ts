@@ -10,7 +10,7 @@ export const networkInfos = async (): Promise<Network> => {
   }
   return {
     name: net,
-    chainId: res.result.chain_id,
+    chainId: BigInt(res.result.chain_id),
     minimalFee: Mas.fromString(res.result.minimal_fees),
   };
 };
