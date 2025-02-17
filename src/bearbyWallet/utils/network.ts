@@ -9,7 +9,7 @@ export const networkInfos = async (): Promise<Network> => {
     throw new Error(res.error?.message || 'Bearby getNodesStatus error');
   }
   return {
-    name: net,
+    name: net ?? '',
     chainId: BigInt(res.result.chain_id),
     minimalFee: Mas.fromString(res.result.minimal_fees),
   };

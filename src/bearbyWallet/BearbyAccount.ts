@@ -61,7 +61,7 @@ export class BearbyAccount implements Provider {
     try {
       const res = await web3.massa.getAddresses(this.address);
 
-      if (res.error) {
+      if (res.error || !res.result) {
         throw new Error(res.error?.message || 'Bearby getAddresses error');
       }
 
@@ -80,7 +80,7 @@ export class BearbyAccount implements Provider {
     final?: boolean,
   ): Promise<{ address: string; balance: bigint }[]> {
     const res = await web3.massa.getAddresses(...addresses);
-    if (res.error) {
+    if (res.error || !res.result) {
       throw new Error(res.error?.message || 'Bearby getAddresses error');
     }
 
@@ -100,12 +100,12 @@ export class BearbyAccount implements Provider {
   public async sign(data: Uint8Array | string): Promise<SignedData> {
     // await this.connect();
 
-    let strData: string;
     if (data instanceof Uint8Array) {
-      strData = new TextDecoder().decode(data);
+      data = new TextDecoder().decode(data);
     }
+
     try {
-      const signature = await web3.wallet.signMessage(strData);
+      const signature = await web3.wallet.signMessage(data);
 
       return {
         publicKey: signature.publicKey,
@@ -196,7 +196,7 @@ export class BearbyAccount implements Provider {
   }
 
   public async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    if (params?.maxGas > MAX_GAS_CALL) {
+    if (params.maxGas && params?.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
       );
@@ -262,13 +262,14 @@ export class BearbyAccount implements Provider {
       const fee = Number(params.fee ?? (await this.minimalFee()));
       const maxCoins =
         params.maxCoins ??
-        StorageCost.smartContract(params.byteCode.length) + params.coins;
+        StorageCost.smartContract(params.byteCode.length) +
+          (params.coins ? params.coins : 0n);
 
       const args = {
         ...params,
         maxCoins: maxCoins,
         maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
-        coins: params.coins,
+        coins: params.coins ? params.coins : 0n,
         fee: fee,
         gasPrice: 10000n, // dummy value waiting for (https://github.com/bearby-wallet/bearby-web3/pull/25)
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
@@ -298,7 +299,7 @@ export class BearbyAccount implements Provider {
     try {
       const res = await web3.massa.getOperations(opId);
 
-      if (res.error) {
+      if (res.error || !res.result) {
         throw new Error(res.error?.message || 'Bearby getOperations error');
       }
       const op = res.result[0] as any; // cast to remove when bearby.js typings are fixed
@@ -353,6 +354,9 @@ export class BearbyAccount implements Provider {
 
   public async getNodeStatus(): Promise<NodeStatusInfo> {
     const status = await web3.massa.getNodesStatus();
+    if (status.error || !status.result) {
+      throw new Error(status.error?.message || 'Bearby getNodeStatus error');
+    }
     return formatNodeStatusObject(status.result);
   }
 
@@ -361,7 +365,12 @@ export class BearbyAccount implements Provider {
     filter: Uint8Array | string = new Uint8Array(),
     final = true,
   ): Promise<Uint8Array[]> {
-    const addressInfo = (await web3.massa.getAddresses(address)).result[0];
+    const res = await web3.massa.getAddresses(address);
+    if (res.error || !res.result) {
+      throw new Error(res.error?.message || 'Bearby getStorageKeys error');
+    }
+
+    const addressInfo = res.result[0];
     const keys = final
       ? addressInfo.final_datastore_keys
       : addressInfo.candidate_datastore_keys;

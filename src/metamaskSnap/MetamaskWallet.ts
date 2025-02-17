@@ -1,15 +1,12 @@
 import { Wallet } from '../wallet/interface';
-import {
-  getNetworkNameByChainId,
-  Network,
-  Provider,
-} from '@massalabs/massa-web3';
+import { Network, Provider } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
 import { getMetamaskProvider } from './metamask';
 import { connectSnap, isConnected } from './snap';
 import { MetamaskAccount } from './MetamaskAccount';
 import { MetaMaskInpageProvider } from '@metamask/providers';
-import { getActiveAccount, getNetwork, setRpcUrl } from './services';
+import { getActiveAccount, setRpcUrl } from './services';
+import { networkInfos } from './utils/network';
 import EventEmitter from 'eventemitter3';
 
 const METAMASK_NETWORK_CHANGED = 'METAMASK_NETWORK_CHANGED';
@@ -54,14 +51,7 @@ export class MetamaskWallet implements Wallet {
   }
 
   public async networkInfos(): Promise<Network> {
-    const res = await getNetwork(this.metamaskProvider);
-
-    return {
-      name: getNetworkNameByChainId(BigInt(res.chainId)),
-      chainId: BigInt(res.chainId),
-      url: res.network,
-      minimalFee: BigInt(res.minimalFees),
-    };
+    return await networkInfos(this.metamaskProvider);
   }
 
   /**

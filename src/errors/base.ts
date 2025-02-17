@@ -48,7 +48,7 @@ export class BaseError extends Error {
 
     this.metaMessages = args.metaMessages || [];
     this.docsPath = args.docsPath;
-    this.code = args.code;
+    this.code = args.code ?? ErrorCodes.UnknownError;
     this.cause = args.cause;
   }
 }

@@ -33,7 +33,7 @@ export async function isMassaWalletEnabled(): Promise<boolean> {
   try {
     const { result } = await fetchPluginData();
     const walletPlugin = findWalletPlugin(result);
-    return walletPlugin && walletPlugin.status === 'Up';
+    return Boolean(walletPlugin && walletPlugin.status === 'Up');
   } catch (_) {
     return false;
   }

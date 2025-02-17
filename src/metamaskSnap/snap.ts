@@ -5,10 +5,15 @@ import { type GetSnapsResponse, Snap } from './types';
 
 export const getInstalledSnaps = async (
   provider: MetaMaskInpageProvider,
-): Promise<GetSnapsResponse> =>
-  provider.request({
+): Promise<GetSnapsResponse> => {
+  const res = await provider.request({
     method: 'wallet_getSnaps',
   });
+  if (!res) {
+    throw new Error('metamask wallet_getSnaps returned empty response');
+  }
+  return res;
+};
 
 export const getMassaSnapInfo = async (
   provider: MetaMaskInpageProvider,

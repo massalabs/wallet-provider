@@ -26,7 +26,9 @@ export async function getWallets(delay = 200): Promise<Wallet[]> {
   });
 
   const resolvedWallets = await Promise.all(walletPromises);
-  return resolvedWallets.filter((wallet) => !!wallet);
+
+  // remove null values: wallets that failed to initialize
+  return resolvedWallets.filter((wallet) => !!wallet) as Wallet[];
 }
 
 export async function getWallet(

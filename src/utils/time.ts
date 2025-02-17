@@ -36,7 +36,7 @@ export class Timeout {
   }
   private isCleared: boolean;
   private isCalled: boolean;
-  private timeoutHook: NodeJS.Timer;
+  private timeoutHook: NodeJS.Timeout;
 
   /**
    * A method to clear the timeout
@@ -80,7 +80,7 @@ export class Interval {
   }
   private isCleared: boolean;
   private isCalled: boolean;
-  private intervalHook: NodeJS.Timer;
+  private intervalHook: NodeJS.Timeout;
 
   /**
    * A method to clear the interval

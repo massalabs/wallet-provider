@@ -4,7 +4,7 @@ export function isUserRejectionError(error: Error): boolean {
   const bearbyUserRejectionErrorMessage = 'User rejected';
   const massaUserRejectionErrorMessage = 'Action canceled by user';
   return (
-    error.message &&
+    !!error.message &&
     (error.message.includes(bearbyUserRejectionErrorMessage) ||
       error.message.includes(massaUserRejectionErrorMessage))
   );

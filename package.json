@@ -54,7 +54,7 @@
     ],
     "dependencies": {
         "@hicaru/bearby.js": "^0.5.9",
-        "@massalabs/massa-web3": "^5.1.1",
+        "@massalabs/massa-web3": "^5.1.2-dev",
         "@metamask/providers": "^18.1.1",
         "axios": "^0.28.0",
         "bs58check": "^4.0.0",
