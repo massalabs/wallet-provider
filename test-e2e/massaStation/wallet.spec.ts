@@ -111,7 +111,7 @@ describe('MassaStation wallet tests', () => {
 
   it('deploySC: deploy random bytecode -> expect to fail', async () => {
     const byteCode = new Uint8Array([1, 2, 3, 4]);
-    expect(await SmartContract.deploy(account, byteCode)).rejects.toThrow();
+    await expect(SmartContract.deploy(account, byteCode)).rejects.toThrow();
   });
 
   it('deploySC: deploy correct smart contract bytecode', async () => {
