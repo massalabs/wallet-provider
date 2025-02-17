@@ -12,7 +12,6 @@ import {
   DeploySCParams,
   EventFilter,
   formatNodeStatusObject,
-  JsonRPCClient,
   Mas,
   MAX_GAS_CALL,
   MAX_GAS_DEPLOYMENT,
@@ -30,11 +29,14 @@ import {
   strToBytes,
   bytesToStr,
   rpcTypes,
+  JsonRpcPublicProvider,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import isEqual from 'lodash.isequal';
 import { uint8ArrayToBase64 } from '../utils/base64';
+
+let jsonClient: JsonRpcPublicProvider;
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -54,6 +56,18 @@ export class BearbyAccount implements Provider {
   //     console.log('Bearby connection error: ', ex);
   //   }
   // }
+
+  private async getClient(): Promise<JsonRpcPublicProvider> {
+    if (!jsonClient) {
+      const network = await networkInfos();
+      jsonClient = (
+        network.name === 'mainnet'
+          ? JsonRpcPublicProvider.mainnet()
+          : JsonRpcPublicProvider.buildnet()
+      ) as JsonRpcPublicProvider;
+    }
+    return jsonClient;
+  }
 
   public async balance(final = false): Promise<bigint> {
     // // TODO: check if we need to connect every time
@@ -179,11 +193,19 @@ export class BearbyAccount implements Provider {
 
     const fee = params?.fee ?? (await this.minimalFee());
 
+    let maxGas = params.maxGas;
+    if (!maxGas) {
+      const client = await this.getClient();
+      maxGas = await client.getGasEstimation({
+        ...params,
+        caller: this.address,
+      });
+    }
+
     try {
       const operationId = await web3.contract.call({
         // TODO: add bigint support in bearby.js
-        // TODO add gas estimation here
-        maxGas: Number(params.maxGas || MAX_GAS_CALL),
+        maxGas: Number(maxGas),
         coins: Number(params.coins || 0),
         fee: Number(fee),
         targetAddress: params.target,
@@ -239,18 +261,14 @@ export class BearbyAccount implements Provider {
       // };
 
       // Temp implementation to remove when bearby.js is fixed
-      const network = await this.networkInfos();
-      const client =
-        network.name === 'mainnet'
-          ? JsonRPCClient.mainnet()
-          : JsonRPCClient.buildnet();
+      const client = await this.getClient();
       const readOnlyParams = {
         ...params,
         caller,
         fee,
         parameter: unsafeParameters,
       };
-      return client.executeReadOnlyCall(readOnlyParams);
+      return client.readSC(readOnlyParams);
     } catch (error) {
       throw new Error(
         `An error occurred while reading the smart contract: ${error.message}`,
