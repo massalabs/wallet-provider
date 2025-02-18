@@ -270,7 +270,7 @@ export class BearbyAccount implements Provider {
         ...params,
         maxCoins: maxCoins,
         maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
-        coins: coins,
+        coins,
         fee: fee,
         gasPrice: 10000n, // dummy value waiting for (https://github.com/bearby-wallet/bearby-web3/pull/25)
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
