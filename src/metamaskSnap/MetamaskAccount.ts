@@ -79,7 +79,7 @@ export class MetamaskAccount implements Provider {
   }
 
   async networkInfos(): Promise<Network> {
-    return await networkInfos(this.provider);
+    return networkInfos(this.provider);
   }
 
   async sign(inData: Uint8Array | string): Promise<SignedData> {

@@ -51,7 +51,7 @@ export class MetamaskWallet implements Wallet {
   }
 
   public async networkInfos(): Promise<Network> {
-    return await networkInfos(this.metamaskProvider);
+    return networkInfos(this.metamaskProvider);
   }
 
   /**

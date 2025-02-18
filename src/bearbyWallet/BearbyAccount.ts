@@ -28,6 +28,7 @@ import {
   SmartContract,
   StorageCost,
   strToBytes,
+  bytesToStr,
   rpcTypes,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
@@ -101,7 +102,7 @@ export class BearbyAccount implements Provider {
     // await this.connect();
 
     if (data instanceof Uint8Array) {
-      data = new TextDecoder().decode(data);
+      data = bytesToStr(data);
     }
 
     try {
@@ -196,7 +197,7 @@ export class BearbyAccount implements Provider {
   }
 
   public async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    if (params.maxGas && params?.maxGas > MAX_GAS_CALL) {
+    if (params.maxGas && params.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}.`,
       );
@@ -260,16 +261,16 @@ export class BearbyAccount implements Provider {
   public async deploySC(params: DeploySCParams): Promise<SmartContract> {
     try {
       const fee = Number(params.fee ?? (await this.minimalFee()));
+      const coins = params.coins ?? 0n;
       const maxCoins =
         params.maxCoins ??
-        StorageCost.smartContract(params.byteCode.length) +
-          (params.coins ? params.coins : 0n);
+        StorageCost.smartContract(params.byteCode.length) + coins;
 
       const args = {
         ...params,
         maxCoins: maxCoins,
         maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
-        coins: params.coins ? params.coins : 0n,
+        coins: coins,
         fee: fee,
         gasPrice: 10000n, // dummy value waiting for (https://github.com/bearby-wallet/bearby-web3/pull/25)
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
