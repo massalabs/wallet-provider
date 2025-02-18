@@ -191,7 +191,7 @@ export class BearbyAccount implements Provider {
     const unsafeParameters =
       args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-    const fee = params?.fee ?? (await this.minimalFee());
+    const fee = params.fee ?? (await this.minimalFee());
 
     let maxGas = params.maxGas;
     if (!maxGas) {
@@ -290,7 +290,6 @@ export class BearbyAccount implements Provider {
         maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
         coins,
         fee,
-        gasPrice: 10000n, // dummy value waiting for (https://github.com/bearby-wallet/bearby-web3/pull/25)
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
         deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
       };
@@ -321,7 +320,7 @@ export class BearbyAccount implements Provider {
       if (res.error || !res.result) {
         throw new Error(res.error?.message || 'Bearby getOperations error');
       }
-      const op = res.result[0] as any; // cast to remove when bearby.js typings are fixed
+      const op = res.result[0];
       if (op.op_exec_status === null) {
         if (op.is_operation_final === null) {
           return OperationStatus.NotFound;
@@ -361,9 +360,13 @@ export class BearbyAccount implements Provider {
     };
 
     try {
-      const res = await web3.contract.getFilteredSCOutputEvent(formattedFilter);
+      const { result } =
+        await web3.contract.getFilteredSCOutputEvent(formattedFilter);
 
-      return (res as any).result; // TODO: to remove when bearby.js typings are fixed
+      if (!result) {
+        return [];
+      }
+      return result;
     } catch (error) {
       throw new Error(
         `An error occurred while fetching the operation status: ${error.message}`,
