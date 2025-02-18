@@ -111,10 +111,10 @@ describe('MassaStation wallet tests', () => {
 
   it('deploySC: deploy random bytecode -> expect to fail', async () => {
     const byteCode = new Uint8Array([1, 2, 3, 4]);
-    expect(SmartContract.deploy(account, byteCode)).rejects.toThrow();
+    await expect(SmartContract.deploy(account, byteCode)).rejects.toThrow();
   });
 
-  it.skip('deploySC: deploy correct smart contract bytecode', async () => {
+  it('deploySC: deploy correct smart contract bytecode', async () => {
     // deploy the hello world smart contract
     const byteCode = getScByteCode('helloWorldSC.wasm');
     const helloWorldName = 'John Doe';
@@ -124,16 +124,18 @@ describe('MassaStation wallet tests', () => {
       byteCode,
       new Args().addString(helloWorldName),
       {
-        coins: Mas.fromMilliMas(30n),
+        coins: Mas.fromMilliMas(2n),
       },
     );
     expect(smartContract.address).toBeDefined();
+    console.log(`Smart contract deployed at address ${smartContract.address}`);
     const storageName = await account.readStorage(
       smartContract.address,
       [NAME_KEY],
       false,
     );
-    const newName = bytesToStr(storageName[0]);
+    expect(storageName[0]).toBeTruthy();
+    const newName = bytesToStr(storageName[0] as Uint8Array);
 
     expect(newName).toEqual(helloWorldName);
   });

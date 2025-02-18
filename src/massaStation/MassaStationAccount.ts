@@ -200,10 +200,12 @@ export class MassaStationAccount implements Provider {
   public async callSC(params: CallSCParams): Promise<Operation> {
     // convert parameter to base64
     let args = '';
-    if (params.parameter instanceof Uint8Array) {
-      args = uint8ArrayToBase64(params.parameter);
-    } else {
-      args = argsToBase64(params.parameter);
+    if (params.parameter) {
+      if (params.parameter instanceof Uint8Array) {
+        args = uint8ArrayToBase64(params.parameter);
+      } else {
+        args = argsToBase64(params.parameter);
+      }
     }
 
     let fee = params?.fee ?? (await this.minimalFee());
@@ -238,7 +240,7 @@ export class MassaStationAccount implements Provider {
 
   public async readSC(params: ReadSCParams): Promise<ReadSCData> {
     // Gas amount check
-    if (params.maxGas > MAX_GAS_CALL) {
+    if (params.maxGas && params.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `
         The gas submitted ${params.maxGas.toString()} exceeds the max. allowed block gas of 
@@ -345,7 +347,7 @@ export class MassaStationAccount implements Provider {
     address: string,
     keys: Uint8Array[] | string[],
     final = true,
-  ): Promise<Uint8Array[]> {
+  ): Promise<(Uint8Array | null)[]> {
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
     const client = await getClient();
     const entries: DatastoreEntry[] = keys.map((key) => ({

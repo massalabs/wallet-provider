@@ -22,7 +22,7 @@
         "noImplicitAny": false,
         "noImplicitThis": false,
         "skipLibCheck": true,
-        "strictNullChecks": false,
+        "strictNullChecks": true,
         "downlevelIteration": true,
         "outDir": "dist/package",
         "types": [

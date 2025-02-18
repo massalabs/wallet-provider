@@ -24,7 +24,10 @@ export class BearbyWallet implements Wallet {
     if (!web3.wallet.connected) {
       await web3.wallet.connect();
     }
-    return [new BearbyAccount(await web3.wallet.account.base58)];
+    if (!web3.wallet.account.base58) {
+      throw new Error('No account found on Bearby');
+    }
+    return [new BearbyAccount(web3.wallet.account.base58)];
   }
 
   public async importAccount(): Promise<void> {
@@ -76,7 +79,9 @@ export class BearbyWallet implements Wallet {
   public listenAccountChanges(callback: (address: string) => void): {
     unsubscribe: () => void;
   } {
-    return web3.wallet.account.subscribe((address) => callback(address));
+    return web3.wallet.account.subscribe(
+      (address) => address && callback(address),
+    );
   }
 
   /**

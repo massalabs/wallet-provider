@@ -44,11 +44,10 @@ function handleAxiosError(error: any): never {
  */
 export async function getRequest<T>(
   url: string,
-  timeout: number = null,
+  timeout?: number,
 ): Promise<JsonRpcResponseData<T>> {
-  let resp: AxiosResponse = null;
   try {
-    resp = await axios.get<unknown, AxiosResponse, object>(url, {
+    const resp = await axios.get<unknown, AxiosResponse, object>(url, {
       headers: requestHeaders,
       timeout,
     });
@@ -93,9 +92,8 @@ export async function postRequest<T>(
 export async function deleteRequest<T>(
   url: string,
 ): Promise<JsonRpcResponseData<T>> {
-  let resp: AxiosResponse = null;
   try {
-    resp = await axios.delete<unknown, AxiosResponse, object>(url, {
+    const resp = await axios.delete<unknown, AxiosResponse, object>(url, {
       headers: requestHeaders,
     });
 
@@ -118,9 +116,8 @@ export async function putRequest<T>(
   url: string,
   body: object,
 ): Promise<JsonRpcResponseData<T>> {
-  let resp: AxiosResponse = null;
   try {
-    resp = await axios.put<unknown, AxiosResponse, object>(url, body, {
+    const resp = await axios.put<unknown, AxiosResponse, object>(url, body, {
       headers: requestHeaders,
     });
 

@@ -24,7 +24,7 @@ import {
 import { WalletName } from '../wallet';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
-import { getClient, networkInfos } from '../massaStation/utils/network';
+import { networkInfos, getClient } from './utils/network';
 import {
   buyRolls,
   callSC,
@@ -67,7 +67,7 @@ export class MetamaskAccount implements Provider {
     addresses: string[],
     final = false,
   ): Promise<{ address: string; balance: bigint }[]> {
-    const client = await getClient();
+    const client = await getClient(this.provider);
     const addressesInfo = await client.getMultipleAddressInfo(addresses);
 
     return addressesInfo.map((addressInfo) => ({
@@ -79,7 +79,7 @@ export class MetamaskAccount implements Provider {
   }
 
   async networkInfos(): Promise<Network> {
-    return networkInfos();
+    return networkInfos(this.provider);
   }
 
   async sign(inData: Uint8Array | string): Promise<SignedData> {
@@ -184,7 +184,7 @@ export class MetamaskAccount implements Provider {
   }
 
   async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    if (params?.maxGas > MAX_GAS_CALL) {
+    if (params.maxGas && params.maxGas > MAX_GAS_CALL) {
       throw new Error(
         `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}`,
       );
@@ -194,7 +194,7 @@ export class MetamaskAccount implements Provider {
       const parameter =
         args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
 
-      const client = await getClient();
+      const client = await getClient(this.provider);
       const readOnlyParams = {
         ...params,
         caller: params.caller ?? this.address,
@@ -245,17 +245,17 @@ export class MetamaskAccount implements Provider {
   }
 
   async getOperationStatus(opId: string): Promise<OperationStatus> {
-    const client = await getClient();
+    const client = await getClient(this.provider);
     return client.getOperationStatus(opId);
   }
 
   async getEvents(filter: EventFilter): Promise<rpcTypes.OutputEvents> {
-    const client = await getClient();
+    const client = await getClient(this.provider);
     return client.getEvents(filter);
   }
 
   async getNodeStatus(): Promise<NodeStatusInfo> {
-    const client = await getClient();
+    const client = await getClient(this.provider);
     const status = await client.status();
     return formatNodeStatusObject(status);
   }
@@ -265,7 +265,7 @@ export class MetamaskAccount implements Provider {
     filter: Uint8Array | string = new Uint8Array(),
     final = true,
   ): Promise<Uint8Array[]> {
-    const client = await getClient();
+    const client = await getClient(this.provider);
     const filterBytes =
       typeof filter === 'string' ? strToBytes(filter) : filter;
     return client.getDataStoreKeys(address, filterBytes, final);
@@ -275,8 +275,8 @@ export class MetamaskAccount implements Provider {
     address: string,
     keys: Uint8Array[] | string[],
     final = true,
-  ): Promise<Uint8Array[]> {
-    const client = await getClient();
+  ): Promise<(Uint8Array | null)[]> {
+    const client = await getClient(this.provider);
     const entries: DatastoreEntry[] = keys.map((key) => ({
       key,
       address,
