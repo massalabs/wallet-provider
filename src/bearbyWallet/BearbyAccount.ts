@@ -2,6 +2,7 @@ import {
   EventFilterParam,
   web3,
   DatastoreEntryInputParam,
+  JsonRPCResponse,
 } from '@hicaru/bearby.js';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
@@ -360,13 +361,23 @@ export class BearbyAccount implements Provider {
     };
 
     try {
-      const { result } =
-        await web3.contract.getFilteredSCOutputEvent(formattedFilter);
+      /* 
+        Currently getFilteredSCOutputEvent is supposed to return a JsonRPCResponseFilteredSCOutputEvent object.
+        But in practice it's returning an array of JsonRPCResponse<rpcTypes.OutputEvents> objects.
+      */
+      const res = (await web3.contract.getFilteredSCOutputEvent(
+        formattedFilter,
+      )) as JsonRPCResponse<rpcTypes.OutputEvents>[];
 
-      if (!result) {
+      if (res.length && res[0].error) {
+        throw res[0].error;
+      }
+
+      if (!res.length || !res[0].result || !res[0].result.length) {
         return [];
       }
-      return result;
+
+      return res[0].result;
     } catch (error) {
       throw new Error(
         `An error occurred while fetching the operation status: ${error.message}`,
