@@ -2,7 +2,6 @@ import {
   JsonRPCClient,
   Network,
   getNetworkNameByChainId,
-  Mas,
 } from '@massalabs/massa-web3';
 
 import { getNetwork } from '../services/getNetwork';
@@ -29,7 +28,7 @@ export async function networkInfos(
     name: networkName ? networkName : '',
     chainId: BigInt(res.chainId),
     url,
-    minimalFee: Mas.fromString(res.minimalFees),
+    minimalFee: BigInt(res.minimalFees),
   };
 }
 
