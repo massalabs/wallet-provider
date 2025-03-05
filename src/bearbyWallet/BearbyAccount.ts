@@ -369,15 +369,8 @@ export class BearbyAccount implements Provider {
         formattedFilter,
       )) as JsonRPCResponse<rpcTypes.OutputEvents>[];
 
-      if (res.length && res[0].error) {
-        throw res[0].error;
-      }
-
-      if (!res.length || !res[0].result || !res[0].result.length) {
-        return [];
-      }
-
-      return res[0].result;
+      if (res?.[0]?.error) throw res[0].error;
+      return res?.[0]?.result ?? [];
     } catch (error) {
       throw new Error(
         `An error occurred while fetching the operation status: ${error.message}`,
