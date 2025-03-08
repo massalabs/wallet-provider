@@ -56,7 +56,7 @@
         "@hicaru/bearby.js": "^0.6.0",
         "@massalabs/massa-web3": "^5.1.2-dev",
         "@metamask/providers": "^18.1.1",
-        "axios": "^0.28.0",
+        "axios": "^1.8.2",
         "bs58check": "^4.0.0",
         "buffer": "^6.0.3",
         "eventemitter3": "^5.0.1",
