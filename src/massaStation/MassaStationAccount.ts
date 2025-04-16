@@ -272,7 +272,7 @@ export class MassaStationAccount implements Provider {
       const coins = params.coins ?? 0n; // If coins is undefined, some vesions of station will have a panic
       const maxCoins =
         params.maxCoins ??
-        StorageCost.smartContract(params.byteCode.length) + coins;
+        StorageCost.smartContractDeploy(params.byteCode.length) + coins;
       const fee = params.fee || (await this.minimalFee());
 
       const body: DeploySCFunctionBody = {
