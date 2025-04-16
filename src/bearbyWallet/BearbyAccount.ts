@@ -283,7 +283,7 @@ export class BearbyAccount implements Provider {
       const coins = params.coins ?? 0n;
       const maxCoins =
         params.maxCoins ??
-        StorageCost.smartContract(params.byteCode.length) + coins;
+        StorageCost.smartContractDeploy(params.byteCode.length) + coins;
 
       const args = {
         ...params,
