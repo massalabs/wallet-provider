@@ -20,17 +20,15 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
         run: |
           sudo apt update
-          npm ci
+          npm ci && npm run build
           sudo apt install xvfb libnss3-tools libwebkit2gtk-4.1-0
 
-      - name: Build bundle
-        run: npm run build
 
       - name: Download MassaStation
         run: |
@@ -73,7 +71,7 @@ jobs:
       - name: Switch to buildnet
         run: curl -X POST "http://station.massa/network/buildnet"
           
-      - name: Test using dummy extension
+      - name: Run test suite
         run: NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm run test:e2e
 
       - name: Print MassaStation logs

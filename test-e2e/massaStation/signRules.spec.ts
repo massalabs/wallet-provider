@@ -22,8 +22,9 @@ describe('MassaStation wallet sign rules tests', () => {
     );
   });
 
+  // Unskip the test when wallet 0.5.2 is released
   it.skip('Add/edit/delete SignRule', async () => {
-    const expectedId = 'd3bd9e4a27';
+    const expectedId = 'a990e7dab2';
     const newRule: SignRule = {
       name: 'RuleName',
       ruleType: RuleType.DisablePasswordPrompt,
