@@ -3,6 +3,7 @@ import {
   web3,
   DatastoreEntryInputParam,
   JsonRPCResponse,
+  ExecuteBytecodeParams,
 } from '@hicaru/bearby.js';
 import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
@@ -15,7 +16,6 @@ import {
   formatNodeStatusObject,
   Mas,
   MAX_GAS_CALL,
-  MAX_GAS_DEPLOYMENT,
   Network,
   NodeStatusInfo,
   Operation,
@@ -31,6 +31,7 @@ import {
   bytesToStr,
   rpcTypes,
   JsonRpcPublicProvider,
+  ExecuteScParams,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -285,10 +286,19 @@ export class BearbyAccount implements Provider {
         params.maxCoins ??
         StorageCost.smartContractDeploy(params.byteCode.length) + coins;
 
+      let maxGas = params.maxGas;
+      if (!maxGas) {
+        const client = await this.getClient();
+        maxGas = await client.executeSCGasEstimation({
+          ...params,
+          caller: this.address,
+        });
+      }
+
       const args = {
         ...params,
         maxCoins,
-        maxGas: params.maxGas || MAX_GAS_DEPLOYMENT,
+        maxGas,
         coins,
         fee,
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
@@ -310,8 +320,29 @@ export class BearbyAccount implements Provider {
     }
   }
 
-  executeSC(): Promise<Operation> {
-    throw new Error('Method not implemented.');
+  public async executeSC(params: ExecuteScParams): Promise<Operation> {
+    const fee = params.fee ?? (await this.minimalFee());
+
+    let maxGas = params.maxGas;
+    if (!maxGas) {
+      const client = await this.getClient();
+      maxGas = await client.executeSCGasEstimation({
+        ...params,
+        caller: this.address,
+      });
+    }
+
+    const args: ExecuteBytecodeParams = {
+      maxCoins: params.maxCoins ?? 0n,
+      maxGas,
+      fee,
+      bytecodeBase64: uint8ArrayToBase64(params.byteCode),
+      datastore: params.datastore ?? new Map<Uint8Array, Uint8Array>(),
+    };
+
+    const operationId = await web3.contract.executeBytecode(args);
+
+    return new Operation(this, operationId);
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
