@@ -54,14 +54,14 @@
     ],
     "dependencies": {
         "@hicaru/bearby.js": "^0.6.0",
-        "@massalabs/massa-web3": "^5.2.0",
+        "@massalabs/massa-web3": "^5.2.1-dev",
+        "@massalabs/metamask-snap": "^1.1.0",
         "@metamask/providers": "^18.1.1",
         "axios": "^1.8.2",
         "bs58check": "^4.0.0",
         "buffer": "^6.0.3",
         "eventemitter3": "^5.0.1",
-        "lodash.isequal": "^4.5.0",
-        "@massalabs/metamask-snap": "^1.1.0"
+        "lodash.isequal": "^4.5.0"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.22.14",
