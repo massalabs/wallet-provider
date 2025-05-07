@@ -322,7 +322,6 @@ export class BearbyAccount implements Provider {
 
   public async executeSC(params: ExecuteScParams): Promise<Operation> {
     const fee = params.fee ?? (await this.minimalFee());
-
     let maxGas = params.maxGas;
     if (!maxGas) {
       const client = await this.getClient();

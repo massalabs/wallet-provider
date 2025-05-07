@@ -5,16 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "cd ../ && npm run build",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@massalabs/massa-web3": "^5.2.0",
+    "@massalabs/massa-web3": "^5.2.1-dev",
     "@massalabs/react-ui-kit": "^1.1.1-dev",
-    "@massalabs/wallet-provider": "^3.2.0",
+    "@massalabs/wallet-provider": "file:..",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "overrides": {
+    "@massalabs/react-ui-kit": {
+      "@massalabs/wallet-provider": "file:.."
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
