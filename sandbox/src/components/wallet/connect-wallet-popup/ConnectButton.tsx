@@ -15,7 +15,7 @@ export function ConnectButton() {
         customClass="h-[25px] text-primary dark:text-primary"
         onClick={() => setOpen(true)}
       >
-        {truncateAddress(connectedAccount!.address)}
+        {truncateAddress(connectedAccount?.address)}
       </Button>
     );
   }
