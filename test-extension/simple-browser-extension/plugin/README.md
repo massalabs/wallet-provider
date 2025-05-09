@@ -1,1 +1,0 @@
-# Massa-Wallet Extension Example

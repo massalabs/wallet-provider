@@ -15,15 +15,12 @@
         "build:watch": "tsc --project tsconfig.esm.json --watch",
         "build:esm": "tsc --project tsconfig.esm.json",
         "test": "jest",
-        "test:serve-dapp": "cd test-extension/dapp-vite && npm run preview",
-        "test:extension": "cd ./test-extension && npx playwright test",
         "test:e2e": "jest --config jest.e2e.config.esm.js --maxWorkers=1",
         "test:e2e:local": "NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm run test:e2e",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "prettier": "prettier --check .",
         "prettier:fix": "prettier --write .",
-        "prettier:fix-code-snippets": "prettier --write ./code-snippets/ --plugin=prettier-plugin-organize-imports",
         "fmt": "npm run prettier:fix && npm run lint:fix",
         "fmt:check": "npm run prettier && npm run lint",
         "doc": "typedoc src/index.ts --name massa-wallet-provider --out docs/documentation/html --tsconfig tsconfig.json"
@@ -66,7 +63,6 @@
     "devDependencies": {
         "@babel/preset-env": "^7.22.14",
         "@massalabs/eslint-config": "^0.0.9",
-        "@playwright/test": "^1.36.2",
         "@types/jest": "^29.5.4",
         "@types/node": "^18.13.0",
         "babel-jest": "^29.6.4",
