@@ -1,0 +1,30 @@
+name: Sandbox Frontend Build
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build-sandbox-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install wallet-provider dependencies
+        run: npm ci
+
+      - name: Install sandbox dependencies
+        run: npm ci
+        working-directory: ./sandbox
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./sandbox
+

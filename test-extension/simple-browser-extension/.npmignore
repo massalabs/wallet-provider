@@ -1,6 +1,0 @@
-src/
-test-extension/
-tsconfig.json
-tslint.json
-.npmrc
-.vs/
