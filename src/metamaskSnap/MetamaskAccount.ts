@@ -20,6 +20,7 @@ import {
   strToBytes,
   rpcTypes,
   Mas,
+  ExecuteScParams,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
 import { errorHandler } from '../errors/utils/errorHandler';
@@ -29,6 +30,7 @@ import {
   buyRolls,
   callSC,
   deploySC,
+  executeSC,
   getBalance,
   sellRolls,
   signMessage,
@@ -40,6 +42,7 @@ import type {
   TransferParams,
   CallSCParams as MMCallSCParams,
   DeploySCParams as MMDeploySCParams,
+  ExecuteSCParams as MMExecuteSCParams,
 } from '@massalabs/metamask-snap';
 
 export class MetamaskAccount implements Provider {
@@ -284,7 +287,34 @@ export class MetamaskAccount implements Provider {
     return client.getDatastoreEntries(entries, final);
   }
 
-  executeSC(): Promise<Operation> {
-    throw new Error('Method not implemented.');
+  async executeSC(params: ExecuteScParams): Promise<Operation> {
+    try {
+      const executeParams: MMExecuteSCParams = {
+        bytecode: Array.from(params.byteCode),
+      };
+      if (params.datastore) {
+        executeParams.datastore = Array.from(params.datastore.entries()).map(
+          ([key, value]) => ({
+            key: Array.from(key),
+            value: Array.from(value),
+          }),
+        );
+      }
+
+      if (params.maxGas) {
+        executeParams.maxGas = params.maxGas.toString();
+      }
+      if (params.fee) {
+        executeParams.fee = params.fee.toString();
+      }
+      if (params.maxCoins) {
+        executeParams.maxCoins = params.maxCoins.toString();
+      }
+
+      const { operationId } = await executeSC(this.provider, executeParams);
+      return new Operation(this, operationId);
+    } catch (error) {
+      throw errorHandler(operationType.ExecuteSC, error);
+    }
   }
 }

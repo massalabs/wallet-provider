@@ -1,5 +1,6 @@
 export * from './callSC';
 export * from './deploySC';
+export * from './executeSC';
 export * from './buyRolls';
 export * from './sellRolls';
 export * from './getBalance';
