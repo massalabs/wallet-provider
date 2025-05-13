@@ -8,9 +8,12 @@ import {
 import {
   DeploySCFunctionBody,
   ExecuteFunctionBody,
+  ExecuteSCBody,
   MSAccountSignPayload,
   MSAccountSignResp,
   MSBalancesResp,
+  MSDeploySCParams,
+  MSExecuteScParams,
   MSSendOperationResp,
 } from './types';
 import { errorHandler } from '../errors/utils/errorHandler';
@@ -18,10 +21,7 @@ import { operationType } from '../utils/constants';
 import {
   Address,
   CallSCParams,
-  DatastoreEntry,
-  DeploySCParams,
   EventFilter,
-  formatNodeStatusObject,
   Mas,
   MAX_GAS_CALL,
   Network,
@@ -35,7 +35,6 @@ import {
   SignedData,
   SignOptions,
   SmartContract,
-  strToBytes,
   rpcTypes,
   StorageCost,
   formatMas,
@@ -131,7 +130,8 @@ export class MassaStationAccount implements Provider {
 
   private async minimalFee(): Promise<bigint> {
     const client = await getClient();
-    return client.getMinimalFee();
+    const { minimalFee } = await client.networkInfos();
+    return minimalFee;
   }
 
   private async rollOperation(
@@ -262,10 +262,10 @@ export class MassaStationAccount implements Provider {
         args instanceof Uint8Array ? args : Uint8Array.from(args.serialize()),
     };
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
-    return client.executeReadOnlyCall(readOnlyParams);
+    return client.readSC(readOnlyParams);
   }
 
-  public async deploySC(params: DeploySCParams): Promise<SmartContract> {
+  public async deploySC(params: MSDeploySCParams): Promise<SmartContract> {
     try {
       const args = params.parameter ?? new Uint8Array();
       const parameters = args instanceof Uint8Array ? args : args.serialize();
@@ -273,20 +273,30 @@ export class MassaStationAccount implements Provider {
       const maxCoins =
         params.maxCoins ??
         StorageCost.smartContractDeploy(params.byteCode.length) + coins;
-      const fee = params.fee || (await this.minimalFee());
+      const fee = params.fee ?? (await this.minimalFee());
+
+      let maxGas = params.maxGas;
+      if (!maxGas) {
+        const client = await getClient();
+        maxGas = await client.executeSCGasEstimation({
+          ...params,
+          caller: this.address,
+        });
+      }
+
+      const description =
+        params.description ??
+        `${formatMas(coins)} MAS coins allocated to new smart contract`;
 
       const body: DeploySCFunctionBody = {
         nickname: this.accountName,
         smartContract: uint8ArrayToBase64(params.byteCode),
-        maxCoins: maxCoins.toString(), // SmartContract deployment costs
         coins: coins.toString(),
-        fee: fee.toString(),
         parameters: uint8ArrayToBase64(parameters),
-        description: `${formatMas(
-          coins,
-        )} $MAS coins allocated to datastore + ${formatMas(
-          fee,
-        )} $MAS fee for operation`,
+        maxCoins: maxCoins.toString(),
+        fee: fee.toString(),
+        maxGas: maxGas.toString(),
+        description,
       };
 
       const { result } = await postRequest<MSSendOperationResp>(
@@ -309,8 +319,51 @@ export class MassaStationAccount implements Provider {
     }
   }
 
-  executeSC(): Promise<Operation> {
-    throw new Error('Method not implemented.');
+  async executeSC(params: MSExecuteScParams): Promise<Operation> {
+    try {
+      const fee = params.fee ?? (await this.minimalFee());
+      const maxCoins = params.maxCoins ?? 0n;
+
+      let maxGas = params.maxGas;
+      if (!maxGas) {
+        const client = await getClient();
+        maxGas = await client.executeSCGasEstimation({
+          ...params,
+          caller: this.address,
+        });
+      }
+
+      const datastore: [string, string][] = [];
+      if (params.datastore) {
+        for (const [key, value] of params.datastore.entries()) {
+          datastore.push([uint8ArrayToBase64(key), uint8ArrayToBase64(value)]);
+        }
+      }
+
+      const body: ExecuteSCBody = {
+        nickname: this.accountName,
+        bytecode: uint8ArrayToBase64(params.byteCode),
+        datastore,
+        maxCoins: maxCoins.toString(),
+        fee: fee.toString(),
+        description: params.description ?? '',
+      };
+
+      const { result } = await postRequest<MSSendOperationResp>(
+        `${MASSA_STATION_URL}cmd/executeSC`,
+        body,
+      );
+
+      const operationId = result?.operationId;
+
+      if (!operationId) throw new Error('Operation ID not found');
+
+      return new Operation(this, operationId);
+    } catch (error) {
+      throw new Error(
+        `Error during smart contract bytecode execution: ${error}`,
+      );
+    }
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
@@ -327,8 +380,7 @@ export class MassaStationAccount implements Provider {
 
   public async getNodeStatus(): Promise<NodeStatusInfo> {
     const client = await getClient();
-    const status = await client.status();
-    return formatNodeStatusObject(status);
+    return client.getNodeStatus();
   }
 
   public async getStorageKeys(
@@ -338,9 +390,7 @@ export class MassaStationAccount implements Provider {
   ): Promise<Uint8Array[]> {
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
     const client = await getClient();
-    const filterBytes: Uint8Array =
-      typeof filter === 'string' ? strToBytes(filter) : filter;
-    return client.getDataStoreKeys(address, filterBytes, final);
+    return client.getStorageKeys(address, filter, final);
   }
 
   public async readStorage(
@@ -350,10 +400,6 @@ export class MassaStationAccount implements Provider {
   ): Promise<(Uint8Array | null)[]> {
     // This implementation is wrong. We should use massaStation instead of targeting the node directly.
     const client = await getClient();
-    const entries: DatastoreEntry[] = keys.map((key) => ({
-      key,
-      address,
-    }));
-    return client.getDatastoreEntries(entries, final);
+    return client.readStorage(address, keys, final);
   }
 }
