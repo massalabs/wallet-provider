@@ -1,4 +1,8 @@
-import { NetworkName } from '@massalabs/massa-web3';
+import {
+  DeploySCParams,
+  ExecuteScParams,
+  NetworkName,
+} from '@massalabs/massa-web3';
 
 export type ExecuteFunctionBody = {
   nickname: string;
@@ -19,6 +23,17 @@ export type DeploySCFunctionBody = {
   parameters: string;
   fee: string;
   description: string;
+  maxGas?: string;
+};
+
+export type ExecuteSCBody = {
+  nickname: string;
+  bytecode: string;
+  datastore: [string, string][];
+  maxCoins: string;
+  fee: string;
+  description?: string;
+  maxGas?: string;
 };
 
 export type PluginInfo = {
@@ -122,4 +137,12 @@ export interface SignRule {
 
 export type AddUpdateSignRuleResponse = {
   id: string;
+};
+
+export type MSDeploySCParams = DeploySCParams & {
+  description?: string;
+};
+
+export type MSExecuteScParams = ExecuteScParams & {
+  description?: string;
 };

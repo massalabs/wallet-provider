@@ -11,6 +11,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['react-dom', 'dot-object', 'copy-to-clipboard'],
-    exclude: ['@massalabs/wallet-provider'],
+    exclude: ['@massalabs/wallet-provider', '@massalabs/react-ui-kit'],
   },
 });
