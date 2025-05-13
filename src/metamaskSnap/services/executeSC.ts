@@ -1,20 +1,20 @@
 import type { MetaMaskInpageProvider } from '@metamask/providers';
 import { MASSA_SNAP_ID } from '../config';
 import type {
-  DeploySCParams,
-  DeploySCResponse,
+  ExecuteSCParameters,
+  ExecuteSCResponse,
 } from '@massalabs/metamask-snap';
 
-export const deploySC = async (
+export const executeSC = async (
   provider: MetaMaskInpageProvider,
-  params: DeploySCParams,
-): Promise<DeploySCResponse> => {
+  params: ExecuteSCParameters,
+): Promise<ExecuteSCResponse> => {
   return provider.request({
     method: 'wallet_invokeSnap',
     params: {
       snapId: MASSA_SNAP_ID,
       request: {
-        method: 'account.deploySC',
+        method: 'account.executeSC',
         params,
       },
     },
