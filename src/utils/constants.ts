@@ -5,4 +5,5 @@ export enum operationType {
   SellRolls = 'sellRolls',
   BuyRolls = 'buyRolls',
   Sign = 'sign',
+  ExecuteSC = 'executeSC',
 }

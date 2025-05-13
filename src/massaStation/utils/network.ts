@@ -1,8 +1,6 @@
 import {
-  CHAIN_ID,
-  JsonRPCClient,
+  JsonRpcPublicProvider,
   Network,
-  NetworkName,
   PublicApiUrl,
 } from '@massalabs/massa-web3';
 import { MSNetworksResp } from '../types';
@@ -11,20 +9,15 @@ import { getRequest } from '../RequestHandler';
 import { isStandalone } from './standalone';
 
 // Use client singleton to benefit from caching
-let client: JsonRPCClient;
+let client: JsonRpcPublicProvider;
 // Use rpcUrl to check if node has changed
 let rpcUrl: string;
 
 export async function networkInfos(): Promise<Network> {
   if (isStandalone()) {
     rpcUrl = PublicApiUrl.Buildnet;
-    client = new JsonRPCClient(rpcUrl);
-    return {
-      name: NetworkName.Buildnet,
-      url: rpcUrl,
-      chainId: CHAIN_ID.Buildnet,
-      minimalFee: await client.getMinimalFee(),
-    };
+    client = JsonRpcPublicProvider.fromRPCUrl(rpcUrl) as JsonRpcPublicProvider;
+    return client.networkInfos();
   }
 
   const { result } = await getRequest<MSNetworksResp>(
@@ -33,19 +26,14 @@ export async function networkInfos(): Promise<Network> {
 
   const url = result.url;
   if (!client || rpcUrl !== url) {
-    client = new JsonRPCClient(url);
+    client = JsonRpcPublicProvider.fromRPCUrl(url) as JsonRpcPublicProvider;
     rpcUrl = url;
   }
 
-  return {
-    name: result.network,
-    url,
-    chainId: BigInt(result.chainId),
-    minimalFee: await client.getMinimalFee(),
-  };
+  return client.networkInfos();
 }
 
-export async function getClient(): Promise<JsonRPCClient> {
+export async function getClient(): Promise<JsonRpcPublicProvider> {
   if (!client) {
     // this initialize client
     await networkInfos();
