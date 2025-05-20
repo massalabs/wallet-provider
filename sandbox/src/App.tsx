@@ -2,7 +2,7 @@ import '@massalabs/react-ui-kit/src/global.css';
 import { MassaLogo } from '@massalabs/react-ui-kit';
 import './App.css';
 import { ConnectButton } from './components/wallet/connect-wallet-popup';
-import { ExecuteSCForm } from './components/ExecuteSC';
+import { DeploySCForm, ExecuteSCForm } from './components';
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
       <div className="flex flex-col min-h-screen pt-32">
         <main className="flex-1 flex justify-center items-start pt-10">
           <ExecuteSCForm />
+          <DeploySCForm />
         </main>
       </div>
     </>
