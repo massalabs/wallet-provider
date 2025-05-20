@@ -38,6 +38,8 @@ import {
   rpcTypes,
   StorageCost,
   formatMas,
+  DEPLOYER_BYTECODE,
+  populateDatastore,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -278,8 +280,18 @@ export class MassaStationAccount implements Provider {
       let maxGas = params.maxGas;
       if (!maxGas) {
         const client = await getClient();
+        const datastore = populateDatastore([
+          {
+            data: params.byteCode,
+            args: parameters,
+            coins,
+          },
+        ]);
+
         maxGas = await client.executeSCGasEstimation({
           ...params,
+          byteCode: DEPLOYER_BYTECODE,
+          datastore,
           caller: this.address,
         });
       }
