@@ -32,6 +32,7 @@ import {
   rpcTypes,
   JsonRpcPublicProvider,
   ExecuteScParams,
+  populateDatastore,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -286,26 +287,40 @@ export class BearbyAccount implements Provider {
         params.maxCoins ??
         StorageCost.smartContractDeploy(params.byteCode.length) + coins;
 
+      const args = params.parameter ?? new Uint8Array();
+      const parameters = args instanceof Uint8Array ? args : args.serialize();
+
       let maxGas = params.maxGas;
       if (!maxGas) {
         const client = await this.getClient();
+
+        const datastore = populateDatastore([
+          {
+            data: params.byteCode,
+            args: parameters,
+            coins,
+          },
+        ]);
+
         maxGas = await client.executeSCGasEstimation({
           ...params,
+          byteCode: DEPLOYER_BYTECODE,
+          datastore,
           caller: this.address,
         });
       }
 
-      const args = {
-        ...params,
+      const bearbyParams = {
         maxCoins,
         maxGas,
         coins,
         fee,
         contractDataBase64: uint8ArrayToBase64(params.byteCode),
         deployerBase64: uint8ArrayToBase64(DEPLOYER_BYTECODE),
+        unsafeParameters: parameters,
       };
 
-      const operationId = await web3.contract.deploy(args);
+      const operationId = await web3.contract.deploy(bearbyParams);
 
       const operation = new Operation(this, operationId);
 
