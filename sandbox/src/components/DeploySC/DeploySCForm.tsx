@@ -1,19 +1,19 @@
 import { Button, Input } from '@massalabs/react-ui-kit';
 import { useState } from 'react';
-import { useExecuteSC } from '../../hooks/useExecuteSC';
+import { useDeploySC } from '../../hooks/useDeploySC';
 
-export function DeploySCForm() {
+export function ExecuteSCForm() {
   const [name, setName] = useState('');
-  const { executeSC, isLoading, error, events } = useExecuteSC();
+  const { deploySC, isLoading, error, events } = useDeploySC();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await executeSC(name);
+    await deploySC(name);
   };
 
   return (
     <div className="border border-primary rounded-lg p-6 shadow-md">
-      <h2 className="mas-title mb-4 text-center">Execute SC</h2>
+      <h2 className="mas-title mb-4 text-center">Deploy SC</h2>
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 max-w-md mx-auto"
@@ -32,7 +32,7 @@ export function DeploySCForm() {
         {error && <div className="text-red-500 text-sm">{error}</div>}
 
         <Button type="submit" disabled={isLoading} customClass="w-full">
-          {isLoading ? 'Executing...' : 'Execute Smart Contract'}
+          {isLoading ? 'Deploying...' : 'Deploy Smart Contract'}
         </Button>
         {events && events.length > 0 && (
           <div className="mt-4">

@@ -2,7 +2,7 @@
 import { useAccountStore, useHandleOperation } from '@massalabs/react-ui-kit';
 import { strToBytes, Operation, rpcTypes } from '@massalabs/massa-web3';
 import { useState, useEffect } from 'react';
-import { executeHelloBytecode } from './executeHelloBytecode';
+import { executeHelloBytecode } from './bytecodes/executeHelloBytecode';
 
 export function useExecuteSC() {
   const { connectedAccount } = useAccountStore();
