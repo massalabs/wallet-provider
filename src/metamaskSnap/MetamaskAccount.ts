@@ -2,11 +2,8 @@ import { MetaMaskInpageProvider } from '@metamask/providers';
 import {
   Address,
   CallSCParams,
-  DatastoreEntry,
   DeploySCParams,
   EventFilter,
-  formatNodeStatusObject,
-  MAX_GAS_CALL,
   Network,
   NodeStatusInfo,
   Operation,
@@ -17,10 +14,10 @@ import {
   ReadSCParams,
   SignedData,
   SmartContract,
-  strToBytes,
   rpcTypes,
-  Mas,
   ExecuteScParams,
+  ExecuteSCReadOnlyParams,
+  ExecuteSCReadOnlyResult,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
 import { errorHandler } from '../errors/utils/errorHandler';
@@ -71,14 +68,7 @@ export class MetamaskAccount implements Provider {
     final = false,
   ): Promise<{ address: string; balance: bigint }[]> {
     const client = await getClient(this.provider);
-    const addressesInfo = await client.getMultipleAddressInfo(addresses);
-
-    return addressesInfo.map((addressInfo) => ({
-      address: addressInfo.address,
-      balance: final
-        ? Mas.fromString(addressInfo.final_balance)
-        : Mas.fromString(addressInfo.candidate_balance),
-    }));
+    return client.balanceOf(addresses, final);
   }
 
   async networkInfos(): Promise<Network> {
@@ -187,23 +177,13 @@ export class MetamaskAccount implements Provider {
   }
 
   async readSC(params: ReadSCParams): Promise<ReadSCData> {
-    if (params.maxGas && params.maxGas > MAX_GAS_CALL) {
-      throw new Error(
-        `Gas amount ${params.maxGas} exceeds the maximum allowed ${MAX_GAS_CALL}`,
-      );
-    }
     try {
-      const args = params.parameter ?? new Uint8Array();
-      const parameter =
-        args instanceof Uint8Array ? args : Uint8Array.from(args.serialize());
-
       const client = await getClient(this.provider);
       const readOnlyParams = {
         ...params,
         caller: params.caller ?? this.address,
-        parameter,
       };
-      return client.executeReadOnlyCall(readOnlyParams);
+      return client.readSC(readOnlyParams);
     } catch (error) {
       throw new Error(`Smart contract read failed: ${error.message}`);
     }
@@ -259,8 +239,7 @@ export class MetamaskAccount implements Provider {
 
   async getNodeStatus(): Promise<NodeStatusInfo> {
     const client = await getClient(this.provider);
-    const status = await client.status();
-    return formatNodeStatusObject(status);
+    return client.getNodeStatus();
   }
 
   async getStorageKeys(
@@ -269,9 +248,7 @@ export class MetamaskAccount implements Provider {
     final = true,
   ): Promise<Uint8Array[]> {
     const client = await getClient(this.provider);
-    const filterBytes =
-      typeof filter === 'string' ? strToBytes(filter) : filter;
-    return client.getDataStoreKeys(address, filterBytes, final);
+    return client.getStorageKeys(address, filter, final);
   }
 
   async readStorage(
@@ -280,11 +257,7 @@ export class MetamaskAccount implements Provider {
     final = true,
   ): Promise<(Uint8Array | null)[]> {
     const client = await getClient(this.provider);
-    const entries: DatastoreEntry[] = keys.map((key) => ({
-      key,
-      address,
-    }));
-    return client.getDatastoreEntries(entries, final);
+    return client.readStorage(address, keys, final);
   }
 
   async executeSC(params: ExecuteScParams): Promise<Operation> {
@@ -315,6 +288,24 @@ export class MetamaskAccount implements Provider {
       return new Operation(this, operationId);
     } catch (error) {
       throw errorHandler(operationType.ExecuteSC, error);
+    }
+  }
+
+  async executeSCReadOnly(
+    params: ExecuteSCReadOnlyParams,
+  ): Promise<ExecuteSCReadOnlyResult> {
+    try {
+      const readOnlyParams = {
+        ...params,
+        caller: params.caller ?? this.address,
+      };
+
+      const client = await getClient(this.provider);
+      return client.executeSCReadOnly(readOnlyParams);
+    } catch (error) {
+      throw new Error(
+        `Error during readonly smart contract bytecode execution: ${error}`,
+      );
     }
   }
 }

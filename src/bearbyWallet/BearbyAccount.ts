@@ -33,6 +33,8 @@ import {
   JsonRpcPublicProvider,
   ExecuteScParams,
   populateDatastore,
+  ExecuteSCReadOnlyParams,
+  ExecuteSCReadOnlyResult,
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -357,6 +359,19 @@ export class BearbyAccount implements Provider {
     const operationId = await web3.contract.executeBytecode(args);
 
     return new Operation(this, operationId);
+  }
+
+  async executeSCReadOnly(
+    params: ExecuteSCReadOnlyParams,
+  ): Promise<ExecuteSCReadOnlyResult> {
+    try {
+      const client = await this.getClient();
+      return client.executeSCReadOnly(params);
+    } catch (error) {
+      throw new Error(
+        `Error during readonly smart contract bytecode execution: ${error}`,
+      );
+    }
   }
 
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
