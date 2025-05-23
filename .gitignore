@@ -74,8 +74,3 @@ docs
 
 #.env files
 .env
-
-# Playwright tests results
-test-extension/playwright-tests/playwright-report
-
-test-extension/runner.js
