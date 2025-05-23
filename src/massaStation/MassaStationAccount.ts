@@ -40,6 +40,8 @@ import {
   formatMas,
   DEPLOYER_BYTECODE,
   populateDatastore,
+  ExecuteSCReadOnlyResult,
+  ExecuteSCReadOnlyParams,
 } from '@massalabs/massa-web3';
 import { getClient, networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
@@ -374,6 +376,19 @@ export class MassaStationAccount implements Provider {
     } catch (error) {
       throw new Error(
         `Error during smart contract bytecode execution: ${error}`,
+      );
+    }
+  }
+
+  async executeSCReadOnly(
+    params: ExecuteSCReadOnlyParams,
+  ): Promise<ExecuteSCReadOnlyResult> {
+    try {
+      const client = await getClient();
+      return client.executeSCReadOnly(params);
+    } catch (error) {
+      throw new Error(
+        `Error during readonly smart contract bytecode execution: ${error}`,
       );
     }
   }

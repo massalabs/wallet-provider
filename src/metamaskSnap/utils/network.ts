@@ -1,5 +1,5 @@
 import {
-  JsonRPCClient,
+  JsonRpcPublicProvider,
   Network,
   getNetworkNameByChainId,
 } from '@massalabs/massa-web3';
@@ -8,7 +8,7 @@ import { getNetwork } from '../services/getNetwork';
 import { MetaMaskInpageProvider } from '@metamask/providers';
 
 // Use client singleton to benefit from caching
-let client: JsonRPCClient;
+let client: JsonRpcPublicProvider;
 // Use rpcUrl to check if node has changed
 let rpcUrl: string;
 
@@ -19,7 +19,7 @@ export async function networkInfos(
   const url = res.rpcUrl;
 
   if (!client || rpcUrl !== url) {
-    client = new JsonRPCClient(url);
+    client = JsonRpcPublicProvider.fromRPCUrl(url) as JsonRpcPublicProvider;
     rpcUrl = url;
   }
 
@@ -34,7 +34,7 @@ export async function networkInfos(
 
 export async function getClient(
   metaMaskProvider: MetaMaskInpageProvider,
-): Promise<JsonRPCClient> {
+): Promise<JsonRpcPublicProvider> {
   if (!client) {
     // this initialize client
     await networkInfos(metaMaskProvider);
