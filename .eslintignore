@@ -4,8 +4,3 @@ node_modules
 bundle.*
 docs
 dist
-test-extension/simple-browser-extension
-test-extension/dapp-vite
-test-e2e/code-snippets
-code-snippets
-test-extension
