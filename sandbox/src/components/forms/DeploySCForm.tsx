@@ -2,7 +2,7 @@ import { Button, Input } from '@massalabs/react-ui-kit';
 import { useState } from 'react';
 import { useDeploySC } from '../../hooks/useDeploySC';
 
-export function ExecuteSCForm() {
+export function DeploySCForm() {
   const [name, setName] = useState('');
   const { deploySC, isLoading, error, events } = useDeploySC();
 
@@ -12,7 +12,7 @@ export function ExecuteSCForm() {
   };
 
   return (
-    <div className="border border-primary rounded-lg p-6 shadow-md">
+    <div className="border border-primary rounded-lg p-6 shadow-md ">
       <h2 className="mas-title mb-4 text-center">Deploy SC</h2>
       <form
         onSubmit={handleSubmit}

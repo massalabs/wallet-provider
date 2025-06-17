@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useAccountStore } from '@massalabs/react-ui-kit';
 import { SmartContract, rpcTypes, Args, parseMas } from '@massalabs/massa-web3';
 import { useState, useEffect } from 'react';
@@ -46,7 +45,7 @@ export function useDeploySC() {
       .then((events) => {
         setEvents(events);
       });
-  }, [contract]);
+  }, [connectedAccount, contract]);
 
   return {
     deploySC,
