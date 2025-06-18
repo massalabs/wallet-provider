@@ -1,2 +1,1 @@
-export * from './DeploySC';
-export * from './ExecuteSC';
+export * from './forms';

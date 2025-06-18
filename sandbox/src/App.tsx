@@ -2,10 +2,12 @@ import '@massalabs/react-ui-kit/src/global.css';
 import { MassaLogo } from '@massalabs/react-ui-kit';
 import './App.css';
 import { ConnectButton } from './components/wallet/connect-wallet-popup';
-import { ExecuteSCForm } from './components/forms/ExecuteSCForm';
-import { DeploySCForm } from './components/forms/DeploySCForm';
-import { SignRulesForm } from './components/forms/SignRulesForm';
-import { CallAndReadSCForm } from './components/forms/CallAndReadSCForm';
+import {
+  CallAndReadSCForm,
+  DeploySCForm,
+  ExecuteSCForm,
+  SignRulesForm,
+} from './components';
 
 function App() {
   return (
