@@ -3,7 +3,6 @@ import {
   Button,
   Dropdown,
   Input,
-  Tooltip,
   useAccountStore,
 } from '@massalabs/react-ui-kit';
 import { useSignRules } from '../../hooks/useSignRules';
@@ -79,18 +78,13 @@ export function SignRulesForm() {
 
         <div className="flex items-center gap-2">
           {ruleType === RuleType.AutoSign ? (
-            <Tooltip
-              body="Apply to all contracts is only available for Disable Password Prompt."
-              placement="top"
-            >
-              <input
-                type="checkbox"
-                checked={applyToAllContracts}
-                onChange={(e) => setApplyToAllContracts(e.target.checked)}
-                className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                id="apply-to-all-contracts"
-              />
-            </Tooltip>
+            <input
+              type="checkbox"
+              checked={applyToAllContracts}
+              onChange={(e) => setApplyToAllContracts(e.target.checked)}
+              className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+              id="apply-to-all-contracts"
+            />
           ) : (
             <input
               type="checkbox"
@@ -112,16 +106,7 @@ export function SignRulesForm() {
           <Dropdown
             options={[
               {
-                item: (
-                  <Tooltip
-                    body="Automatically sign transactions without password prompt"
-                    placement="top"
-                    triggerClassName="truncate w-full"
-                    tooltipClassName="text-sm max-w-96"
-                  >
-                    Auto Sign
-                  </Tooltip>
-                ),
+                item: 'Auto Sign',
                 onClick: () => setRuleType(RuleType.AutoSign),
               },
               {
