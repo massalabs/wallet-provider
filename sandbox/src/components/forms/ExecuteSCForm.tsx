@@ -12,7 +12,7 @@ export function ExecuteSCForm() {
   };
 
   return (
-    <div className="border border-primary rounded-lg p-6 shadow-md ">
+    <div className="p-6 h-full">
       <h2 className="mas-title mb-4 text-center">Execute SC</h2>
       <form
         onSubmit={handleSubmit}
