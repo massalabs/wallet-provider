@@ -133,6 +133,7 @@ export interface SignRule {
   name?: string;
   contract: string;
   enabled: boolean;
+  authorizedOrigin?: string;
 }
 
 export type AddUpdateSignRuleResponse = {

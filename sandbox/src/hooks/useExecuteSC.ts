@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useAccountStore, useHandleOperation } from '@massalabs/react-ui-kit';
 import { strToBytes, Operation, rpcTypes } from '@massalabs/massa-web3';
 import { useState, useEffect } from 'react';
@@ -50,8 +49,7 @@ export function useExecuteSC() {
     operation.getSpeculativeEvents().then((events) => {
       setEvents(events);
     });
-  }, [isError, isSuccess]);
-
+  }, [isError, isSuccess, operation]);
   return {
     executeSC,
     isLoading: isPending,
