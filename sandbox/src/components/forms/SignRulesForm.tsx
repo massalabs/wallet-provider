@@ -78,23 +78,14 @@ export function SignRulesForm() {
         </div>
 
         <div className="flex items-center gap-2">
-          {ruleType === RuleType.AutoSign ? (
-            <input
-              type="checkbox"
-              checked={applyToAllContracts}
-              onChange={(e) => setApplyToAllContracts(e.target.checked)}
-              className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-              id="apply-to-all-contracts"
-            />
-          ) : (
-            <input
-              type="checkbox"
-              checked={applyToAllContracts}
-              onChange={(e) => setApplyToAllContracts(e.target.checked)}
-              className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-              id="apply-to-all-contracts"
-            />
-          )}
+          <input
+            type="checkbox"
+            checked={applyToAllContracts}
+            onChange={(e) => setApplyToAllContracts(e.target.checked)}
+            className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+            id="apply-to-all-contracts"
+            disabled={ruleType !== RuleType.AutoSign}
+          />
           <label
             htmlFor="apply-to-all-contracts"
             className="text-sm select-none cursor-pointer"
