@@ -45,7 +45,7 @@ export function SignRulesForm() {
 
   const isAllAndAutoSign =
     applyToAllContracts && ruleType === RuleType.AutoSign;
-  const shouldDisableSubmit = !ruleName || !contract;
+  const shouldDisableSubmit = !ruleName || !contract || isAllAndAutoSign;
 
   return (
     <div className="p-6 h-full">
