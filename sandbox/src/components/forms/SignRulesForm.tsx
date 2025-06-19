@@ -72,6 +72,7 @@ export function SignRulesForm() {
             onChange={(e) => setContract(e.target.value)}
             placeholder="Contract Address"
             required
+            disabled={applyToAllContracts}
             customClass="w-full"
           />
         </div>
