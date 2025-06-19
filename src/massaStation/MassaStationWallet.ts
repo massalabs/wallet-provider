@@ -233,6 +233,7 @@ export class MassaStationWallet implements Wallet {
         ruleType: rule.ruleType,
         contract: rule.contract,
         enabled: rule.enabled,
+        authorizedOrigin: rule.authorizedOrigin,
       },
     );
     return result;
