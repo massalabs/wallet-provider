@@ -443,7 +443,8 @@ export class BearbyAccount implements Provider {
     if (status.error || !status.result) {
       throw new Error(status.error?.message || 'Bearby getNodeStatus error');
     }
-    return formatNodeStatusObject(status.result);
+    // remove "as any" when this PR is merged https://github.com/bearby-wallet/bearby-web3/pull/28
+    return formatNodeStatusObject(status.result as any);
   }
 
   public async getStorageKeys(
