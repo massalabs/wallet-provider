@@ -16,7 +16,7 @@ export function GetNodeStatusForm() {
     try {
       const jsonString = JSON.stringify(
         nodeStatus,
-        (key, value) => {
+        (_, value) => {
           // Convert BigInt values to strings for JSON serialization
           return typeof value === 'bigint' ? value.toString() : value;
         },
@@ -77,7 +77,7 @@ export function GetNodeStatusForm() {
               <pre className="text-xs overflow-auto whitespace-pre-wrap h-80">
                 {JSON.stringify(
                   nodeStatus,
-                  (key, value) => {
+                  (_, value) => {
                     // Convert BigInt values to strings for JSON serialization
                     return typeof value === 'bigint' ? value.toString() : value;
                   },
