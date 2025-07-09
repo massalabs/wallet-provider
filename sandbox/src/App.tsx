@@ -6,6 +6,7 @@ import {
   CallAndReadSCForm,
   DeploySCForm,
   ExecuteSCForm,
+  GetNodeStatusForm,
   SignRulesForm,
 } from './components';
 
@@ -18,18 +19,21 @@ function App() {
       </header>
       <div className="flex flex-col min-h-screen pt-16">
         <main className="container mx-auto px-6 mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 mb-6 auto-rows-fr border border-primary rounded-2xl p-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 border border-primary rounded-2xl p-6 bg-white">
             <div className="bg-green-50 rounded-lg p-0">
               <ExecuteSCForm />
             </div>
             <div className="bg-amber-50 rounded-lg p-0">
               <DeploySCForm />
             </div>
-            <div className="bg-red-50 rounded-lg p-0 md:row-span-2 md:col-start-3">
+            <div className="bg-red-50 rounded-lg p-0">
               <SignRulesForm />
             </div>
-            <div className="bg-blue-50 rounded-lg p-0 md:col-span-2 md:row-start-2">
+            <div className="bg-blue-50 rounded-lg p-0 md:col-span-2">
               <CallAndReadSCForm />
+            </div>
+            <div className="bg-purple-50 rounded-lg p-0 md:col-span-3">
+              <GetNodeStatusForm />
             </div>
           </div>
         </main>
