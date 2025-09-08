@@ -1,0 +1,45 @@
+name: Daily Massa-web3 integration test
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: read
+
+jobs:
+  update-massa-web3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install wallet-provider dependencies
+        run: npm ci
+
+      - name: Install sandbox dependencies
+        run: npm ci
+        working-directory: ./sandbox
+
+      - name: Update massa-web3 to dev version
+        run: npm install @massalabs/massa-web3@dev
+        working-directory: ./sandbox
+
+      - name: Build sandbox project
+        run: npm run build
+        working-directory: ./sandbox
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Daily build with @massalabs/massa-web3@dev failed!"
+          echo "This indicates a potential compatibility issue with the latest development version."
+          exit 1
