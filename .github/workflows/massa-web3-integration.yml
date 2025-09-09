@@ -30,6 +30,25 @@ jobs:
         run: npm ci
         working-directory: ./sandbox
 
+      - name: Check massa-web3 version consistency
+        run: |
+          ROOT_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@massalabs/massa-web3'].version" 2>/dev/null || echo "not-found")
+          SANDBOX_VERSION=$(node -p "require('./sandbox/package-lock.json').packages['node_modules/@massalabs/massa-web3'].version" 2>/dev/null || echo "not-found")
+
+          echo "Root @massalabs/massa-web3 version: $ROOT_VERSION"
+          echo "Sandbox @massalabs/massa-web3 version: $SANDBOX_VERSION"
+
+          # Check if versions match
+          if [ "$ROOT_VERSION" != "$SANDBOX_VERSION" ]; then
+            echo "::error::Version mismatch detected!"
+            echo "::error::Root version: $ROOT_VERSION"
+            echo "::error::Sandbox version: $SANDBOX_VERSION"
+            echo "::error::Both root and sandbox should use the same @massalabs/massa-web3 version"
+            exit 1
+          fi
+
+          echo "✅ @massalabs/massa-web3 versions match: $ROOT_VERSION"
+
       - name: Update massa-web3 to dev version
         run: npm install @massalabs/massa-web3@dev
         working-directory: ./sandbox
