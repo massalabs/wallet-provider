@@ -23,6 +23,7 @@
         "prettier:fix": "prettier --write .",
         "fmt": "npm run prettier:fix && npm run lint:fix",
         "fmt:check": "npm run prettier && npm run lint",
+        "update-massa-web3": "./scripts/update-massa-web3-dev.sh",
         "doc": "typedoc src/index.ts --name massa-wallet-provider --out docs/documentation/html --tsconfig tsconfig.json"
     },
     "author": "Massa Labs <info@massa.net>",
