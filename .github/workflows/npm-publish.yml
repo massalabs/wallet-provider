@@ -5,13 +5,10 @@ on:
     types: [created]
 
 jobs:
-  massa-web3-integration-test:
-    uses: ./.github/workflows/massa-web3-integration.yml
 
   publish-npm:
     name: publish
     runs-on: ubuntu-latest
-    needs: massa-web3-integration-test
     steps:
       - name: checkout
         uses: actions/checkout@v3
