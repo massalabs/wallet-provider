@@ -26,6 +26,8 @@ import { isStandalone } from './utils/standalone';
  */
 export const MASSA_STATION_URL = 'https://station.massa/';
 
+const NETWORK_CHECK_INTERVAL = 4000;
+
 /**
  * The MassaStation accounts url
  */
@@ -157,7 +159,7 @@ export class MassaStationWallet implements Wallet {
         this.currentNetwork = network;
         this.eventsListener.emit(MASSA_STATION_NETWORK_CHANGED, network);
       }
-    }, 500);
+    }, NETWORK_CHECK_INTERVAL);
 
     return {
       unsubscribe: () => {

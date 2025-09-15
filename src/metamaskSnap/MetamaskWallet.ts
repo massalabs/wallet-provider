@@ -10,6 +10,7 @@ import { networkInfos } from './utils/network';
 import EventEmitter from 'eventemitter3';
 
 const METAMASK_NETWORK_CHANGED = 'METAMASK_NETWORK_CHANGED';
+const NETWORK_CHECK_INTERVAL = 4000;
 
 export class MetamaskWallet implements Wallet {
   private walletName = WalletName.Metamask;
@@ -104,7 +105,7 @@ export class MetamaskWallet implements Wallet {
         this.currentNetwork = network;
         this.eventsListener.emit(METAMASK_NETWORK_CHANGED, network);
       }
-    }, 500);
+    }, NETWORK_CHECK_INTERVAL);
 
     return {
       unsubscribe: () => {
