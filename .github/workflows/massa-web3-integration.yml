@@ -31,6 +31,7 @@ jobs:
         working-directory: ./sandbox
 
       - name: Check massa-web3 version consistency
+        id: check-versions
         run: |
           ROOT_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@massalabs/massa-web3'].version" 2>/dev/null || echo "not-found")
           SANDBOX_VERSION=$(node -p "require('./sandbox/package-lock.json').packages['node_modules/@massalabs/massa-web3'].version" 2>/dev/null || echo "not-found")
@@ -49,18 +50,31 @@ jobs:
 
           echo "✅ @massalabs/massa-web3 versions match: $ROOT_VERSION"
 
+          # Check if either version is a dev version
+          if [[ "$ROOT_VERSION" == *"-dev."* ]]; then
+            echo "🔍 Dev version detected, proceeding with checks..."
+            echo "is-dev=true" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️  No dev version detected, skipping checks"
+            echo "is-dev=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
       - name: Update massa-web3 to dev version
+        if: steps.check-versions.outputs.is-dev == 'true'
         run: npm install @massalabs/massa-web3@dev
         working-directory: ./sandbox
 
       - name: Build sandbox project
+        if: steps.check-versions.outputs.is-dev == 'true'
         run: npm run build
         working-directory: ./sandbox
 
       - name: Notify on failure
-        if: failure()
+        if: failure() && steps.check-versions.outputs.is-dev == 'true'
         run: |
           echo "::error::Daily build with @massalabs/massa-web3@dev failed!"
           echo "This indicates a potential compatibility issue with the latest development version."
           echo "Try to update @massalabs/massa-web3@dev in package.json and sandbox/package.json"
+          echo "Check if @massalabs/react-ui-kit version in sandbox/package.json needs to be updated"
           exit 1
