@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@massalabs/massa-web3": "^5.3.1-dev",
-    "@massalabs/react-ui-kit": "^1.2.0",
+    "@massalabs/react-ui-kit": "^1.2.1-dev",
     "@massalabs/wallet-provider": "file:..",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
