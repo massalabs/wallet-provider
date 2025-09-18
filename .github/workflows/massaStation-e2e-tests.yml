@@ -66,10 +66,11 @@ jobs:
 
       - name: Install MassaStation Wallet
         run: |
-          curl -X POST "http://station.massa/plugin-manager/?source=https://github.com/massalabs/station-massa-wallet/releases/latest/download/wallet-plugin_linux-amd64.zip"
+          curl -X POST -H "Origin: http://station.massa" "http://station.massa/plugin-manager/?source=https://github.com/massalabs/station-massa-wallet/releases/latest/download/wallet-plugin_linux-amd64.zip"
 
       - name: Switch to buildnet
-        run: curl -X POST "http://station.massa/network/buildnet"
+        run: |
+          curl -X POST -H "Origin: http://station.massa" "http://station.massa/network/buildnet"
           
       - name: Run test suite
         run: NODE_EXTRA_CA_CERTS=/etc/massastation/certs/rootCA.pem npm run test:e2e
