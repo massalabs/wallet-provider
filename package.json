@@ -52,7 +52,7 @@
     ],
     "dependencies": {
         "@hicaru/bearby.js": "^0.6.1",
-        "@massalabs/massa-web3": "^5.3.0",
+        "@massalabs/massa-web3": "^5.3.1-dev",
         "@massalabs/metamask-snap": "^1.1.0",
         "@metamask/providers": "^18.1.1",
         "axios": "^1.8.2",
