@@ -27,7 +27,8 @@ jobs:
         run: |
           sudo apt update
           npm ci && npm run build
-          sudo apt install xvfb libnss3-tools libwebkit2gtk-4.1-0
+          sudo apt install xvfb libnss3-tools libwebkit2gtk-4.1-0 locales
+          sudo locale-gen en_US.UTF-8
 
 
       - name: Download MassaStation
@@ -55,14 +56,17 @@ jobs:
         run: xvfb-run massastation > massastation_logs.txt &
         env:
           WALLET_PASSWORD: ${{ secrets.WALLET_PWD }}
+          LC_ALL: en_US.UTF-8
+          LANG: en_US.UTF-8
 
       - name: Define station.massa
         run: sudo echo "127.0.0.1 station.massa" | sudo tee -a /etc/hosts
 
-      - name: Wait for server to be up
-        uses: juliangruber/sleep-action@v1
-        with:
-          time: 5s
+      - name: Wait for API to be ready on port 80
+        run: |
+          echo "Waiting for API to be ready on port 80..."
+          timeout 60 bash -c 'until nc -z 127.0.0.1 80; do sleep 1; done'
+          echo "API is ready!"
 
       - name: Install MassaStation Wallet
         run: |
