@@ -48,13 +48,12 @@ jobs:
       
       - name: Deploy files
         uses: appleboy/scp-action@v0.1.4
-        env:
-          HOST: ${{ secrets.MASSANET_HOST }}
-          USERNAME: ${{ secrets.MASSANET_USERNAME }}
-          KEY: ${{ secrets.MASSANET_SSHKEY }}
         with:
+          host: 51.195.222.250
+          username: website-deploy
+          key: ${{ secrets.MASSANET_SSHKEY }}
           source: "./wallet-provider"
           target: "/var/www/type-doc"
-          port: 22000
+          port: 22
 
 
