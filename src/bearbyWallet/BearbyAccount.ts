@@ -39,7 +39,11 @@ import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
 import { uint8ArrayToBase64 } from '../utils/base64';
 
-let jsonClient: JsonRpcPublicProvider;
+// one public client per network, created on first use
+const jsonClients: {
+  mainnet?: JsonRpcPublicProvider;
+  buildnet?: JsonRpcPublicProvider;
+} = {};
 
 export class BearbyAccount implements Provider {
   public constructor(public address: string) {}
@@ -60,16 +64,18 @@ export class BearbyAccount implements Provider {
   //   }
   // }
 
+  // The user can switch network in Bearby at any time: read the current one on
+  // every call, so a client created for another network is never reused.
   private async getClient(): Promise<JsonRpcPublicProvider> {
-    if (!jsonClient) {
-      const network = await networkInfos();
-      jsonClient = (
-        network.name === 'mainnet'
-          ? JsonRpcPublicProvider.mainnet()
-          : JsonRpcPublicProvider.buildnet()
-      ) as JsonRpcPublicProvider;
+    const { net } = await web3.wallet.network;
+    if (net === 'mainnet') {
+      jsonClients.mainnet ??=
+        JsonRpcPublicProvider.mainnet() as JsonRpcPublicProvider;
+      return jsonClients.mainnet;
     }
-    return jsonClient;
+    jsonClients.buildnet ??=
+      JsonRpcPublicProvider.buildnet() as JsonRpcPublicProvider;
+    return jsonClients.buildnet;
   }
 
   public async balance(final = false): Promise<bigint> {
