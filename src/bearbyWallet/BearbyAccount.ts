@@ -27,7 +27,6 @@ import {
   SignedData,
   SmartContract,
   StorageCost,
-  strToBytes,
   bytesToStr,
   rpcTypes,
   JsonRpcPublicProvider,
@@ -38,7 +37,6 @@ import {
 } from '@massalabs/massa-web3';
 import { networkInfos } from './utils/network';
 import { WalletName } from '../wallet';
-import isEqual from 'lodash.isequal';
 import { uint8ArrayToBase64 } from '../utils/base64';
 
 let jsonClient: JsonRpcPublicProvider;
@@ -452,29 +450,12 @@ export class BearbyAccount implements Provider {
     filter: Uint8Array | string = new Uint8Array(),
     final = true,
   ): Promise<Uint8Array[]> {
-    const res = await web3.massa.getAddresses(address);
-    if (res.error || !res.result) {
-      throw new Error(res.error?.message || 'Bearby getStorageKeys error');
-    }
-
-    const addressInfo = res.result[0];
-    const keys = final
-      ? addressInfo.final_datastore_keys
-      : addressInfo.candidate_datastore_keys;
-
-    const filterBytes: Uint8Array =
-      typeof filter === 'string' ? strToBytes(filter) : filter;
-
-    return keys
-      .filter(
-        (key) =>
-          !filter.length ||
-          isEqual(
-            Uint8Array.from(key.slice(0, filterBytes.length)),
-            filterBytes,
-          ),
-      )
-      .map((d) => Uint8Array.from(d));
+    // Bearby only forwards get_addresses, which returns at most
+    // max_datastore_keys_query keys per address and filters nothing:
+    // keys beyond the cap are silently lost. The public client pages
+    // through get_addresses_datastore_keys with the prefix applied by the node.
+    const client = await this.getClient();
+    return client.getStorageKeys(address, filter, final);
   }
 
   public async readStorage(
