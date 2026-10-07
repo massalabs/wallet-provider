@@ -6,4 +6,5 @@ export enum WalletName {
   Bearby = 'BEARBY',
   MassaWallet = 'MASSA WALLET',
   Metamask = 'METAMASK',
+  RustCore = 'RUSTCORE',
 }
