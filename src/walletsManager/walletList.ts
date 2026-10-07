@@ -5,11 +5,13 @@ import { wait } from '../utils/time';
 import { MassaStationWallet } from '../massaStation/MassaStationWallet';
 import { WalletName } from '../wallet/types';
 import { MetamaskWallet } from '../metamaskSnap/MetamaskWallet';
+import { RustCoreWallet } from '../rustCoreWallet/RustCoreWallet';
 
 export const supportedWallets: WalletInterfaces = [
   BearbyWallet,
   MassaStationWallet,
   MetamaskWallet,
+  RustCoreWallet,
 ];
 
 export async function getWallets(delay = 200): Promise<Wallet[]> {
