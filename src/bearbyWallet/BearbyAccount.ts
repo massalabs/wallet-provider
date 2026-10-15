@@ -378,6 +378,9 @@ export class BearbyAccount implements Provider {
     }
   }
 
+  // in_pool is not used to compute the status: since MAIN.5.1, nodes keep
+  // speculatively executed operations in their pool until their execution is
+  // final, so an operation can be both in the pool and executed.
   public async getOperationStatus(opId: string): Promise<OperationStatus> {
     try {
       const res = await web3.massa.getOperations(opId);
@@ -391,10 +394,6 @@ export class BearbyAccount implements Provider {
           return OperationStatus.NotFound;
         }
         throw new Error('unexpected status');
-      }
-
-      if (op.in_pool) {
-        return OperationStatus.PendingInclusion;
       }
 
       if (!op.is_operation_final) {

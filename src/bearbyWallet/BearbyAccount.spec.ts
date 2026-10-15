@@ -1,7 +1,8 @@
-import { strToBytes } from '@massalabs/massa-web3';
+import { OperationStatus, strToBytes } from '@massalabs/massa-web3';
 import { BearbyAccount } from './BearbyAccount';
 
 const mockGetAddresses = jest.fn();
+const mockGetOperations = jest.fn();
 // network selected in the Bearby extension
 const mockNetwork = { net: 'buildnet' };
 
@@ -13,6 +14,7 @@ jest.mock('@hicaru/bearby.js', () => ({
         result: { chain_id: 77658366, minimal_fees: '0.01' },
       }),
       getAddresses: (...args: unknown[]) => mockGetAddresses(...args),
+      getOperations: (...args: unknown[]) => mockGetOperations(...args),
     },
   },
 }));
@@ -46,6 +48,7 @@ let buildnetFactory: jest.SpyInstance;
 
 beforeEach(() => {
   mockGetAddresses.mockReset();
+  mockGetOperations.mockReset();
   mockNetwork.net = 'buildnet';
   mainnetNode = jest.fn();
   buildnetNode = jest.fn();
@@ -211,4 +214,28 @@ describe('BearbyAccount.getStorageKeys', () => {
     expect(req.is_final).toBe(false);
     expect(req.prefix).toEqual([]);
   });
+});
+
+describe('BearbyAccount.getOperationStatus', () => {
+  it.each`
+    case                                          | in_pool  | op_exec_status | is_operation_final | expected
+    ${'not executed yet, in pool'}                | ${true}  | ${null}        | ${null}            | ${OperationStatus.NotFound}
+    ${'speculative success, kept in pool (5.1+)'} | ${true}  | ${true}        | ${false}           | ${OperationStatus.SpeculativeSuccess}
+    ${'speculative error, kept in pool (5.1+)'}   | ${true}  | ${false}       | ${false}           | ${OperationStatus.SpeculativeError}
+    ${'speculative success, out of pool (<5.1)'}  | ${false} | ${true}        | ${false}           | ${OperationStatus.SpeculativeSuccess}
+    ${'speculative error, out of pool (<5.1)'}    | ${false} | ${false}       | ${false}           | ${OperationStatus.SpeculativeError}
+    ${'final success'}                            | ${false} | ${true}        | ${true}            | ${OperationStatus.Success}
+    ${'final error'}                              | ${false} | ${false}       | ${true}            | ${OperationStatus.Error}
+    ${'final success, not yet evicted from pool'} | ${true}  | ${true}        | ${true}            | ${OperationStatus.Success}
+  `(
+    'returns $expected when $case',
+    async ({ in_pool, op_exec_status, is_operation_final, expected }) => {
+      mockGetOperations.mockResolvedValue({
+        result: [{ id: 'O1', in_pool, op_exec_status, is_operation_final }],
+      });
+
+      expect(await newAccount().getOperationStatus('O1')).toBe(expected);
+      expect(mockGetOperations).toHaveBeenCalledWith('O1');
+    },
+  );
 });
