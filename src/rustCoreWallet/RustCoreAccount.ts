@@ -19,12 +19,12 @@ import {
   strToBytes,
 } from '@massalabs/massa-web3';
 import { WalletName } from '../wallet';
+import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
 import { uint8ArrayToBase64 } from '../utils/base64';
-import { RustCoreInjected, RustCoreNetwork } from './types';
-import { rustCoreErrorHandler, toNetwork } from './utils';
+import { RustCoreSession } from './session';
+import { toNetwork } from './utils';
 
-// one public client per node url, created on first use
 const jsonClients = new Map<string, JsonRpcPublicProvider>();
 
 /**
@@ -34,11 +34,14 @@ const jsonClients = new Map<string, JsonRpcPublicProvider>();
  * Signatures go to the extension, where the user approves each of them.
  * Reads (balances, readSC, events, storage…) need no key: they go straight to
  * a public node of the wallet's current network.
+ *
+ * The wallet sets the fee of transfers and rolls, and the expiry of every
+ * operation: setting them here throws instead of being ignored.
  */
 export class RustCoreAccount implements Provider {
   public constructor(
     public readonly address: string,
-    private readonly rustcore: RustCoreInjected,
+    private readonly session: RustCoreSession,
   ) {}
 
   get accountName(): string {
@@ -50,23 +53,14 @@ export class RustCoreAccount implements Provider {
   }
 
   public async networkInfos(): Promise<Network> {
-    return toNetwork(await this.network());
+    return toNetwork(await this.session.currentNetwork());
   }
 
-  // The user can switch network in the wallet at any time: read the current
-  // one on every call, so a client for another network is never reused.
+  // The user can switch network in the wallet at any time: follow the current
+  // one, so a client for another network is never reused.
   private async getClient(): Promise<JsonRpcPublicProvider> {
-    const { url } = await this.network();
-    let client = jsonClients.get(url);
-    if (!client) {
-      client = JsonRpcPublicProvider.fromRPCUrl(url) as JsonRpcPublicProvider;
-      jsonClients.set(url, client);
-    }
-    return client;
-  }
-
-  private async network(): Promise<RustCoreNetwork> {
-    return (await this.rustcore.request('network')) as RustCoreNetwork;
+    const { url } = await this.session.currentNetwork();
+    return clientFor(url);
   }
 
   // ---------------------------------------------------------------- signing
@@ -74,21 +68,20 @@ export class RustCoreAccount implements Provider {
   public async sign(data: Uint8Array | string): Promise<SignedData> {
     const bytes = typeof data === 'string' ? strToBytes(data) : data;
     try {
-      return (await this.rustcore.request('sign', {
+      return (await this.session.rustcore.request('sign', {
         data: uint8ArrayToBase64(bytes),
       })) as SignedData;
     } catch (error) {
-      throw rustCoreErrorHandler(operationType.Sign, error);
+      throw errorHandler(operationType.Sign, error);
     }
   }
 
   public async transfer(
     to: Address | string,
     amount: bigint,
-    // the wallet sets the fee: at least the network's minimal fee
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _opts?: OperationOptions,
+    opts?: OperationOptions,
   ): Promise<Operation> {
+    refuseOptions('transfer', opts);
     return this.send(operationType.SendTransaction, 'transfer', {
       to: to.toString(),
       amount: amount.toString(),
@@ -97,9 +90,9 @@ export class RustCoreAccount implements Provider {
 
   public async buyRolls(
     amount: bigint,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _opts?: OperationOptions,
+    opts?: OperationOptions,
   ): Promise<Operation> {
+    refuseOptions('buyRolls', opts);
     return this.send(operationType.BuyRolls, 'buyRolls', {
       rolls: amount.toString(),
     });
@@ -107,9 +100,9 @@ export class RustCoreAccount implements Provider {
 
   public async sellRolls(
     amount: bigint,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _opts?: OperationOptions,
+    opts?: OperationOptions,
   ): Promise<Operation> {
+    refuseOptions('sellRolls', opts);
     return this.send(operationType.SellRolls, 'sellRolls', {
       rolls: amount.toString(),
     });
@@ -120,6 +113,7 @@ export class RustCoreAccount implements Provider {
    * user before signing; `fee` is raised to the network's minimum if lower.
    */
   public async callSC(params: CallSCParams): Promise<Operation> {
+    refuseOptions('callSC', { periodToLive: params.periodToLive });
     const args = params.parameter ?? new Uint8Array();
     const parameter = args instanceof Uint8Array ? args : args.serialize();
     return this.send(operationType.CallSC, 'callSC', {
@@ -149,14 +143,22 @@ export class RustCoreAccount implements Provider {
     method: string,
     params: Record<string, string>,
   ): Promise<Operation> {
+    // The operation is sent on the wallet's current network: follow its status
+    // on that network's node even if the user switches network afterwards.
+    const { url } = await this.session.currentNetwork();
+    let result: unknown;
     try {
-      const { operationId } = (await this.rustcore.request(method, params)) as {
-        operationId: string;
-      };
-      return new Operation(this, operationId);
+      result = await this.session.rustcore.request(method, params);
     } catch (error) {
-      throw rustCoreErrorHandler(operationName, error);
+      throw errorHandler(operationName, error);
     }
+    const operationId = (result as { operationId?: unknown })?.operationId;
+    if (typeof operationId !== 'string') {
+      throw new Error(
+        `RustCore Wallet returned no operation id for ${method}.`,
+      );
+    }
+    return new Operation(clientFor(url), operationId);
   }
 
   // ---------------------------------------------------------------- reads
@@ -217,5 +219,27 @@ export class RustCoreAccount implements Provider {
   ): Promise<(Uint8Array | null)[]> {
     const client = await this.getClient();
     return client.readStorage(address, keys, final);
+  }
+}
+
+// one public client per node url, created on first use
+function clientFor(url: string): JsonRpcPublicProvider {
+  let client = jsonClients.get(url);
+  if (!client) {
+    client = JsonRpcPublicProvider.fromRPCUrl(url) as JsonRpcPublicProvider;
+    jsonClients.set(url, client);
+  }
+  return client;
+}
+
+/** Throws for the options the wallet sets itself, rather than ignoring them. */
+function refuseOptions(method: string, options: OperationOptions = {}): void {
+  const given = Object.entries(options)
+    .filter(([, value]) => value !== undefined)
+    .map(([name]) => name);
+  if (given.length) {
+    throw new Error(
+      `${method}: RustCore Wallet sets ${given.join(' and ')} itself; leave ${given.length > 1 ? 'them' : 'it'} unset.`,
+    );
   }
 }
