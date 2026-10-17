@@ -16,6 +16,13 @@ describe('isUserRejectionError', () => {
     expect(isUserRejectionError(error)).toBe(true);
   });
 
+  it('should return true for the 4001 "user rejected" error code', () => {
+    const error = Object.assign(new Error(someOtherErrorMessage), {
+      code: 4001,
+    });
+    expect(isUserRejectionError(error)).toBe(true);
+  });
+
   it('should return false if error message does not include specific rejection messages', () => {
     const error = new Error(someOtherErrorMessage);
     expect(isUserRejectionError(error)).toBe(false);

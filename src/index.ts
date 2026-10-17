@@ -5,6 +5,7 @@ declare global {
   interface Window {
     Buffer: typeof Buffer;
     bearby?: unknown;
+    rustcore?: unknown;
     massaWallet?: {
       standalone: boolean;
     };
