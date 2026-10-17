@@ -1,10 +1,10 @@
 import { Network, Provider } from '@massalabs/massa-web3';
 import { Wallet } from '../wallet/interface';
-import { UserRejectionError } from '../errors';
 import { ListenerCtrl, WalletName } from '../wallet';
 import { RustCoreAccount } from './RustCoreAccount';
-import { RustCoreInjected, RustCoreNetwork } from './types';
-import { getRustCore, isUserRejection, toNetwork } from './utils';
+import { RustCoreSession } from './session';
+import { RustCoreInjected } from './types';
+import { getRustCore, isRustCoreNetwork, toNetwork } from './utils';
 
 /**
  * RustCore Wallet, a browser extension (Chromium and Firefox) that injects
@@ -19,7 +19,11 @@ import { getRustCore, isUserRejection, toNetwork } from './utils';
 export class RustCoreWallet implements Wallet {
   private walletName = WalletName.RustCore;
 
-  public constructor(private readonly rustcore: RustCoreInjected) {}
+  private readonly session: RustCoreSession;
+
+  public constructor(private readonly rustcore: RustCoreInjected) {
+    this.session = new RustCoreSession(rustcore);
+  }
 
   public name(): WalletName {
     return this.walletName;
@@ -35,11 +39,8 @@ export class RustCoreWallet implements Wallet {
    * site first if it isn't connected yet.
    */
   public async accounts(): Promise<RustCoreAccount[]> {
-    await this.ensureConnected();
-    const { address } = (await this.rustcore.request('account')) as {
-      address: string;
-    };
-    return [new RustCoreAccount(address, this.rustcore)];
+    const address = await this.session.address();
+    return [new RustCoreAccount(address, this.session)];
   }
 
   public async importAccount(): Promise<void> {
@@ -51,10 +52,7 @@ export class RustCoreWallet implements Wallet {
   }
 
   public async networkInfos(): Promise<Network> {
-    await this.ensureConnected();
-    return toNetwork(
-      (await this.rustcore.request('network')) as RustCoreNetwork,
-    );
+    return toNetwork(await this.session.currentNetwork());
   }
 
   public async setRpcUrl(): Promise<void> {
@@ -103,9 +101,26 @@ export class RustCoreWallet implements Wallet {
   public listenNetworkChanges(
     callback: (network: Network) => void,
   ): ListenerCtrl {
-    const unsubscribe = this.rustcore.on('networkChanged', (data) =>
-      callback(toNetwork(data as RustCoreNetwork)),
-    );
+    const unsubscribe = this.rustcore.on('networkChanged', (data) => {
+      if (isRustCoreNetwork(data)) callback(toNetwork(data));
+    });
+    return { unsubscribe };
+  }
+
+  /**
+   * Subscribes to the user disconnecting this site in the wallet. Reads,
+   * transfers, rolls and contract calls then ask the user to connect it again.
+   *
+   * @example
+   * ```typescript
+   * const observer = wallet.listenDisconnect(() => {
+   *   console.log('disconnected');
+   * });
+   * observer.unsubscribe();
+   * ```
+   */
+  public listenDisconnect(callback: () => void): ListenerCtrl {
+    const unsubscribe = this.rustcore.on('disconnect', () => callback());
     return { unsubscribe };
   }
 
@@ -115,32 +130,19 @@ export class RustCoreWallet implements Wallet {
    * @returns true once connected, false if the user declined.
    */
   public async connect(): Promise<boolean> {
-    try {
-      await this.rustcore.request('connect');
-      return true;
-    } catch (error) {
-      if (isUserRejection(error)) return false;
-      throw error;
-    }
+    return (await this.session.connect()) !== null;
   }
 
   public async disconnect(): Promise<boolean> {
-    await this.rustcore.request('disconnect');
+    await this.session.disconnect();
     return true;
   }
 
   public async connected(): Promise<boolean> {
-    return (await this.rustcore.request('connected')) === true;
+    return this.session.connected();
   }
 
   public enabled(): boolean {
     return true;
-  }
-
-  private async ensureConnected(): Promise<void> {
-    if (await this.connected()) return;
-    if (!(await this.connect())) {
-      throw new UserRejectionError({ operationName: 'connect' });
-    }
   }
 }

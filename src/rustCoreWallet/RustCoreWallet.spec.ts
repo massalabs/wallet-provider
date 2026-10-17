@@ -10,6 +10,7 @@ import { WalletName } from '../wallet';
 import { supportedWallets } from '../walletsManager/walletList';
 import { RustCoreAccount } from './RustCoreAccount';
 import { RustCoreWallet } from './RustCoreWallet';
+import { RustCoreSession } from './session';
 import { RustCoreEvent, RustCoreInjected } from './types';
 
 const ADDRESS = 'AU12K8ag8RQEBhFLtT6ixoMvv4ZsG2DNzKq3tbB1vssWM3LMZYskz';
@@ -113,12 +114,43 @@ describe('RustCoreWallet connection', () => {
     });
     const [account] = await new RustCoreWallet(rustcore).accounts();
 
+    // connect already answers the shared address
     expect(account.address).toBe(ADDRESS);
     expect(request.mock.calls.map(([method]) => method)).toEqual([
       'connected',
       'connect',
-      'account',
     ]);
+  });
+
+  it('sends a single connect for concurrent calls', async () => {
+    let isConnected = false;
+    let approve: () => void = () => undefined;
+    let pending = false;
+    const { rustcore, request } = fakeRustCore({
+      connected: () => isConnected,
+      // like the extension: a second connect while one waits is Busy
+      connect: () => {
+        if (pending) throw rustCoreError(4900, 'busy');
+        pending = true;
+        return new Promise((resolve) => {
+          approve = () => {
+            isConnected = true;
+            resolve({ address: ADDRESS });
+          };
+        });
+      },
+      network: BUILDNET,
+    });
+    const wallet = new RustCoreWallet(rustcore);
+
+    const both = Promise.all([wallet.accounts(), wallet.networkInfos()]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    approve();
+    const [[account], network] = await both;
+
+    expect(account.address).toBe(ADDRESS);
+    expect(network.name).toBe('buildnet');
+    expect(request.mock.calls.filter(([m]) => m === 'connect')).toHaveLength(1);
   });
 
   it('throws a UserRejectionError when the user declines to connect', async () => {
@@ -211,6 +243,7 @@ describe('RustCoreWallet events', () => {
     );
 
     emit('networkChanged', BUILDNET);
+    emit('networkChanged', { name: 'buildnet' }); // malformed: ignored
     observer.unsubscribe();
     emit('networkChanged', BUILDNET);
 
@@ -221,6 +254,18 @@ describe('RustCoreWallet events', () => {
       minimalFee: 10000000n,
     });
   });
+
+  it('tells when the user disconnects the site', () => {
+    const { rustcore, emit } = fakeRustCore();
+    const callback = jest.fn();
+    const observer = new RustCoreWallet(rustcore).listenDisconnect(callback);
+
+    emit('disconnect');
+    observer.unsubscribe();
+    emit('disconnect');
+
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
 });
 
 const OPERATION_ID = 'O12Fbo1QjsTpLbbLoyQQyjGdYRSvL8FCh5nuRgTNmXaA4ToZy1RB';
@@ -230,9 +275,14 @@ const OTHER = 'AU126s93ZxbT4QUJcZYqsAxyMc3wv8nkHJYKYCtgQyEnZ8VGRM99P';
 const base64 = (bytes: Uint8Array) => Buffer.from(bytes).toString('base64');
 
 function account(answers: Record<string, unknown> = {}) {
-  const fake = fakeRustCore({ network: BUILDNET, ...answers });
-  return { ...fake, account: new RustCoreAccount(ADDRESS, fake.rustcore) };
+  const fake = fakeRustCore({ connected: true, network: BUILDNET, ...answers });
+  const session = new RustCoreSession(fake.rustcore);
+  return { ...fake, account: new RustCoreAccount(ADDRESS, session) };
 }
+
+/** Requests other than the connection and network lookups. */
+const operationRequests = (request: jest.Mock) =>
+  request.mock.calls.filter(([m]) => m !== 'connected' && m !== 'network');
 
 describe('RustCoreAccount signing', () => {
   it('signs text as its UTF-8 bytes, base64-encoded', async () => {
@@ -326,20 +376,84 @@ describe('RustCoreAccount operations', () => {
       maxGas: 3_000_000n,
     });
 
-    expect(request).toHaveBeenNthCalledWith(1, 'callSC', {
-      target: CONTRACT,
-      func: 'transfer',
-      parameter: base64(args.serialize()),
-      coins: '0',
+    const [first, second] = operationRequests(request);
+    expect(first).toEqual([
+      'callSC',
+      {
+        target: CONTRACT,
+        func: 'transfer',
+        parameter: base64(args.serialize()),
+        coins: '0',
+      },
+    ]);
+    expect(second).toEqual([
+      'callSC',
+      {
+        target: CONTRACT,
+        func: 'deposit',
+        parameter: base64(Uint8Array.from([1, 2])),
+        coins: '100000000',
+        fee: '20000000',
+        maxGas: '3000000',
+      },
+    ]);
+  });
+
+  it('refuses the options the wallet sets itself instead of ignoring them', async () => {
+    const { account: acc, request } = account({
+      transfer: { operationId: OPERATION_ID },
+      buyRolls: { operationId: OPERATION_ID },
+      callSC: { operationId: OPERATION_ID },
     });
-    expect(request).toHaveBeenNthCalledWith(2, 'callSC', {
-      target: CONTRACT,
-      func: 'deposit',
-      parameter: base64(Uint8Array.from([1, 2])),
-      coins: '100000000',
-      fee: '20000000',
-      maxGas: '3000000',
+
+    await expect(acc.transfer(OTHER, 1n, { fee: 1n })).rejects.toThrow(
+      /transfer: RustCore Wallet sets fee itself/,
+    );
+    await expect(
+      acc.buyRolls(1n, { fee: 1n, periodToLive: 5 }),
+    ).rejects.toThrow(/sets fee and periodToLive itself/);
+    await expect(
+      acc.callSC({ target: CONTRACT, func: 'f', periodToLive: 5 }),
+    ).rejects.toThrow(/callSC: RustCore Wallet sets periodToLive itself/);
+    expect(operationRequests(request)).toEqual([]);
+
+    // unset options are fine
+    await acc.transfer(OTHER, 1n, { fee: undefined });
+    expect(operationRequests(request)).toHaveLength(1);
+  });
+
+  it('throws a clear error when the wallet returns no operation id', async () => {
+    const { account: acc } = account({ transfer: { id: OPERATION_ID } });
+    await expect(acc.transfer(OTHER, 1n)).rejects.toThrow(
+      'RustCore Wallet returned no operation id for transfer.',
+    );
+  });
+
+  it('follows an operation on the network it was sent on', async () => {
+    const mainnetUrl = 'https://sent-on.example/api/v2';
+    const buildnetUrl = 'https://switched-to.example/api/v2';
+    const clients = {
+      [mainnetUrl]: { getOperationStatus: jest.fn(async () => 0) },
+      [buildnetUrl]: { getOperationStatus: jest.fn(async () => 0) },
+    };
+    jest
+      .spyOn(JsonRpcPublicProvider, 'fromRPCUrl')
+      .mockImplementation(
+        (url) => clients[url] as unknown as JsonRpcPublicProvider,
+      );
+    const { account: acc, emit } = account({
+      network: { ...BUILDNET, url: mainnetUrl },
+      transfer: { operationId: OPERATION_ID },
     });
+
+    const operation = await acc.transfer(OTHER, 1n);
+    emit('networkChanged', { ...BUILDNET, url: buildnetUrl });
+    await operation.getStatus();
+
+    expect(clients[mainnetUrl].getOperationStatus).toHaveBeenCalledWith(
+      OPERATION_ID,
+    );
+    expect(clients[buildnetUrl].getOperationStatus).not.toHaveBeenCalled();
   });
 
   it('refuses raw bytecode and deployments', async () => {
@@ -374,30 +488,76 @@ describe('RustCoreAccount reads', () => {
       .mockImplementation(
         (url) => clients[url] as unknown as JsonRpcPublicProvider,
       );
-    let url = mainnetUrl;
-    const { account: acc, request } = account({
-      network: () => ({ ...BUILDNET, url }),
+    const {
+      account: acc,
+      request,
+      emit,
+    } = account({
+      network: { ...BUILDNET, url: mainnetUrl },
     });
 
     expect(await acc.balance(true)).toBe(42n);
     expect(clients[mainnetUrl].balanceOf).toHaveBeenCalledWith([ADDRESS], true);
 
     // the user switches network in the wallet
-    url = buildnetUrl;
+    emit('networkChanged', { ...BUILDNET, url: buildnetUrl });
     expect(await acc.getOperationStatus(OPERATION_ID)).toBe(
       OperationStatus.Success,
     );
     expect(clients[buildnetUrl].getOperationStatus).toHaveBeenCalled();
 
-    url = mainnetUrl;
+    emit('networkChanged', { ...BUILDNET, url: mainnetUrl });
     await acc.balanceOf([OTHER]);
     expect(clients[mainnetUrl].balanceOf).toHaveBeenCalledTimes(2);
 
-    // one client per node, and no signature requested for reads
+    // one client per node, the network asked once, no signature for reads
     expect(fromRPCUrl).toHaveBeenCalledTimes(2);
-    expect(request.mock.calls.every(([method]) => method === 'network')).toBe(
-      true,
-    );
+    expect(request.mock.calls.map(([method]) => method)).toEqual([
+      'connected',
+      'network',
+    ]);
+  });
+
+  it('connects again before reading once the site was disconnected', async () => {
+    const client = stubClient();
+    jest
+      .spyOn(JsonRpcPublicProvider, 'fromRPCUrl')
+      .mockReturnValue(client as unknown as JsonRpcPublicProvider);
+    let isConnected = true;
+    const {
+      account: acc,
+      request,
+      emit,
+    } = account({
+      connected: () => isConnected,
+      connect: () => {
+        isConnected = true;
+        return { address: ADDRESS };
+      },
+    });
+
+    await acc.balance();
+    isConnected = false;
+    emit('disconnect');
+    await acc.balance();
+
+    expect(request.mock.calls.map(([method]) => method)).toEqual([
+      'connected',
+      'network',
+      'connected',
+      'connect',
+      'network',
+    ]);
+  });
+
+  it('fails with a UserRejectionError when the user declines to reconnect', async () => {
+    const { account: acc } = account({
+      connected: false,
+      connect: () => {
+        throw rustCoreError(4001);
+      },
+    });
+    await expect(acc.balance()).rejects.toThrow(UserRejectionError);
   });
 
   it('simulates calls as this account unless another caller is given', async () => {
