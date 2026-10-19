@@ -1,32 +1,48 @@
 import { UserRejectionError } from '../errors';
 import { isUserRejectionError } from '../errors/utils/errorHandler';
-import { RustCoreInjected, RustCoreNetwork } from './types';
+import { RustCoreErrorCode, RustCoreInjected, RustCoreNetwork } from './types';
 import { isRustCoreNetwork } from './utils';
 
+// one session per injected object, so its listeners are added only once
+const sessions = new WeakMap<RustCoreInjected, RustCoreSession>();
+
 /**
- * The connection to window.rustcore that a RustCoreWallet shares with its
+ * The connection to window.rustcore that RustCoreWallets share with their
  * accounts.
  *
  * @remarks
- * - The extension answers a second `connect` from the same site with 4900
- *   (Busy) while the first waits for the user, so a pending connect is reused.
+ * - A pending connect is reused: the extension joins a second `connect` from
+ *   the same site to the waiting one, but versions before 1.5.0 answer it
+ *   with 4900 (Busy).
  * - The wallet's network is kept until the extension says it changed, so reads
  *   don't ask the extension for it each time.
+ * - Only what the dApp asks for (accounts, network, operations) prompts the
+ *   user to connect: background reads of a disconnected site fail instead, so
+ *   polling doesn't open a prompt again and again.
  */
 export class RustCoreSession {
   private pendingConnect?: Promise<string | null>;
   private network?: Promise<RustCoreNetwork>;
 
-  public constructor(public readonly rustcore: RustCoreInjected) {
+  private constructor(public readonly rustcore: RustCoreInjected) {
     rustcore.on('networkChanged', (data) => {
       this.network = isRustCoreNetwork(data)
         ? Promise.resolve(data)
         : undefined;
     });
-    // a disconnected site can't read the network: ask again once reconnected
     rustcore.on('disconnect', () => {
       this.network = undefined;
     });
+  }
+
+  /** The session of this injected object. */
+  public static for(rustcore: RustCoreInjected): RustCoreSession {
+    let session = sessions.get(rustcore);
+    if (!session) {
+      session = new RustCoreSession(rustcore);
+      sessions.set(rustcore, session);
+    }
+    return session;
   }
 
   public async disconnect(): Promise<void> {
@@ -62,7 +78,25 @@ export class RustCoreSession {
     return address;
   }
 
-  /** The wallet's current network, asking to connect the site first if needed. */
+  /**
+   * The wallet's current network, asking the user to connect the site first
+   * if needed.
+   */
+  public async connectedNetwork(): Promise<RustCoreNetwork> {
+    if (
+      !this.network &&
+      !(await this.connected()) &&
+      (await this.connect()) === null
+    ) {
+      throw new UserRejectionError({ operationName: 'connect' });
+    }
+    return this.currentNetwork();
+  }
+
+  /**
+   * The wallet's current network, without prompting the user: fails if the
+   * site isn't connected.
+   */
   public currentNetwork(): Promise<RustCoreNetwork> {
     if (!this.network) {
       const network = this.fetchNetwork();
@@ -84,10 +118,20 @@ export class RustCoreSession {
   }
 
   private async fetchNetwork(): Promise<RustCoreNetwork> {
-    if (!(await this.connected()) && (await this.connect()) === null) {
-      throw new UserRejectionError({ operationName: 'connect' });
+    let network: unknown;
+    try {
+      network = await this.rustcore.request('network');
+    } catch (error) {
+      if (
+        (error as { code?: unknown })?.code === RustCoreErrorCode.Unauthorized
+      ) {
+        throw new Error(
+          'RustCore Wallet: this site is not connected. Call connect() first.',
+          { cause: error },
+        );
+      }
+      throw error;
     }
-    const network = await this.rustcore.request('network');
     if (!isRustCoreNetwork(network)) {
       throw new Error('RustCore Wallet returned an invalid network.');
     }

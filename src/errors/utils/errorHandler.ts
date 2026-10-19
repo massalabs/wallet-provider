@@ -1,6 +1,7 @@
 import { UserRejectionError } from '../userRejection';
 
-// EIP-1193's "user rejected the request", used by RustCore Wallet
+// EIP-1193's "user rejected the request": RustCore Wallet and MetaMask use it,
+// and any wallet whose errors carry it gets a UserRejectionError
 const userRejectedRequestCode = 4001;
 
 export function isUserRejectionError(error: Error): boolean {
