@@ -23,7 +23,7 @@ import { errorHandler } from '../errors/utils/errorHandler';
 import { operationType } from '../utils/constants';
 import { uint8ArrayToBase64 } from '../utils/base64';
 import { RustCoreSession } from './session';
-import { toNetwork } from './utils';
+import { isRustCoreNetwork, toNetwork } from './utils';
 
 const jsonClients = new Map<string, JsonRpcPublicProvider>();
 
@@ -33,10 +33,12 @@ const jsonClients = new Map<string, JsonRpcPublicProvider>();
  * @remarks
  * Signatures go to the extension, where the user approves each of them.
  * Reads (balances, readSC, events, storage…) need no key: they go straight to
- * a public node of the wallet's current network.
+ * a public node of the wallet's current network. They never prompt the user:
+ * once the site is disconnected they fail until it connects again.
  *
- * The wallet sets the fee of transfers and rolls, and the expiry of every
- * operation: setting them here throws instead of being ignored.
+ * `fee` is a hint: the wallet never pays less than its own minimum. It sets
+ * the expiry of every operation itself, so `periodToLive` throws instead of
+ * being ignored.
  */
 export class RustCoreAccount implements Provider {
   public constructor(
@@ -81,10 +83,11 @@ export class RustCoreAccount implements Provider {
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
-    refuseOptions('transfer', opts);
+    refusePeriodToLive('transfer', opts?.periodToLive);
     return this.send(operationType.SendTransaction, 'transfer', {
       to: to.toString(),
       amount: amount.toString(),
+      ...feeParam(opts?.fee),
     });
   }
 
@@ -92,9 +95,10 @@ export class RustCoreAccount implements Provider {
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
-    refuseOptions('buyRolls', opts);
+    refusePeriodToLive('buyRolls', opts?.periodToLive);
     return this.send(operationType.BuyRolls, 'buyRolls', {
       rolls: amount.toString(),
+      ...feeParam(opts?.fee),
     });
   }
 
@@ -102,9 +106,10 @@ export class RustCoreAccount implements Provider {
     amount: bigint,
     opts?: OperationOptions,
   ): Promise<Operation> {
-    refuseOptions('sellRolls', opts);
+    refusePeriodToLive('sellRolls', opts?.periodToLive);
     return this.send(operationType.SellRolls, 'sellRolls', {
       rolls: amount.toString(),
+      ...feeParam(opts?.fee),
     });
   }
 
@@ -113,7 +118,7 @@ export class RustCoreAccount implements Provider {
    * user before signing; `fee` is raised to the network's minimum if lower.
    */
   public async callSC(params: CallSCParams): Promise<Operation> {
-    refuseOptions('callSC', { periodToLive: params.periodToLive });
+    refusePeriodToLive('callSC', params.periodToLive);
     const args = params.parameter ?? new Uint8Array();
     const parameter = args instanceof Uint8Array ? args : args.serialize();
     return this.send(operationType.CallSC, 'callSC', {
@@ -121,7 +126,7 @@ export class RustCoreAccount implements Provider {
       func: params.func,
       parameter: uint8ArrayToBase64(parameter),
       coins: (params.coins ?? 0n).toString(),
-      ...(params.fee !== undefined && { fee: params.fee.toString() }),
+      ...feeParam(params.fee),
       ...(params.maxGas !== undefined && { maxGas: params.maxGas.toString() }),
     });
   }
@@ -143,21 +148,28 @@ export class RustCoreAccount implements Provider {
     method: string,
     params: Record<string, string>,
   ): Promise<Operation> {
-    // The operation is sent on the wallet's current network: follow its status
-    // on that network's node even if the user switches network afterwards.
-    const { url } = await this.session.currentNetwork();
+    const sentOn = await this.session.connectedNetwork();
     let result: unknown;
     try {
       result = await this.session.rustcore.request(method, params);
     } catch (error) {
       throw errorHandler(operationName, error);
     }
-    const operationId = (result as { operationId?: unknown })?.operationId;
+    const { operationId, network } = (result ?? {}) as {
+      operationId?: unknown;
+      network?: unknown;
+    };
     if (typeof operationId !== 'string') {
       throw new Error(
         `RustCore Wallet returned no operation id for ${method}.`,
       );
     }
+    // Follow the status on the node of the network the operation was sent on,
+    // even if the user switched network during the prompt or switches later.
+    // The wallet answers that network; older versions answer the id alone.
+    const { url } = isRustCoreNetwork(network)
+      ? network
+      : await this.session.currentNetwork().catch(() => sentOn);
     return new Operation(clientFor(url), operationId);
   }
 
@@ -232,14 +244,15 @@ function clientFor(url: string): JsonRpcPublicProvider {
   return client;
 }
 
-/** Throws for the options the wallet sets itself, rather than ignoring them. */
-function refuseOptions(method: string, options: OperationOptions = {}): void {
-  const given = Object.entries(options)
-    .filter(([, value]) => value !== undefined)
-    .map(([name]) => name);
-  if (given.length) {
+function feeParam(fee?: bigint): { fee?: string } {
+  return fee === undefined ? {} : { fee: fee.toString() };
+}
+
+/** The wallet sets the expiry itself: throw rather than ignore it. */
+function refusePeriodToLive(method: string, periodToLive?: number): void {
+  if (periodToLive !== undefined) {
     throw new Error(
-      `${method}: RustCore Wallet sets ${given.join(' and ')} itself; leave ${given.length > 1 ? 'them' : 'it'} unset.`,
+      `${method}: RustCore Wallet sets periodToLive itself; leave it unset.`,
     );
   }
 }

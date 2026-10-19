@@ -22,7 +22,7 @@ export class RustCoreWallet implements Wallet {
   private readonly session: RustCoreSession;
 
   public constructor(private readonly rustcore: RustCoreInjected) {
-    this.session = new RustCoreSession(rustcore);
+    this.session = RustCoreSession.for(rustcore);
   }
 
   public name(): WalletName {
@@ -52,7 +52,7 @@ export class RustCoreWallet implements Wallet {
   }
 
   public async networkInfos(): Promise<Network> {
-    return toNetwork(await this.session.currentNetwork());
+    return toNetwork(await this.session.connectedNetwork());
   }
 
   public async setRpcUrl(): Promise<void> {

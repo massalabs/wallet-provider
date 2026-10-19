@@ -255,6 +255,16 @@ describe('RustCoreWallet events', () => {
     });
   });
 
+  it('listens to window.rustcore once however many wallets are created', () => {
+    const { rustcore } = fakeRustCore();
+    const on = jest.spyOn(rustcore, 'on');
+
+    new RustCoreWallet(rustcore);
+    new RustCoreWallet(rustcore);
+
+    expect(on).toHaveBeenCalledTimes(2); // networkChanged and disconnect
+  });
+
   it('tells when the user disconnects the site', () => {
     const { rustcore, emit } = fakeRustCore();
     const callback = jest.fn();
@@ -276,7 +286,7 @@ const base64 = (bytes: Uint8Array) => Buffer.from(bytes).toString('base64');
 
 function account(answers: Record<string, unknown> = {}) {
   const fake = fakeRustCore({ connected: true, network: BUILDNET, ...answers });
-  const session = new RustCoreSession(fake.rustcore);
+  const session = RustCoreSession.for(fake.rustcore);
   return { ...fake, account: new RustCoreAccount(ADDRESS, session) };
 }
 
@@ -399,27 +409,64 @@ describe('RustCoreAccount operations', () => {
     ]);
   });
 
-  it('refuses the options the wallet sets itself instead of ignoring them', async () => {
+  it('forwards the fee of transfers and rolls', async () => {
     const { account: acc, request } = account({
       transfer: { operationId: OPERATION_ID },
       buyRolls: { operationId: OPERATION_ID },
+      sellRolls: { operationId: OPERATION_ID },
+    });
+
+    await acc.transfer(OTHER, 5n, { fee: 20_000_000n });
+    await acc.buyRolls(1n, { fee: 30_000_000n });
+    await acc.sellRolls(1n, { fee: undefined });
+
+    expect(operationRequests(request)).toEqual([
+      ['transfer', { to: OTHER, amount: '5', fee: '20000000' }],
+      ['buyRolls', { rolls: '1', fee: '30000000' }],
+      ['sellRolls', { rolls: '1' }],
+    ]);
+  });
+
+  it('refuses periodToLive, which the wallet sets itself, instead of ignoring it', async () => {
+    const { account: acc, request } = account({
+      transfer: { operationId: OPERATION_ID },
       callSC: { operationId: OPERATION_ID },
     });
 
-    await expect(acc.transfer(OTHER, 1n, { fee: 1n })).rejects.toThrow(
-      /transfer: RustCore Wallet sets fee itself/,
-    );
     await expect(
-      acc.buyRolls(1n, { fee: 1n, periodToLive: 5 }),
-    ).rejects.toThrow(/sets fee and periodToLive itself/);
+      acc.transfer(OTHER, 1n, { fee: 1n, periodToLive: 5 }),
+    ).rejects.toThrow(/transfer: RustCore Wallet sets periodToLive itself/);
     await expect(
       acc.callSC({ target: CONTRACT, func: 'f', periodToLive: 5 }),
     ).rejects.toThrow(/callSC: RustCore Wallet sets periodToLive itself/);
     expect(operationRequests(request)).toEqual([]);
+  });
 
-    // unset options are fine
-    await acc.transfer(OTHER, 1n, { fee: undefined });
-    expect(operationRequests(request)).toHaveLength(1);
+  it('follows an operation on the network the wallet answers with it', async () => {
+    const answeredUrl = 'https://answered.example/api/v2';
+    const cachedUrl = 'https://cached.example/api/v2';
+    const clients = {
+      [answeredUrl]: { getOperationStatus: jest.fn(async () => 0) },
+      [cachedUrl]: { getOperationStatus: jest.fn(async () => 0) },
+    };
+    jest
+      .spyOn(JsonRpcPublicProvider, 'fromRPCUrl')
+      .mockImplementation(
+        (url) => clients[url] as unknown as JsonRpcPublicProvider,
+      );
+    const { account: acc } = account({
+      network: { ...BUILDNET, url: cachedUrl },
+      // networkChanged may still be on its way: the answer says where it went
+      transfer: {
+        operationId: OPERATION_ID,
+        network: { ...BUILDNET, url: answeredUrl },
+      },
+    });
+
+    await (await acc.transfer(OTHER, 1n)).getStatus();
+
+    expect(clients[answeredUrl].getOperationStatus).toHaveBeenCalled();
+    expect(clients[cachedUrl].getOperationStatus).not.toHaveBeenCalled();
   });
 
   it('throws a clear error when the wallet returns no operation id', async () => {
@@ -429,7 +476,7 @@ describe('RustCoreAccount operations', () => {
     );
   });
 
-  it('follows an operation on the network it was sent on', async () => {
+  it('with an older wallet, follows an operation on the network it was sent on', async () => {
     const mainnetUrl = 'https://sent-on.example/api/v2';
     const buildnetUrl = 'https://switched-to.example/api/v2';
     const clients = {
@@ -454,6 +501,56 @@ describe('RustCoreAccount operations', () => {
       OPERATION_ID,
     );
     expect(clients[buildnetUrl].getOperationStatus).not.toHaveBeenCalled();
+  });
+
+  it('with an older wallet, follows a switch announced before the answer', async () => {
+    const beforeUrl = 'https://before-prompt.example/api/v2';
+    const afterUrl = 'https://during-prompt.example/api/v2';
+    const clients = {
+      [beforeUrl]: { getOperationStatus: jest.fn(async () => 0) },
+      [afterUrl]: { getOperationStatus: jest.fn(async () => 0) },
+    };
+    jest
+      .spyOn(JsonRpcPublicProvider, 'fromRPCUrl')
+      .mockImplementation(
+        (url) => clients[url] as unknown as JsonRpcPublicProvider,
+      );
+    let switchNetwork = () => undefined as void;
+    const { account: acc, emit } = account({
+      network: { ...BUILDNET, url: beforeUrl },
+      // the extension sends networkChanged before answering
+      transfer: () => {
+        switchNetwork();
+        return { operationId: OPERATION_ID };
+      },
+    });
+    switchNetwork = () =>
+      emit('networkChanged', { ...BUILDNET, url: afterUrl });
+
+    await (await acc.transfer(OTHER, 1n)).getStatus();
+
+    expect(clients[afterUrl].getOperationStatus).toHaveBeenCalled();
+    expect(clients[beforeUrl].getOperationStatus).not.toHaveBeenCalled();
+  });
+
+  it('asks to connect again before an operation once disconnected', async () => {
+    let isConnected = true;
+    const {
+      account: acc,
+      request,
+      emit,
+    } = account({
+      connected: () => isConnected,
+      connect: () => {
+        throw rustCoreError(4001);
+      },
+      transfer: { operationId: OPERATION_ID },
+    });
+
+    isConnected = false;
+    emit('disconnect');
+    await expect(acc.transfer(OTHER, 1n)).rejects.toThrow(UserRejectionError);
+    expect(request).not.toHaveBeenCalledWith('transfer', expect.anything());
   });
 
   it('refuses raw bytecode and deployments', async () => {
@@ -512,13 +609,10 @@ describe('RustCoreAccount reads', () => {
 
     // one client per node, the network asked once, no signature for reads
     expect(fromRPCUrl).toHaveBeenCalledTimes(2);
-    expect(request.mock.calls.map(([method]) => method)).toEqual([
-      'connected',
-      'network',
-    ]);
+    expect(request.mock.calls.map(([method]) => method)).toEqual(['network']);
   });
 
-  it('connects again before reading once the site was disconnected', async () => {
+  it('never prompts for reads once the site was disconnected', async () => {
     const client = stubClient();
     jest
       .spyOn(JsonRpcPublicProvider, 'fromRPCUrl')
@@ -529,35 +623,24 @@ describe('RustCoreAccount reads', () => {
       request,
       emit,
     } = account({
-      connected: () => isConnected,
-      connect: () => {
-        isConnected = true;
-        return { address: ADDRESS };
+      // like the extension: 4100 for a site that isn't connected
+      network: () => {
+        if (!isConnected) throw rustCoreError(4100, 'Connect first');
+        return { ...BUILDNET, url: 'https://polling.example/api/v2' };
       },
     });
 
     await acc.balance();
     isConnected = false;
     emit('disconnect');
+    // a dApp polling its balance
+    await expect(acc.balance()).rejects.toThrow(/not connected/);
+    await expect(acc.balance()).rejects.toThrow(/not connected/);
+
+    isConnected = true;
     await acc.balance();
-
-    expect(request.mock.calls.map(([method]) => method)).toEqual([
-      'connected',
-      'network',
-      'connected',
-      'connect',
-      'network',
-    ]);
-  });
-
-  it('fails with a UserRejectionError when the user declines to reconnect', async () => {
-    const { account: acc } = account({
-      connected: false,
-      connect: () => {
-        throw rustCoreError(4001);
-      },
-    });
-    await expect(acc.balance()).rejects.toThrow(UserRejectionError);
+    expect(request).not.toHaveBeenCalledWith('connect');
+    expect(client.balanceOf).toHaveBeenCalledTimes(2);
   });
 
   it('simulates calls as this account unless another caller is given', async () => {
