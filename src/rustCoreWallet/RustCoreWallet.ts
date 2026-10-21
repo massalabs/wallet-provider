@@ -11,7 +11,8 @@ import { getRustCore, isRustCoreNetwork, toNetwork } from './utils';
  * `window.rustcore` into web pages.
  *
  * @remarks
- * A site connects once and gets one account, chosen by the user. Every
+ * A site connects once and gets the accounts the user ticks (one before
+ * version 1.6.0); it uses the one the user last switched to. Every
  * signature (transfers, rolls, contract calls, messages) is approved by the
  * user in the extension. Websites can't import, delete or create accounts,
  * nor change the wallet's node.
@@ -35,12 +36,14 @@ export class RustCoreWallet implements Wallet {
   }
 
   /**
-   * The account the user shared with this site. Asks the user to connect the
-   * site first if it isn't connected yet.
+   * The accounts the user shared with this site, the one in use first. Asks
+   * the user to connect the site first if it isn't connected yet.
    */
   public async accounts(): Promise<RustCoreAccount[]> {
-    const address = await this.session.address();
-    return [new RustCoreAccount(address, this.session)];
+    const addresses = await this.session.addresses();
+    return addresses.map(
+      (address) => new RustCoreAccount(address, this.session),
+    );
   }
 
   public async importAccount(): Promise<void> {
@@ -66,8 +69,9 @@ export class RustCoreWallet implements Wallet {
   }
 
   /**
-   * Subscribes to the account shared with this site changing (the user picked
-   * another one in the wallet's settings).
+   * Subscribes to the account this site uses changing: the user switched to
+   * another of the accounts shared with it, or picked another one in the
+   * wallet's settings.
    *
    * @example
    * ```typescript
