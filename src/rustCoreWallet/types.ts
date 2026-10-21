@@ -16,7 +16,16 @@ export type RustCoreInjected = {
   on(event: RustCoreEvent, callback: (data: unknown) => void): () => void;
 };
 
-export type RustCoreEvent = 'accountChanged' | 'networkChanged' | 'disconnect';
+/**
+ * `accountChanged` carries `address`: the account the site uses is another
+ * one. `accountsChanged` (from 1.6.0) carries `addresses`: the accounts the
+ * site may see changed, the one in use first.
+ */
+export type RustCoreEvent =
+  | 'accountChanged'
+  | 'accountsChanged'
+  | 'networkChanged'
+  | 'disconnect';
 
 /** What `network` answers and `networkChanged` carries. */
 export type RustCoreNetwork = {
