@@ -31,7 +31,9 @@ const jsonClients = new Map<string, JsonRpcPublicProvider>();
  * An account the user shared with this site through RustCore Wallet.
  *
  * @remarks
- * Signatures go to the extension, where the user approves each of them.
+ * Signatures go to the extension, where the user approves each of them, and
+ * are made by this account even after the user switches to another one shared
+ * with the site (versions before 1.6.0 share one account only).
  * Reads (balances, readSC, events, storage…) need no key: they go straight to
  * a public node of the wallet's current network. They never prompt the user:
  * once the site is disconnected they fail until it connects again.
@@ -72,6 +74,7 @@ export class RustCoreAccount implements Provider {
     try {
       return (await this.session.rustcore.request('sign', {
         data: uint8ArrayToBase64(bytes),
+        ...(await this.session.signedBy(this.address)),
       })) as SignedData;
     } catch (error) {
       throw errorHandler(operationType.Sign, error);
@@ -149,9 +152,13 @@ export class RustCoreAccount implements Provider {
     params: Record<string, string>,
   ): Promise<Operation> {
     const sentOn = await this.session.connectedNetwork();
+    const from = await this.session.signedBy(this.address);
     let result: unknown;
     try {
-      result = await this.session.rustcore.request(method, params);
+      result = await this.session.rustcore.request(method, {
+        ...params,
+        ...from,
+      });
     } catch (error) {
       throw errorHandler(operationName, error);
     }
