@@ -163,6 +163,35 @@ describe('RustCoreWallet connection', () => {
     expect(await new RustCoreWallet(rustcore).connect()).toBe(true);
   });
 
+  it('falls back on the connected account if neither list is usable', async () => {
+    const { rustcore } = fakeRustCore({
+      connected: false,
+      connect: { address: ADDRESS, addresses: [] },
+      accounts: () => {
+        throw rustCoreError(-32603, 'internal');
+      },
+    });
+    const accounts = await new RustCoreWallet(rustcore).accounts();
+
+    expect(accounts.map((a) => a.address)).toEqual([ADDRESS]);
+  });
+
+  it('with an older wallet, asks for accounts only once', async () => {
+    const { rustcore, request } = fakeRustCore({
+      connected: true,
+      account: { address: ADDRESS },
+    });
+    const wallet = new RustCoreWallet(rustcore);
+
+    await wallet.accounts();
+    await wallet.accounts();
+
+    expect(request.mock.calls.filter(([m]) => m === 'accounts')).toHaveLength(
+      1,
+    );
+    expect(request.mock.calls.filter(([m]) => m === 'account')).toHaveLength(2);
+  });
+
   it('with an older wallet, does not ask for accounts after connecting', async () => {
     const { rustcore, request } = fakeRustCore({
       connected: false,
@@ -311,6 +340,22 @@ describe('RustCoreWallet events', () => {
     emit('accountChanged', { address: 'AU1other' });
 
     expect(callback.mock.calls).toEqual([[ADDRESS]]);
+  });
+
+  it('forwards changes to the shared accounts until unsubscribed', () => {
+    const { rustcore, emit } = fakeRustCore();
+    const callback = jest.fn();
+    const observer = new RustCoreWallet(rustcore).listenAccountsChanges(
+      callback,
+    );
+
+    emit('accountsChanged', { addresses: [SECOND, ADDRESS] });
+    emit('accountsChanged', { addresses: [] }); // malformed: ignored
+    emit('accountsChanged', {}); // malformed: ignored
+    observer.unsubscribe();
+    emit('accountsChanged', { addresses: [ADDRESS] });
+
+    expect(callback.mock.calls).toEqual([[[SECOND, ADDRESS]]]);
   });
 
   it('forwards network changes as massa-web3 networks', () => {
@@ -527,6 +572,78 @@ describe('RustCoreAccount with several accounts per site', () => {
       data: Buffer.from('hi', 'utf8').toString('base64'),
       from: ADDRESS,
     });
+  });
+
+  it.each([
+    ['internal', -32603],
+    ['busy', 4900],
+  ])(
+    'signs nothing if the wallet could not tell (%s), then asks again',
+    async (_, code) => {
+      let fails = true;
+      const { account: acc, request } = account({
+        accounts: () => {
+          if (fails) throw rustCoreError(code);
+          return { addresses: [SECOND, ADDRESS] };
+        },
+        transfer: { operationId: OPERATION_ID },
+      });
+
+      await expect(acc.transfer(OTHER, 1n)).rejects.toMatchObject({ code });
+      expect(request).not.toHaveBeenCalledWith('transfer', expect.anything());
+
+      fails = false;
+      await acc.transfer(OTHER, 1n);
+
+      expect(request).toHaveBeenLastCalledWith('transfer', {
+        to: OTHER,
+        amount: '1',
+        from: ADDRESS,
+      });
+    },
+  );
+
+  it('sends `from` if the site connects while the check fails', async () => {
+    let failCheck: () => void = () => undefined;
+    const signed = { publicKey: 'P1key', signature: '1sig' };
+    const {
+      account: acc,
+      rustcore,
+      request,
+    } = account({
+      connected: false,
+      accounts: () =>
+        request.mock.calls.some(([m]) => m === 'connect')
+          ? { addresses: [SECOND, ADDRESS] }
+          : new Promise((_, reject) => {
+              failCheck = () => reject(rustCoreError(4100, 'Connect first'));
+            }),
+      connect: { address: SECOND, addresses: [SECOND, ADDRESS] },
+      sign: signed,
+    });
+
+    const signing = acc.sign('hi');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new RustCoreWallet(rustcore).connect();
+    failCheck();
+
+    expect(await signing).toEqual(signed);
+    expect(request).toHaveBeenLastCalledWith('sign', {
+      data: Buffer.from('hi', 'utf8').toString('base64'),
+      from: ADDRESS,
+    });
+  });
+
+  it('asks for accounts once for concurrent signatures', async () => {
+    const { account: acc, request } = severalAccounts({
+      transfer: { operationId: OPERATION_ID },
+    });
+
+    await Promise.all([acc.transfer(OTHER, 1n), acc.transfer(OTHER, 2n)]);
+
+    expect(request.mock.calls.filter(([m]) => m === 'accounts')).toHaveLength(
+      1,
+    );
   });
 });
 

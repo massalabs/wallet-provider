@@ -151,13 +151,14 @@ export class RustCoreAccount implements Provider {
     method: string,
     params: Record<string, string>,
   ): Promise<Operation> {
+    // Connects the site if needed: only then can the wallet tell if it takes
+    // `from`, so `signedBy` has to wait for this.
     const sentOn = await this.session.connectedNetwork();
-    const from = await this.session.signedBy(this.address);
     let result: unknown;
     try {
       result = await this.session.rustcore.request(method, {
         ...params,
-        ...from,
+        ...(await this.session.signedBy(this.address)),
       });
     } catch (error) {
       throw errorHandler(operationName, error);
