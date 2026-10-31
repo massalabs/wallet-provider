@@ -1,7 +1,7 @@
 import { UserRejectionError } from '../errors';
 import { isUserRejectionError } from '../errors/utils/errorHandler';
 import { RustCoreErrorCode, RustCoreInjected, RustCoreNetwork } from './types';
-import { isRustCoreNetwork } from './utils';
+import { isAddressList, isRustCoreNetwork } from './utils';
 
 // one session per injected object, so its listeners are added only once
 const sessions = new WeakMap<RustCoreInjected, RustCoreSession>();
@@ -29,9 +29,10 @@ const sessions = new WeakMap<RustCoreInjected, RustCoreSession>();
  */
 export class RustCoreSession {
   private pendingConnect?: Promise<string[] | null>;
+  private pendingCheck?: Promise<string[] | null>;
   private network?: Promise<RustCoreNetwork>;
   /** Does the extension take `accounts` and `from`? Unknown until it says. */
-  private severalAccounts?: Promise<boolean>;
+  private severalAccounts?: boolean;
 
   private constructor(public readonly rustcore: RustCoreInjected) {
     rustcore.on('networkChanged', (data) => {
@@ -82,15 +83,9 @@ export class RustCoreSession {
    */
   public async addresses(): Promise<string[]> {
     if (await this.connected()) {
-      try {
-        const addresses = addressesOf(await this.rustcore.request('accounts'));
-        this.severalAccounts = Promise.resolve(true);
-        return addresses;
-      } catch (error) {
-        if (!isUnsupported(error)) throw error;
-        this.severalAccounts = Promise.resolve(false);
-      }
-      return [addressOf(await this.rustcore.request('account'))];
+      const listed =
+        this.severalAccounts === false ? null : await this.listAccounts();
+      return listed ?? [addressOf(await this.rustcore.request('account'))];
     }
     const addresses = await this.connect();
     if (addresses === null) {
@@ -102,26 +97,44 @@ export class RustCoreSession {
   /**
    * The `from` param that makes `address` sign, for extensions that take it;
    * older ones sign with the site's one account and get nothing.
+   *
+   * Rejects if the extension can't say which it is: without `from`, another
+   * account than `address` could sign.
    */
   public async signedBy(address: string): Promise<{ from?: string }> {
     return (await this.takesFrom()) ? { from: address } : {};
   }
 
   // Asked once: the extension's version doesn't change while the page lives.
-  // A site that isn't connected can't tell (4100): asked again next time.
-  private takesFrom(): Promise<boolean> {
-    if (!this.severalAccounts) {
-      const probe = this.rustcore.request('accounts').then(
-        () => true,
-        (error) => {
-          if (isUnsupported(error)) return false;
-          if (this.severalAccounts === probe) this.severalAccounts = undefined;
-          return false;
-        },
-      );
-      this.severalAccounts = probe;
+  // Any other answer than a list or 4200 tells nothing: asked again next time.
+  private async takesFrom(): Promise<boolean> {
+    if (this.severalAccounts === undefined) {
+      this.pendingCheck ??= this.listAccounts().finally(() => {
+        this.pendingCheck = undefined;
+      });
+      await this.pendingCheck.catch((error) => {
+        // a site can connect while the check fails with 4100
+        if (this.severalAccounts === undefined) throw error;
+      });
     }
-    return this.severalAccounts;
+    return this.severalAccounts === true;
+  }
+
+  /**
+   * The shared addresses, or null if the extension doesn't know `accounts`
+   * (4200, versions before 1.6.0).
+   */
+  private async listAccounts(): Promise<string[] | null> {
+    let result: unknown;
+    try {
+      result = await this.rustcore.request('accounts');
+    } catch (error) {
+      if (!hasCode(error, RustCoreErrorCode.UnsupportedMethod)) throw error;
+      this.severalAccounts = false;
+      return null;
+    }
+    this.severalAccounts = true;
+    return addressesOf(result);
   }
 
   /**
@@ -166,15 +179,13 @@ export class RustCoreSession {
     const listed = Array.isArray(
       (result as { addresses?: unknown })?.addresses,
     );
-    this.severalAccounts = Promise.resolve(listed);
+    this.severalAccounts = listed;
     if (!listed) return [addressOf(result)];
     // Asked at once, so the site follows the user's account switches from the
-    // start, not only from its first signature.
-    try {
-      return addressesOf(await this.rustcore.request('accounts'));
-    } catch {
-      return addressesOf(result);
-    }
+    // start, not only from its first signature. Never a check still pending
+    // from before the connection: the wallet wouldn't count that one.
+    const accounts = await this.listAccounts().catch(() => null);
+    return accounts ?? connectedAddresses(result);
   }
 
   private async fetchNetwork(): Promise<RustCoreNetwork> {
@@ -182,9 +193,7 @@ export class RustCoreSession {
     try {
       network = await this.rustcore.request('network');
     } catch (error) {
-      if (
-        (error as { code?: unknown })?.code === RustCoreErrorCode.Unauthorized
-      ) {
+      if (hasCode(error, RustCoreErrorCode.Unauthorized)) {
         throw new Error(
           'RustCore Wallet: this site is not connected. Call connect() first.',
           { cause: error },
@@ -201,21 +210,20 @@ export class RustCoreSession {
 
 function addressesOf(result: unknown): string[] {
   const addresses = (result as { addresses?: unknown })?.addresses;
-  if (
-    !Array.isArray(addresses) ||
-    addresses.length === 0 ||
-    !addresses.every((address) => typeof address === 'string')
-  ) {
+  if (!isAddressList(addresses)) {
     throw new Error('RustCore Wallet returned invalid accounts.');
   }
   return addresses;
 }
 
-/** The extension doesn't know the method (versions before 1.6.0 for `accounts`). */
-function isUnsupported(error: unknown): boolean {
-  return (
-    (error as { code?: unknown })?.code === RustCoreErrorCode.UnsupportedMethod
-  );
+/** What `connect` answers: a bad list doesn't undo what the user approved. */
+function connectedAddresses(result: unknown): string[] {
+  const addresses = (result as { addresses?: unknown })?.addresses;
+  return isAddressList(addresses) ? addresses : [addressOf(result)];
+}
+
+function hasCode(error: unknown, code: RustCoreErrorCode): boolean {
+  return (error as { code?: unknown })?.code === code;
 }
 
 function addressOf(result: unknown): string {

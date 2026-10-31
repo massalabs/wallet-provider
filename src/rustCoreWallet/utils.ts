@@ -28,6 +28,15 @@ export function isRustCoreNetwork(data: unknown): data is RustCoreNetwork {
   );
 }
 
+/** Is this a list as the extension sends it (`accounts`, `accountsChanged`)? */
+export function isAddressList(data: unknown): data is string[] {
+  return (
+    Array.isArray(data) &&
+    data.length > 0 &&
+    data.every((address) => typeof address === 'string')
+  );
+}
+
 export function toNetwork(info: RustCoreNetwork): Network {
   return {
     name: info.name,
