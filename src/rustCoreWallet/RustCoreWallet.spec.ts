@@ -6,7 +6,7 @@ import {
   OperationStatus,
 } from '@massalabs/massa-web3';
 import { UserRejectionError } from '../errors';
-import { WalletName } from '../wallet';
+import { Wallet, WalletName } from '../wallet';
 import { supportedWallets } from '../walletsManager/walletList';
 import { RustCoreAccount } from './RustCoreAccount';
 import { RustCoreWallet } from './RustCoreWallet';
@@ -345,14 +345,14 @@ describe('RustCoreWallet events', () => {
   it('forwards changes to the shared accounts until unsubscribed', () => {
     const { rustcore, emit } = fakeRustCore();
     const callback = jest.fn();
-    const observer = new RustCoreWallet(rustcore).listenAccountsChanges(
-      callback,
-    );
+    // as a dApp gets it, from getWallets()
+    const wallet: Wallet = new RustCoreWallet(rustcore);
+    const observer = wallet.listenAccountsChanges?.(callback);
 
     emit('accountsChanged', { addresses: [SECOND, ADDRESS] });
     emit('accountsChanged', { addresses: [] }); // malformed: ignored
     emit('accountsChanged', {}); // malformed: ignored
-    observer.unsubscribe();
+    observer?.unsubscribe();
     emit('accountsChanged', { addresses: [ADDRESS] });
 
     expect(callback.mock.calls).toEqual([[[SECOND, ADDRESS]]]);

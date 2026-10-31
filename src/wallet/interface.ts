@@ -16,6 +16,10 @@ export interface Wallet {
   listenAccountChanges(
     callback: (address: string) => void,
   ): ListenerCtrl | undefined;
+  /** Only for wallets that can share several accounts with a site. */
+  listenAccountsChanges?(
+    callback: (addresses: string[]) => void,
+  ): ListenerCtrl | undefined;
   listenNetworkChanges(
     callback: (network: Network) => void,
   ): ListenerCtrl | undefined;
