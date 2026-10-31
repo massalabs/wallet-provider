@@ -4,14 +4,20 @@ import { ListenerCtrl, WalletName } from '../wallet';
 import { RustCoreAccount } from './RustCoreAccount';
 import { RustCoreSession } from './session';
 import { RustCoreInjected } from './types';
-import { getRustCore, isRustCoreNetwork, toNetwork } from './utils';
+import {
+  getRustCore,
+  isAddressList,
+  isRustCoreNetwork,
+  toNetwork,
+} from './utils';
 
 /**
  * RustCore Wallet, a browser extension (Chromium and Firefox) that injects
  * `window.rustcore` into web pages.
  *
  * @remarks
- * A site connects once and gets one account, chosen by the user. Every
+ * A site connects once and gets the accounts the user ticks (one before
+ * version 1.6.0); it uses the one the user last switched to. Every
  * signature (transfers, rolls, contract calls, messages) is approved by the
  * user in the extension. Websites can't import, delete or create accounts,
  * nor change the wallet's node.
@@ -35,12 +41,14 @@ export class RustCoreWallet implements Wallet {
   }
 
   /**
-   * The account the user shared with this site. Asks the user to connect the
-   * site first if it isn't connected yet.
+   * The accounts the user shared with this site, the one in use first. Asks
+   * the user to connect the site first if it isn't connected yet.
    */
   public async accounts(): Promise<RustCoreAccount[]> {
-    const address = await this.session.address();
-    return [new RustCoreAccount(address, this.session)];
+    const addresses = await this.session.addresses();
+    return addresses.map(
+      (address) => new RustCoreAccount(address, this.session),
+    );
   }
 
   public async importAccount(): Promise<void> {
@@ -66,8 +74,13 @@ export class RustCoreWallet implements Wallet {
   }
 
   /**
-   * Subscribes to the account shared with this site changing (the user picked
-   * another one in the wallet's settings).
+   * Subscribes to the account this site uses changing: the user switched to
+   * another of the accounts shared with it, or picked another one in the
+   * wallet's settings.
+   *
+   * @remarks
+   * From version 1.6.0, an account object keeps signing as its own address
+   * after a switch: to sign as the new account, use the one from `accounts()`.
    *
    * @example
    * ```typescript
@@ -83,6 +96,29 @@ export class RustCoreWallet implements Wallet {
     const unsubscribe = this.rustcore.on('accountChanged', (data) => {
       const address = (data as { address?: unknown })?.address;
       if (typeof address === 'string') callback(address);
+    });
+    return { unsubscribe };
+  }
+
+  /**
+   * Subscribes to the accounts shared with this site changing (from version
+   * 1.6.0): the callback gets them all, the one in use first. The wallet
+   * refuses signatures from an account taken away from the site.
+   *
+   * @example
+   * ```typescript
+   * const observer = wallet.listenAccountsChanges((addresses) => {
+   *   console.log(addresses);
+   * });
+   * observer.unsubscribe();
+   * ```
+   */
+  public listenAccountsChanges(
+    callback: (addresses: string[]) => void,
+  ): ListenerCtrl {
+    const unsubscribe = this.rustcore.on('accountsChanged', (data) => {
+      const addresses = (data as { addresses?: unknown })?.addresses;
+      if (isAddressList(addresses)) callback(addresses);
     });
     return { unsubscribe };
   }

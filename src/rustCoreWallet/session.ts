@@ -1,7 +1,7 @@
 import { UserRejectionError } from '../errors';
 import { isUserRejectionError } from '../errors/utils/errorHandler';
 import { RustCoreErrorCode, RustCoreInjected, RustCoreNetwork } from './types';
-import { isRustCoreNetwork } from './utils';
+import { isAddressList, isRustCoreNetwork } from './utils';
 
 // one session per injected object, so its listeners are added only once
 const sessions = new WeakMap<RustCoreInjected, RustCoreSession>();
@@ -19,10 +19,20 @@ const sessions = new WeakMap<RustCoreInjected, RustCoreSession>();
  * - Only what the dApp asks for (accounts, network, operations) prompts the
  *   user to connect: background reads of a disconnected site fail instead, so
  *   polling doesn't open a prompt again and again.
+ * - From version 1.6.0, the user can share several accounts with a site:
+ *   `accounts` lists them and every signature names its account (`from`).
+ *   Asking for `accounts` also tells the wallet this site names its signer,
+ *   so the site follows the account the user switches to (the wallet keeps
+ *   sites that don't on the account they were given). Older versions share
+ *   one account, and answer `accounts` with 4200 (Unsupported method); they
+ *   get no `from` (1.5.x refuses unknown params).
  */
 export class RustCoreSession {
-  private pendingConnect?: Promise<string | null>;
+  private pendingConnect?: Promise<string[] | null>;
+  private pendingCheck?: Promise<string[] | null>;
   private network?: Promise<RustCoreNetwork>;
+  /** Does the extension take `accounts` and `from`? Unknown until it says. */
+  private severalAccounts?: boolean;
 
   private constructor(public readonly rustcore: RustCoreInjected) {
     rustcore.on('networkChanged', (data) => {
@@ -57,25 +67,74 @@ export class RustCoreSession {
   /**
    * Asks the user to connect this site.
    *
-   * @returns the address the user shared, or null if they declined.
+   * @returns the addresses the user shared, the one in use first, or null if
+   * they declined.
    */
-  public connect(): Promise<string | null> {
+  public connect(): Promise<string[] | null> {
     this.pendingConnect ??= this.requestConnect().finally(() => {
       this.pendingConnect = undefined;
     });
     return this.pendingConnect;
   }
 
-  /** The shared address, asking the user to connect the site first if needed. */
-  public async address(): Promise<string> {
+  /**
+   * The shared addresses, the one in use first, asking the user to connect the
+   * site first if needed.
+   */
+  public async addresses(): Promise<string[]> {
     if (await this.connected()) {
-      return addressOf(await this.rustcore.request('account'));
+      const listed =
+        this.severalAccounts === false ? null : await this.listAccounts();
+      return listed ?? [addressOf(await this.rustcore.request('account'))];
     }
-    const address = await this.connect();
-    if (address === null) {
+    const addresses = await this.connect();
+    if (addresses === null) {
       throw new UserRejectionError({ operationName: 'connect' });
     }
-    return address;
+    return addresses;
+  }
+
+  /**
+   * The `from` param that makes `address` sign, for extensions that take it;
+   * older ones sign with the site's one account and get nothing.
+   *
+   * Rejects if the extension can't say which it is: without `from`, another
+   * account than `address` could sign.
+   */
+  public async signedBy(address: string): Promise<{ from?: string }> {
+    return (await this.takesFrom()) ? { from: address } : {};
+  }
+
+  // Asked once: the extension's version doesn't change while the page lives.
+  // Any other answer than a list or 4200 tells nothing: asked again next time.
+  private async takesFrom(): Promise<boolean> {
+    if (this.severalAccounts === undefined) {
+      this.pendingCheck ??= this.listAccounts().finally(() => {
+        this.pendingCheck = undefined;
+      });
+      await this.pendingCheck.catch((error) => {
+        // a site can connect while the check fails with 4100
+        if (this.severalAccounts === undefined) throw error;
+      });
+    }
+    return this.severalAccounts === true;
+  }
+
+  /**
+   * The shared addresses, or null if the extension doesn't know `accounts`
+   * (4200, versions before 1.6.0).
+   */
+  private async listAccounts(): Promise<string[] | null> {
+    let result: unknown;
+    try {
+      result = await this.rustcore.request('accounts');
+    } catch (error) {
+      if (!hasCode(error, RustCoreErrorCode.UnsupportedMethod)) throw error;
+      this.severalAccounts = false;
+      return null;
+    }
+    this.severalAccounts = true;
+    return addressesOf(result);
   }
 
   /**
@@ -108,13 +167,25 @@ export class RustCoreSession {
     return this.network;
   }
 
-  private async requestConnect(): Promise<string | null> {
+  private async requestConnect(): Promise<string[] | null> {
+    let result: unknown;
     try {
-      return addressOf(await this.rustcore.request('connect'));
+      result = await this.rustcore.request('connect');
     } catch (error) {
       if (isUserRejectionError(error as Error)) return null;
       throw error;
     }
+    // Versions that share several accounts answer them all.
+    const listed = Array.isArray(
+      (result as { addresses?: unknown })?.addresses,
+    );
+    this.severalAccounts = listed;
+    if (!listed) return [addressOf(result)];
+    // Asked at once, so the site follows the user's account switches from the
+    // start, not only from its first signature. Never a check still pending
+    // from before the connection: the wallet wouldn't count that one.
+    const accounts = await this.listAccounts().catch(() => null);
+    return accounts ?? connectedAddresses(result);
   }
 
   private async fetchNetwork(): Promise<RustCoreNetwork> {
@@ -122,9 +193,7 @@ export class RustCoreSession {
     try {
       network = await this.rustcore.request('network');
     } catch (error) {
-      if (
-        (error as { code?: unknown })?.code === RustCoreErrorCode.Unauthorized
-      ) {
+      if (hasCode(error, RustCoreErrorCode.Unauthorized)) {
         throw new Error(
           'RustCore Wallet: this site is not connected. Call connect() first.',
           { cause: error },
@@ -137,6 +206,24 @@ export class RustCoreSession {
     }
     return network;
   }
+}
+
+function addressesOf(result: unknown): string[] {
+  const addresses = (result as { addresses?: unknown })?.addresses;
+  if (!isAddressList(addresses)) {
+    throw new Error('RustCore Wallet returned invalid accounts.');
+  }
+  return addresses;
+}
+
+/** What `connect` answers: a bad list doesn't undo what the user approved. */
+function connectedAddresses(result: unknown): string[] {
+  const addresses = (result as { addresses?: unknown })?.addresses;
+  return isAddressList(addresses) ? addresses : [addressOf(result)];
+}
+
+function hasCode(error: unknown, code: RustCoreErrorCode): boolean {
+  return (error as { code?: unknown })?.code === code;
 }
 
 function addressOf(result: unknown): string {
